@@ -609,33 +609,7 @@ h1 {
     </div> -->
             <button class="login-btn" onclick="Maillogin(this)">Iniciar sesión</button>
             <button class="back-btn" onclick="showLoginOptions()">Atrás</button>
-        </section>
-
-        <section id="signupform">
-            <h3>Registro</h3>
-          <div id="User-error" class="alert alert-danger" style="display: none">
-          Tu correo ya está registrado.
-        </div>         
-          <br>
-            <input type="text" id="name-register" placeholder="Ingresa tu nombre completo" style="width: 100%; padding: 10px; margin-bottom: 10px; margin-top: 20px; border-radius: 5px; border: 1px solid #ccc;">
-            <input type="email" id="mail-register" placeholder="Ingresa tu email" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc;">
-            <div class="input-group" style="width: 100%;  margin-bottom: 25px; border-radius: 5px; border: 1px solid #ccc;">
-    <div class="input-group-prepend" >
-      <select id="country-code" class="custom-select">
-       <option value="+52">🇲🇽 +52</option>
-      <option value="+1">🇺🇸 +1</option>
-      <option value="+1">🇨🇦 +1</option>
-      <option value="+57">🇨🇴 +57</option>
-      <option value="+54">🇦🇷 +54</option>
-      </select>
-    </div>
-    <input type="text" id="phone-register" inputmode="numeric" maxlength="10" pattern="[0-9]*" class="form-control" autocomplete="off" placeholder="Número de teléfono" >
-  </div>
-     
-           <button class="login-btn" onclick="registration(this)">Registrarse</button>
-            <button class="back-btn" onclick="showLoginOptions()">Atrás</button>
-        </section>
-                
+        </section>          
     </div>
       
           </div>
@@ -654,19 +628,14 @@ h1 {
 function showMailLogin() {
             document.getElementById('login-options').style.display = 'none';
             document.getElementById('maillogin').style.display = 'block';
-            document.getElementById('signupform').style.display = 'none';
+     
         }
 
-        function showSignupForm() {
-            document.getElementById('login-options').style.display = 'none';
-            document.getElementById('signupform').style.display = 'block';
-            document.getElementById('maillogin').style.display = 'none';
-        }
+   
 
         function showLoginOptions() {
             document.getElementById('maillogin').style.display = 'none';
-document.getElementById('signupform').style.display = 'none';
-            document.getElementById('login-options').style.display = 'block';
+document.getElementById('login-options').style.display = 'block';
           
    document.getElementById('Mail-error').style.display = 'none';
    document.getElementById('User-error').style.display = 'none';
@@ -690,7 +659,7 @@ document.getElementById('signupform').style.display = 'none';
       "Content-Type": "text/plain;charset=utf-8"
     },
     body: JSON.stringify({
-      action: "validateGoogleUser",
+      action: "validateAdminGoogle",
       name: name,
       email: email,
       photo: photo,
@@ -703,7 +672,7 @@ document.getElementById('signupform').style.display = 'none';
       var validation = JSON.parse(res);
       if (validation.status == "success") {
         localStorage.setItem('TPtoken', validation.token);  
-       window.location.href = 'https://cubiculociencias.github.io/tallerdepiano/main'; 
+       window.location.href = 'https://admin.mozartacademy.mx/main'; 
       } else {
         alert('Error, intenta otro método de inicio de sesión');
       }
@@ -748,7 +717,7 @@ function Maillogin(button) {
       "Content-Type": "text/plain;charset=utf-8"
     },
     body: JSON.stringify({
-      action: "validateUser",
+      action: "validateAdmin",
       email: email,
       password: password
     })
@@ -759,8 +728,8 @@ function Maillogin(button) {
     .then(res => {
       var validation = JSON.parse(res);
       if (validation.status == "success") {
-        localStorage.setItem('TPtoken', validation.token); 
-        window.location.href = 'https://cubiculociencias.github.io/tallerdepiano/main'; 
+        localStorage.setItem('ADtoken', validation.token); 
+        window.location.href = 'https://admin.mozartacademy.mx/main'; 
       } else {
         document.getElementById('Mail-error').style.display = 'block';    
       }
@@ -772,62 +741,6 @@ function Maillogin(button) {
     alert("Ingresa tus datos de acceso")
   }
 }
-
-
-
-function registration(button) {
-  var name = document.getElementById('name-register').value;
-  var email = document.getElementById('mail-register').value;
-  var phone = document.getElementById('phone-register').value;
-  var $button = $(button);
-  
-  if(name != "" && email != "" && phone != "" ){
-  $button.html("<i class='fa fa-spinner fa-spin'></i> Cargando...");
-
-  var api = "https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec";
-
-  var validationData = {
-    redirect: "follow",
-    method: "POST",
-    headers: {
-      "Content-Type": "text/plain;charset=utf-8"
-    },
-    body: JSON.stringify({
-      action: "registration",
-      name: name,
-      email: email,
-      phone: phone
-    })
-  };
-
-  fetch(api, validationData)
-    .then(response => response.text())
-    .then(res => {
-      var validation = JSON.parse(res);
-      document.getElementById('name-register').value = "";
-      document.getElementById('mail-register').value = "";
-      document.getElementById('phone-register').value = "";
-      if (validation.status == "success") {
-        showMailLogin()
-        document.getElementById('Mail-success').style.display = 'block'; 
-        setTimeout(function() {
-          document.getElementById('Mail-success').style.display = 'none';  
-        }, 4000);
-      } else if (validation.status == "registered") {
-        document.getElementById('User-error').style.display = 'block';       
-      }else{
-        alert("Ocurrio un error, contacta soporte")
-      }
-      document.getElementById('name-register').value = "";
-      document.getElementById('mail-register').value = "";
-      document.getElementById('phone-register').value = "";
-      $button.html("Registrarse");
-    })    
-  }else{
-    alert("Rellena todos los campos")
-  }
-}
-
 
 
 
@@ -850,9 +763,9 @@ function registration(button) {
 
 
 $(window).on('load', function() { 
-  var storedToken = localStorage.getItem('TPtoken');
+  var storedToken = localStorage.getItem('ADtoken');
   if (storedToken) {
-    window.location.href = 'https://cubiculociencias.github.io/tallerdepiano/main'
+    window.location.href = 'https://admin.mozartacademy.mx/main'
   } 
 });
 
