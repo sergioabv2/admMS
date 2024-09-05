@@ -579,37 +579,13 @@ h1 {
         </div>
 
  
-    
-  <button class="login-btn login-btn-email" onclick="showMailLogin()" style="margin-top: 15px;"><i class="ri-mail-line login-btn-icon" ></i> Acceder con email</button>   
-
+ 
          </div>
     </div>
 
   
 </div>
-                
-
-
-
-        <section id="maillogin">
-            <h3>Acceder con email</h3>
-          
-           <div id="Mail-error" class="alert alert-danger" style="display: none;">
-          Cuenta no registrada.
-        </div>
-           <div id="Mail-success" class="alert alert-success" style="display: none;">
-          Registro exitoso. Revisa tu correo para obtener tu password y acceder a tu cuenta.
-        </div>
-          <br><br>
-         
-            <input type="email" id="email-login" placeholder="Ingresa tu email" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc;">
-            <input type="password" id="password-login" placeholder="Ingresa tu password" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc;">
-     <!--       <div class="signup-link mb-4">
-        <p>¿No tienes cuenta? <a href="#" onclick="showSignupForm()">Regístrate</a></p>
-    </div> -->
-            <button class="login-btn" onclick="Maillogin(this)">Iniciar sesión</button>
-            <button class="back-btn" onclick="showLoginOptions()">Atrás</button>
-        </section>          
+                    
     </div>
       
           </div>
@@ -625,29 +601,9 @@ h1 {
 <script>
 
 
-function showMailLogin() {
-            document.getElementById('login-options').style.display = 'none';
-            document.getElementById('maillogin').style.display = 'block';
-     
-        }
-
-   
-
-        function showLoginOptions() {
-            document.getElementById('maillogin').style.display = 'none';
-document.getElementById('login-options').style.display = 'block';
-          
-   document.getElementById('Mail-error').style.display = 'none';
-   document.getElementById('User-error').style.display = 'none';
-     
-        }
-
-
   function handleCredentialResponse(response) {
   const responsePayload = decodeJwtResponse(response.credential);
-
-    var name = responsePayload.name
-    var photo = responsePayload.picture
+    
     var email = responsePayload.email
     showLoader();
     var api = "https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec";
@@ -659,10 +615,8 @@ document.getElementById('login-options').style.display = 'block';
       "Content-Type": "text/plain;charset=utf-8"
     },
     body: JSON.stringify({
-      action: "validateAdminGoogle",
-      name: name,
-      email: email,
-      photo: photo,
+      action: "validateAdmin",
+      email: email
     })
   };
 
@@ -671,10 +625,11 @@ document.getElementById('login-options').style.display = 'block';
     .then(res => {
       var validation = JSON.parse(res);
       if (validation.status == "success") {
-        localStorage.setItem('ADtoken', validation.token);  
+        localStorage.setItem('ADtoken', validation.token);
+        localStorage.setItem('ADalias', validation.alias);  
        window.location.href = 'https://admin.mozartacademy.mx/main'; 
       } else {
-        alert('Error, intenta otro método de inicio de sesión');
+        alert('Usuario no encontrado.');
       }
     })
 }
@@ -696,67 +651,6 @@ function showLoader() {
     $('.buttons-container').css({'display': 'block'});  
   }, 7000); // 10000 milisegundos = 10 segundos
 }
-
-
-
-
-function Maillogin(button) {
-  var email = document.getElementById('email-login').value;
-  var password = document.getElementById('password-login').value;
-  var $button = $(button);
-  
-  if(email != "" && password != "" ){
-  $button.html("<i class='fa fa-spinner fa-spin'></i> Cargando...");
-
-  var api = "https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec";
-
-  var validationData = {
-    redirect: "follow",
-    method: "POST",
-    headers: {
-      "Content-Type": "text/plain;charset=utf-8"
-    },
-    body: JSON.stringify({
-      action: "validateAdmin",
-      email: email,
-      password: password
-    })
-  };
-
-  fetch(api, validationData)
-    .then(response => response.text())
-    .then(res => {
-      var validation = JSON.parse(res);
-      if (validation.status == "success") {
-        localStorage.setItem('ADtoken', validation.token); 
-        window.location.href = 'https://admin.mozartacademy.mx/main'; 
-      } else {
-        document.getElementById('Mail-error').style.display = 'block';    
-      }
-    document.getElementById('email-login').value = "";  
-    document.getElementById('password-login').value = "";
-    $button.html("Iniciar sesión");
-    })  
-  }else{
-    alert("Ingresa tus datos de acceso")
-  }
-}
-
-
-
-
- window.addEventListener('load', function() {
-      var googleButton = document.querySelector('.g_id_signin');
-      var otherButtons = document.querySelectorAll('.login-btn-email');
-
-      if (googleButton) {
-        var googleButtonWidth = googleButton.offsetWidth + 2;
-
-        otherButtons.forEach(function(button) {
-          button.style.width = googleButtonWidth + 'px';
-        });
-      }
-    });
 
 
 
