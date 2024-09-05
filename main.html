@@ -1,8 +1,8 @@
 <head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1.0, user-scalable=no">
-<link rel="icon" href="https://lh3.googleusercontent.com/d/1L1kLwLAt2KksPG2tN4tT1bRle4RqveWo" type="image/x-icon">
-    <title>Mozart Studio</title>
+<link rel="icon" href="https://lh3.googleusercontent.com/d/16vmyfZfuuu5p9xT57X_CANKBjDTA-f-S" type="image/x-icon">
+    <title>Taller de Piano</title>
   
 <link href="https://code.ionicframework.com/1.3.3/css/ionic.min.css" rel="stylesheet">
   <script src="https://code.ionicframework.com/1.3.3/js/ionic.bundle.min.js"></script>
@@ -1725,33 +1725,12 @@ app
   };
 
   $scope.logout = function() {
-    $('.preloader').fadeIn('slow');
-
-    var requestData = {
-      action: "removeToken",
-      token: localStorage.getItem('MStoken')
-    };
-
-    var config = {
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-      followRedirects: true
-    };
-
-    $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
-      .then(function(response) {
-        if (response.data.status === "success") {
-          localStorage.removeItem('MStoken');
-          $('.preloader').css({ 'display': 'none' });
-          window.location.href = 'https://app.mozartacademy.mx/';
-        }
-      })
-      .catch(function(error) {
-        $('.preloader').css({ 'display': 'none' });
-        window.location.href = 'https://app.mozartacademy.mx/';
-      });
-  };
+   localStorage.removeItem('ADtoken');
+   localStorage.removeItem('ADalias');
+   window.location.href = 'https://admin.mozartacademy.mx/';
+  }
+	  
+   
 
  }])
 
@@ -2201,7 +2180,7 @@ $scope.manuals = [
 
 <script>
 $(window).on('load', function() { 
-  var storedToken = localStorage.getItem('MStoken');
+  var storedToken = localStorage.getItem('ADtoken');
   if (storedToken) {
     var api = "https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec";
 
@@ -2212,7 +2191,7 @@ $(window).on('load', function() {
         "Content-Type": "text/plain;charset=utf-8"
       },
       body: JSON.stringify({
-        action: "validateToken",
+        action: "accessAdmin",
         token: storedToken
       })
     };
@@ -2223,70 +2202,18 @@ $(window).on('load', function() {
     var validation = JSON.parse(res);
     if (validation.status == "success") {
       $('.preloader').css({'display':'none'})  
-      $('.mainSection').fadeIn('slow')
-      /*var url = window.location.href;
-        if(url == "https://app.mozart.studio/#/menu/tab/agenda"){
-          var iframe = document.getElementById('agendaFrame');
-        iframe.src = 'https://app.mozart.studio/agenda';
-        }*/
-      //loadData(api, storedToken, "si");    
+      $('.mainSection').fadeIn('slow') 
     } else {
-      localStorage.removeItem('MStoken');
-      window.location.href = 'https://app.mozartacademy.mx/';
+      localStorage.removeItem('ADtoken');
+      window.location.href = 'https://admin.mozartacademy.mx/';
     }
   })
   } else {
-    window.location.href = 'https://app.mozartacademy.mx/';
+    window.location.href = 'https://admin.mozartacademy.mx/';
   }
 });
 
 
 
 
-
- /*      
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-      navigator.serviceWorker.register('/sw.js').then(function(registration) {
-        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-      }, function(err) {
-        console.log('ServiceWorker registration failed: ', err);
-      });
-    });
-  }
-
-  let deferredPrompt;
-  var modal = document.getElementById("myModal");
-  var btn = document.querySelector('.add-to-btn');
-  var span = document.querySelector(".close");
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    modal.style.display = "block";
-
-    btn.addEventListener('click', () => {
-      modal.style.display = "none";
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('User accepted the A2HS prompt');
-        } else {
-          console.log('User dismissed the A2HS prompt');
-        }
-        deferredPrompt = null;
-      });
-    });
-  });
-
-  span.onclick = function() {
-    modal.style.display = "none";
-  }
-
-  window.onclick = function(event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  }
-  */
 </script>
