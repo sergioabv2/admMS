@@ -671,7 +671,7 @@ document.getElementById('login-options').style.display = 'block';
     .then(res => {
       var validation = JSON.parse(res);
       if (validation.status == "success") {
-        localStorage.setItem('TPtoken', validation.token);  
+        localStorage.setItem('ADtoken', validation.token);  
        window.location.href = 'https://admin.mozartacademy.mx/main'; 
       } else {
         alert('Error, intenta otro método de inicio de sesión');
