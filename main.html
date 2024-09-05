@@ -1477,8 +1477,8 @@ app
 	        });
 	      }
               var requestData = {
-                action: "getProfileData",
-                token: localStorage.getItem('MStoken')
+                action: "getAdminData",
+                token: localStorage.getItem('ADtoken')
               };
 
               var config = {
@@ -1726,7 +1726,6 @@ app
 
   $scope.logout = function() {
    localStorage.removeItem('ADtoken');
-   localStorage.removeItem('ADalias');
    window.location.href = 'https://admin.mozartacademy.mx/';
   }
 	  
