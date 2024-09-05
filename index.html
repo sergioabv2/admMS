@@ -626,7 +626,6 @@ h1 {
       var validation = JSON.parse(res);
       if (validation.status == "success") {
         localStorage.setItem('ADtoken', validation.token);
-        localStorage.setItem('ADalias', validation.alias);  
        window.location.href = 'https://admin.mozartacademy.mx/main'; 
       } else {
         alert('Usuario no encontrado.');
