@@ -3,7 +3,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.js"></script>
 <script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/605067/MTLLoader.js"></script>
 <script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/605067/OBJLoader.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 
 <style>
@@ -608,50 +607,12 @@ let submitBtn = document.querySelector('.pencil__submit')
 submitBtn.addEventListener('click', handleSubmit)
 
 
-	function handleSubmit(e) {
-    e.preventDefault();
-    
-    // Capturar la pantalla
-    html2canvas(document.body).then(function(canvas) {
-      // Convertir el canvas a una imagen en formato base64
-      let imageDataURL = canvas.toDataURL();
-
-      // Crear un nuevo canvas donde se combinará todo
-      const freshCanvas = document.createElement('canvas');
-      freshCanvas.width = canvas.width;
-      freshCanvas.height = canvas.height;
-
-      let freshCtx = freshCanvas.getContext('2d');
-
-      // Crear una imagen a partir de la captura
-      let backgroundImage = new Image();
-      backgroundImage.src = imageDataURL;
-
-      backgroundImage.onload = function() {
-        // Dibujar la captura de pantalla en el nuevo canvas
-        freshCtx.drawImage(backgroundImage, 0, 0, freshCanvas.width, freshCanvas.height);
-
-        // Aquí puedes agregar tus trazos adicionales
-        freshCtx.drawImage(drawingCanvas, 0, 0);
-
-        // Guardar la imagen combinada como PNG
-        let finalImageDataURL = freshCanvas.toDataURL();
-        let image = new Image();
-        image.src = finalImageDataURL;
-
-        var w = window.open("");
-        w.document.write(image.outerHTML);
-      };
-    });
-  }
-
-	/*
 function handleSubmit(e) {
 	e.preventDefault()
 	
 	savePNG()
 }
-*/
+
 
 function savePNG() {
 	const freshCanvas = document.createElement('canvas')
