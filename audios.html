@@ -1,1 +1,412 @@
 
+<script src="https://use.fontawesome.com/releases/v5.0.13/js/all.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+
+<style>
+  
+
+
+body * {
+	box-sizing: border-box;
+}
+
+.wrapper {
+	font-family: Helvetica;
+	position: relative;
+
+}
+
+.statusBar {
+	height: 20px;
+	width: 100%;
+	background: #21294a;
+	position: absolute;
+	top: 0px;
+	display: flex;
+	justify-content: space-between;
+	z-index: 10;
+}
+
+.header {
+	padding: 5px 15px 15px 15px;
+	width: 100%;
+	background: #21294a;
+	position: absolute;
+	top: 20px;
+	display: flex;
+	z-index: 10;
+	border-bottom: solid 1px #424a63;
+}
+
+.header:after {
+	content: " ";
+	display: block;
+	height: 4px;
+	width: 85%;
+	position: absolute;
+	bottom: -4px;
+	left: 0px;
+	right: 0px;
+	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+.hamburgerWrapper {
+	margin: 0px;
+	padding: 0px;
+	width: 50px;
+}
+
+.hamburger {
+	width: 13px;
+}
+
+.hamburger.active {
+	cursor: pointer;
+}
+
+.hamburger span {
+	display: block;
+	margin: 2px auto;
+	height: 2px;
+	width: 100%;
+	background: #467797;
+	border-radius: 9px;
+	opacity: 1;
+	transform: rotate(0deg);
+	transition: 0.25s ease-in-out;
+}
+
+.hamburger.active span:nth-child(1) {
+	transform: rotate(-45deg) translate(-4px, -2px);
+	width: 75%;
+}
+
+.hamburger.active span:nth-child(3) {
+	transform: rotate(45deg) translate(-3px, 2px);
+	width: 75%;
+}
+
+.headerLabel {
+  text-align: center;
+	color: #fff;
+	font-size: 15px;
+	font-weight: 100;
+	line-height: 1em;
+	padding: 0px;
+	margin: 0px;
+}
+
+
+
+.EmailsWrapper {
+  padding: 65px 0px 20px 0px;
+	height: 100%;
+	margin: auto;
+	position: relative;
+	background: linear-gradient(to bottom, #313a5a 0%, #424a6b 100%);
+}
+
+.EmailFull {
+	position: relative;
+	top: 10px;
+	background: #f2f2f2;
+	height: 380px;
+	padding: 0px 15px;
+	color: rgba(0, 0, 0, 0.6);
+	max-height: 0px;
+	overflow: auto;
+	transition: all 0.3s;
+}
+
+.EmailFull.active {
+	max-height: 480px;
+
+}
+
+.EmailFull p {
+	line-height: 1.6em;
+}
+
+.EmailFull button {
+  border: none;
+  width: 120px;
+  height: 35px;
+  border-radius: 5px;
+  padding: 10px 25px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  bottom: 7%;
+  right: 10px;
+  color: white;
+ background: #21294a;
+   box-shadow:inset 2px 2px 2px 0px rgba(255,255,255,.5),
+   7px 7px 20px 0px rgba(0,0,0,.1),
+   4px 4px 5px 0px rgba(0,0,0,.1);
+  outline: none;
+}
+
+
+
+.EmailFull button:active {
+  transform: scale(0.9); 
+}
+
+
+
+
+
+.Email {
+	box-sizing: border-box;
+	border-radius: 3px;
+	background: rgba(255, 255, 255, 0.1);
+	padding: 5px;
+	width: 100%;
+	max-width: 90%;
+	max-height: 100px;
+	overflow: hidden;
+	margin: 3px auto;
+	transition: all 0.3s;
+	display: flex;
+	flex-wrap: wrap;
+	cursor: pointer;
+	position: relative;
+	opacity: 1;
+}
+
+.Email.light {
+	background: rgba(255, 255, 255, 0.4);
+}
+
+.Email.active {
+	padding: 10px 0px;
+	background: #21294a;
+	color: #fff;
+	z-index: 15;
+	max-width: 100%;
+	cursor: initial;
+	border-radius: 0px;
+}
+
+.Email.deactive {
+	max-height: 0px;
+	padding: 0px;
+	margin: 0px auto;
+	opacity: 0;
+}
+
+.Email .ImgWrapper {
+	width: 20%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.Email .img {
+	width: 40px;
+	height: 40px;	
+  background-size: cover;
+	border-radius: 100%;
+	position: relative;
+}
+
+
+
+.EmailTitle {
+	width: 80%;
+	position: relative;
+	color: #fff;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.EmailTitle .EmailTime {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	font-size: 12px;
+	font-weight: 100;
+	margin: 0px;
+	padding: 5px;
+}
+
+.EmailTitle h1 {
+	margin: 0px;
+	padding: 0px;
+	font-size: 15px;
+	line-height: 1em;
+	font-weight: 500;
+	width: 100%;
+}
+
+.EmailTitle h2 {
+	margin: 0px;
+	padding: 3px 0px;
+	font-size: 12px;
+	line-height: 1em;
+	font-weight: 300;
+}
+
+.EmailTitle p.EmailPreview {
+	margin: 5px 0px;
+	max-height: 25px;
+	padding: 0px;
+	font-size: 12px;
+	font-weight: 100;
+	opacity: 0.8;
+	overflow: hidden;
+	transition: all 0.3s;
+}
+
+.Email.active .EmailTitle p.EmailPreview {
+	max-height: 0px;
+}
+
+
+
+
+</style>
+
+ <div ng-app="alertsApp" ng-controller="alertsCtrl">
+
+<div class="wrapper" >
+	<div class="statusBar">
+	</div>
+	<div class="header">
+    
+    <div class="hamburgerWrapper" ng-click="closeAll()">
+			<div class="hamburger" ng-class="{ 'active': activeEmailIndex !== null }">
+				<span></span>
+				<span></span>
+				<span></span>
+			</div>
+		</div>
+		
+		<div class="headerLabel">
+			Revisión de audios
+		</div>
+
+	</div>
+	<div class="EmailsWrapper">
+ 
+    
+    
+  <li class="Email" ng-repeat="(index, alert) in alerts | filter:filterByProfessor" ng-click="activateEmail(index, alert)" ng-class="{ 'active': activeEmailIndex === index, 'deactive': activeEmailIndex !== null && activeEmailIndex !== index }">
+    <div class="ImgWrapper">
+    <div class="img" style="background-image: url('https://lh3.googleusercontent.com/a/default-user');"></div>
+    </div>
+    <div class="EmailTitle">
+      <p class="EmailTime">{{alert.status}}</p>
+      <h1>{{alert.name}}</h1>
+      <h2>{{alert.level}}</h2>
+    </div>
+  </li>
+
+   <div class="EmailFull" ng-show="activeEmailIndex !== null" ng-class="{ 'active': activeEmailIndex !== null }">
+     <!-- <iframe  ng-src="{{trustAsResourceUrl(message.url)}}" frameborder="0" height="50px" width="300px"></iframe> -->
+   <li ng-repeat="(mediaIndex, media) in selectedAlert.Audios">  
+     {{media.lesson}}
+     <br>     
+     <iframe  ng-src="{{trustAsResourceUrl(media.audio)}}" frameborder="0" height="50px" width="300px"></iframe> 
+
+     <br> 
+     <button ng-click="options()"><i class="ri-close-fill" style=" font-size: 15px;"></i> Corregir</button> 
+     <button ng-click="exit(mediaIndex)"><i class="ri-check-fill" style=" font-size: 15px;"></i> Correcto</button> 
+     <button > <i class="ri-award-fill" style="margin-right: 5px; font-size: 15px;"></i>Perfecto</button>
+    <br><br> 
+     
+  </li>     
+</div>
+	</div>
+</div>
+
+
+
+   <script>
+     var alertsApp = angular.module('alertsApp', []);
+ 
+alertsApp.controller('alertsCtrl', ['$http', '$scope', '$sce', function($http, $scope, $sce) {
+  
+  
+  $scope.alerts = [{"name": "Sergio Valenzo", "professor": "DNA", "level": "Preparatorio", "status": "Activo", "Audios": [{"lesson": "Pieza 3: Mountain Climbing", "audio": "https://drive.google.com/file/d/1mTQUvBaFdf3Wg2a39Lp1PlCS0qHvIJBl/preview", "date": "10 de Ago"}, {"lesson": "Lección 3: Intervalos de 2da y 3era", "audio": "https://drive.google.com/file/d/1mTQUvBaFdf3Wg2a39Lp1PlCS0qHvIJBl/preview", "date": "10 de Ago"}]}, {"name": "Daniel Godinez", "professor": "DNA",  "level": "Nivel 2", "status": "Activo", "Audios": [{"lesson": "Pieza 3: Mountain Climbing", "audio": "https://drive.google.com/file/d/1mTQUvBaFdf3Wg2a39Lp1PlCS0qHvIJBl/preview", "date": "10 de Ago"}]}, {"name": "Noe Bravo", "professor": "Sergio",  "level": "Preparatorio", "status": "Activo", "Audios": [{"lesson": "Pieza 3: Mountain Climbing", "audio": "https://drive.google.com/file/d/1mTQUvBaFdf3Wg2a39Lp1PlCS0qHvIJBl/preview", "date": "10 de Ago"}, {"lesson": "Lección 3: Intervalos de 2da y 3era", "audio": "https://drive.google.com/file/d/1mTQUvBaFdf3Wg2a39Lp1PlCS0qHvIJBl/preview", "date": "10 de Ago"}, {"lesson": "Lección 3: Intervalos de 2da y 3era", "audio": "https://drive.google.com/file/d/1mTQUvBaFdf3Wg2a39Lp1PlCS0qHvIJBl/preview", "date": "10 de Ago"}]},];
+    
+   
+   $scope.filterByProfessor = function(alert) {
+    return alert.professor == "DNA";
+};
+  
+  $scope.trustAsResourceUrl = function(url) {
+        return $sce.trustAsResourceUrl(url);
+    };
+  
+$scope.exit = function(mediaIndex) {
+    // Elimina el media del array selectedAlert.Audios
+    $scope.selectedAlert.Audios.splice(mediaIndex, 1);
+
+    // Si el array selectedAlert.Audios está vacío, elimina el alert de alerts
+    if ($scope.selectedAlert.Audios.length === 0) {
+        var index = $scope.alerts.indexOf($scope.selectedAlert);
+        if (index !== -1) {
+            $scope.alerts.splice(index, 1);
+        }
+        // Si se eliminó el único elemento, cierra todos los elementos
+        $scope.closeAll();
+    }
+}
+
+  
+  $scope.options = function(){
+    if (confirm("Enviar a revisión con video?")) {
+    alert("Audio enviado a revisión completa");
+} else {
+    var userInput = prompt("Ingresa el texto:");
+    alert("Mensaje enviado y actividad asignada a corrección");
+}
+  }
+
+/*
+  $scope.alerts = [];
+
+  $http({
+    method: 'GET',
+    url: 'https://script.google.com/macros/s/AKfycbxOqxZIRpmYVUHlOqM3it1ofWAE9CqmlCsi47agePqX901UNIei-qKTWJLaobRsX75tfw/exec',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  }).then(function(response) {
+    $scope.alerts = response.data;
+  });
+  
+  */
+
+$scope.activeEmailIndex = null;
+  $scope.selectedAlert = null;
+
+  $scope.activateEmail = function(index, alert) {
+    if ($scope.activeEmailIndex === index) {
+      $scope.activeEmailIndex = null;
+    } else {
+      $scope.activeEmailIndex = index;
+      $scope.selectedAlert = alert
+    }
+  };
+
+  $scope.closeAll = function() {
+    $scope.activeEmailIndex = null;
+  };
+  
+  $scope.addLightClass = function() {
+    if ($scope.activeEmailIndex !== null) {
+      // Add the 'light' class to the selected email
+      $scope.alerts[$scope.activeEmailIndex].light = true;
+    }
+  };
+}]);
+
+   </script>
