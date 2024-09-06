@@ -1,1 +1,342 @@
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,700,700i">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+
+
+
+<style>
+  body {
+  font-family: "Source Sans Pro", sans-serif;
+}
+h1 {
+  text-align: center;
+}
+.row {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.photo {
+  border-radius: 45px;
+  margin-right: 20px;
+  width: 90px;
+  height: 90px;
+}
+.attend{
+    width: 186px;
+ }
+.outside{
+  margin-top: -10px;
+  width: 80px;
+  display: flex;
+}
+.outside button{  
+  margin: 0 2px;
+}
+.inside{
+  margin-top: 15px;
+  width: 80px;
+  display: flex;
+}
+.inside button{  
+  margin: 0 2px;
+}
+.form-control {
+  width: 30%;
+  display: inline-block;
+  margin-right: 10px;
+}
+.name {
+  font-weight: 700;
+}
+.expertise-label {
+  display: block;
+  font-weight: 700;
+  margin-top: 10px;
+}
+.btn-more {
+  margin-top: 10px;
+  width: 100%;
+}
+.label {
+  font-weight: normal;
+}
+.status {
+  position: absolute; 
+  bottom: 60px; 
+  right: 15px;
+}
+
+li {
+  list-style: none; 
+}
+
+.alert-info{
+  margin-top: 30px;
+  padding: 10px;
+  text-align: center; 
+}
+
+.fa-check-circle{
+  color: green; 
+  position: absolute; 
+  top: 0; 
+  right: 0; 
+  
+  animation: beat-fade 0.5s;
+  transform: scale(2.5); 
+}
+
+.fa-star{
+  color: SkyBlue; 
+  z-index: 5;
+  position: absolute; 
+  top: 70px; 
+  right: 60px; 
+  font-size: 30px;
+  animation: superbeat-fade 0.7s;
+  transform: scale(2.5); 
+}
+
+
+.pull-right{
+  margin-right: -20px;
+}
+
+
+@media only screen and (min-width: 990px) {
+  .col-md-2{
+    margin-top: 150px;
+    margin-left: -20px;
+  }
+  
+  .pull-right{
+    margin-top: 15px;
+    margin-right: -150px;
+}
+  
+  
+}
+
+
+
+@keyframes beat-fade {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(2.4);
+  }
+  
+  50% {
+    opacity: 0.5;
+    transform: scale(2.7);
+  }
+}
+
+@keyframes superbeat-fade {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(2.4);
+  }
+  
+  50% {
+    opacity: 0.7;
+    transform: scale(10);
+  }
+}
+
+</style>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h1>Taller de Piano</h1>
+      <h3 style="text-align: center;">Lista de alumnos</h3>
+    </div>
+  </div>
+</div>
+  <div id="students" ng-app="studentsApp" ng-controller="studentsCtrl">
+<div id="users">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+    <input ng-model="query" class="search form-control" placeholder="Buscar" type="text" id="query" />   
+        <br>
+  <div ng-model="orderList">
+     <button class="btn btn-success" ng-click="filterByHour()">
+    Ahora
+  </button>
+     <button class="btn btn-info" ng-click="filterByDay()">
+    Hoy
+  </button>
+  <button class="btn btn-primary" ng-click="showAllStudents()">
+    Todos
+  </button>
+     <br><div ng-if="noStudentsMessage" class="alert alert-info">
+          {{ noStudentsMessage }}
+        </div>
+    </div>
+       
+      </div>
+    </div>
+<br>     
+        
+    <li ng-repeat="student in filteredStudents | filter: { name: query } | orderBy: orderList" id="active" ng-click="$event.preventDefault();$event.stopPropagation()"> 
+   
+        <div class="list-group list">
+          <a href="#" class="list-group-item" ng-style="{'background-color': loadingInfo.loading && loadingInfo.index === $index ? loadingInfo.loadingColor : 'inherit'}">
+            
+
+            
+            
+            
+        <div class="col-md-10" ng-style="{'background-image': 'linear-gradient(90deg, ' + student.color + ' 10px, transparent 11px)'}">  
+            <img src="{{student.photo}}" class="pull-right photo" ng-click="togglePago(student);$event.preventDefault();$event.stopPropagation()">
+          <i ng-show="student.pagoRegistrado" class="fa fa-check-circle"></i>  
+     <i ng-show="student.pagoExtension" class="fa fa-star"></i> 
+              <h3 class="list-group-item-heading name" style="font-size: 21px;">{{student.name}}</h3> 
+              <h3 class="list-group-item-text title" style="font-size: 18px; margin-top: -2px; color:{{student.color}}">{{student.level}}</h3>
+          <h4 class="list-group-item-text title" style="font-size: 15px; margin-top: -2px; ">Bloque {{student.blq}}</h4>
+          <h5 class="list-group-item-text" style=" margin-top: 10px;">{{student.classtime}}</h5>
+ 
+  <span class="label label-default expertise lessonTag" ng-repeat="lsn in student.currentLsn" ng-click="abrirNuevaPestana(lsn.pdf);$event.preventDefault();$event.stopPropagation()" >
+  {{lsn.name}} 
+    <br>
+</span> 
+       
+ <br>
+    
+            </div>    
+           <div class="col-md-2">
+            
+                <button type="button" class="btn btn-success" ng-click="toggleExtension(student);$event.preventDefault();$event.stopPropagation()" style="position: absolute; bottom: 5px; right: -7px; ">Evaluar &nbsp; <i class="fa fa-chevron-circle-right" aria-hidden="true" ></i></button>
+           
+         
+            </div>         
+            <div class="clearfix"></div>
+          </a>
+          
+        </div>
+    
+     
+      
+    </li>
+  
+  </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  var studentsApp = angular.module('studentsApp', []);
+
+
+studentsApp.controller('studentsCtrl', ['$http', '$scope', function($http, $scope) {
+  $scope.students = [];
+  $scope.orderList = 'name';
+
+   var requestData = {
+                action: "getAdminData",
+                token: localStorage.getItem('ADtoken')
+              };
+
+              var config = {
+                headers: {
+                  "Content-Type": "text/plain;charset=utf-8"
+                },
+                followRedirects: true
+              };
+   
+  $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
+    .then(function(response) { 
+      $scope.students = response.data.students;
+    $scope.filterByHour();
+  });
+  
+ 
+  $scope.myFunc = function(student) {
+    alert(student.name);
+  }
+  
+  $scope.togglePago = function(student) {
+    student.pagoRegistrado = !student.pagoRegistrado;
+  };
+  
+  $scope.toggleExtension = function(student) {
+    student.pagoExtension = !student.pagoExtension;
+  };
+  
+
+  $scope.abrirNuevaPestana = function(URL) {
+    window.open(URL, '_blank');
+  };
+  
+
+  
+  
+   $scope.toggleBackground = function(student) {
+    // Cambia el estado del fondo según el estado actual
+    student.backgroundActive = !student.backgroundActive;
+
+    // Actualiza el color predeterminado a rojo después de presionar el botón
+    if (student.backgroundActive) {
+      student.backgroundDefaultColor = 'red';
+    } else {
+      student.backgroundDefaultColor = student.color;
+    }
+  };
+  
+//
+
+    $scope.getCurrentDay = function() {
+    var days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    var now = new Date();
+    return days[now.getDay()];
+  };
+
+  $scope.getCurrentHour = function() {
+    var now = new Date();
+    var hours = now.getHours();
+    return hours
+  };
+  
+  
+
+  $scope.filteredStudents = [];
+  $scope.noStudentsMessage = '';
+
+  $scope.filterByDay = function() {
+    $scope.filteredStudents = $scope.students.filter(function(student) {
+      return student.classtime.split(" ")[0] === $scope.getCurrentDay();
+    });
+      $scope.noStudentsMessage = '';
+  };
+
+  
+  $scope.filterByHour = function() {
+    $scope.filteredStudents = $scope.students.filter(function(student) {
+      return (student.classtime.split(" ")[0] === $scope.getCurrentDay() && parseInt(student.classtime.split(" ")[2].split(":")[0]) === $scope.getCurrentHour());
+    });
+    $scope.noStudentsMessage = $scope.filteredStudents.length === 0 ? 'No hay alumnos en este instante.' : '';
+  };
+  
+  
+  $scope.showAllStudents = function() {
+  $scope.filteredStudents = $scope.students;
+  $scope.noStudentsMessage = '';
+};
+   
+   
+  
+}]);
+
+
+
+</script>
