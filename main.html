@@ -411,6 +411,7 @@ body {
         <ion-content>
           <ul class="list">
             <a href="#/menu/tab/profile" class="item" ng-class="(activeMenuClr=='profile')?'menuSelectedColor':''" ng-click="activeMenuClr = 'profile'" menu-toggle="right" ><i class="ri-shield-user-fill"></i>&nbsp&nbspPerfil</a>
+	 <a href="#/menu/corrections" class="item" ng-class="(activeMenuClr=='corrections')?'menuSelectedColor':''" ng-click="activeMenuClr = 'corrections'" menu-toggle="right"><i class="ri-edit-2-fill"></i>&nbsp&nbspCorrecciones</a>
                <a href="#/menu/lessons" class="item" ng-class="(activeMenuClr=='lessons')?'menuSelectedColor':''" ng-click="activeMenuClr = 'lessons'" menu-toggle="right"><i class="ri-presentation-fill"></i>&nbsp&nbspLecciones</a>
                            <a href="#/menu/library" class="item" ng-class="(activeMenuClr=='library')?'menuSelectedColor':''" ng-click="activeMenuClr = 'library'" menu-toggle="right"><i class="ri-git-repository-fill"></i>&nbsp&nbspBiblioteca</a>
        <a href="#/menu/reel" class="item" ng-class="(activeMenuClr=='reel')?'menuSelectedColor':''" ng-click="activeMenuClr = 'reel'" menu-toggle="right"><i class="ri-award-fill"></i>&nbsp&nbspReel de logros</a>   
@@ -441,11 +442,11 @@ body {
     </ion-nav-bar>   
 
        <ion-tabs class="tabs-icon-top tabs-stable"  >
-       <ion-tab title="Agenda" icon="ion-android-calendar" href="#/menu/tab/agenda" >
-        <ion-nav-view name="agenda-tab"></ion-nav-view>
+       <ion-tab title="Revisiones" icon="ion-ios-volume-high" href="#/menu/tab/audios" >
+        <ion-nav-view name="audios-tab"></ion-nav-view>
       </ion-tab>     
-     <ion-tab title="Perfil" icon="ion-ios-contact-outline" href="#/menu/tab/profile">
-        <ion-nav-view name="profile-tab"></ion-nav-view>
+     <ion-tab title="Alumos" icon="ion-ios-people" href="#/menu/tab/students">
+        <ion-nav-view name="students-tab"></ion-nav-view>
       </ion-tab>  
        <ion-tab title="Status" icon="ion-android-clipboard" href="#/menu/tab/status">
         <ion-nav-view name="status-tab"></ion-nav-view>
@@ -457,30 +458,21 @@ body {
 
 
 
-  <script id="agenda.html" type="text/ng-template">
-    <ion-view title="Agenda">
+  <script id="audios.html" type="text/ng-template">
+    <ion-view title="Revisión de audios">
       <ion-content>
-       
-   
 
-       <div class="iframe-container"><iframe id="agendaFrame" src="https://app.mozartacademy.mx/agenda" frameborder="0" allowfullscreen></iframe></div>
+       <div class="iframe-container"><iframe id="agendaFrame" src="https://admin.mozartacademy.mx/audios" frameborder="0" allowfullscreen></iframe></div>
     
       </ion-content>
     </ion-view>
   </script>
     
-    <script id="profile.html" type="text/ng-template">
+    <script id="students.html" type="text/ng-template">
     <ion-view title="Perfil">
       <ion-content >
  
-        <div class="iframe-container"><iframe id="profileFrame" src="https://app.mozartacademy.mx/profile" frameborder="0" allowfullscreen></iframe></div> 
-
-          <div id="myModal" class="modal" ng-show="isModalVisible" ng-click="checkCloseModal($event)">
-    <div class="modal-content">
-      <span class="close" ng-click="closeModal()">&times;</span>
-      <button class="add-to-btn" ng-click="addToHomeScreen()">Agregar a pantalla de inicio</button>
-    </div>
-  </div>
+        <div class="iframe-container"><iframe id="profileFrame" src="https://admin.mozartacademy.mx/students" frameborder="0" allowfullscreen></iframe></div> 
         
       </ion-content>
     </ion-view>
@@ -568,12 +560,32 @@ body {
 
      <ion-content>
        
-   <div class="iframe-container"><iframe src="https://app.mozartacademy.mx/lessons" frameborder="0" allowfullscreen></iframe></div>
+   <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/lessons" frameborder="0" allowfullscreen></iframe></div>
 
       </ion-content>
 
     </ion-view>
   </script>   
+
+
+<script id="corrections.html" type="text/ng-template">
+    <ion-view title="Correcciones">
+
+      <ion-nav-bar class="bar-stable">
+        <ion-nav-buttons side="right">
+          <button class="button button-icon button-clear ion-navicon" ng-click="toggleRight()"></button>
+        </ion-nav-buttons>      
+    </ion-nav-bar>
+
+     <ion-content>
+       
+   <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/corrections" frameborder="0" allowfullscreen></iframe></div>
+
+      </ion-content>
+
+    </ion-view>
+  </script>   
+
     
       <script id="reel.html" type="text/ng-template">
     <ion-view title="Reel de logros">
@@ -585,7 +597,7 @@ body {
 	      
       <ion-content >
        
-        <div class="iframe-container"><iframe src="https://app.mozartacademy.mx/comunity" frameborder="0" allowfullscreen ></iframe></div> 
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/comunity" frameborder="0" allowfullscreen ></iframe></div> 
     
       </ion-content>
     </ion-view>
@@ -602,7 +614,7 @@ body {
     </ion-nav-bar>
     
       <ion-content>
-        <div class="iframe-container"><iframe src="https://app.mozartacademy.mx/chat" frameborder="0" allowfullscreen ></iframe></div> 
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/chat" frameborder="0" allowfullscreen ></iframe></div> 
       </ion-content>
     </ion-view>
   </script>
@@ -1413,39 +1425,7 @@ app
     hasLoaded = value;
   };
 })
-.factory('SharedState', function($http, $q) {
-  var requestData = {
-    action: "getBasicData",
-    token: localStorage.getItem('MStoken')
-  };
 
-  var config = {
-    headers: {
-      "Content-Type": "text/plain;charset=utf-8"
-    }
-  };
-
-  var getNum = function() {
-    var deferred = $q.defer();
-
-    $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
-      .then(function(response) {
-        deferred.resolve({
-          lvl: response.data.lvl,
-          blq: response.data.blq,
-	  lsn: response.data.lsn	
-        });
-      }, function(error) {
-        deferred.reject(error);
-      });
-
-    return deferred.promise;
-  };
-
-  return {
-    getNum: getNum
-  };
-})
 .config(function ($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
 
    $stateProvider
@@ -1499,20 +1479,19 @@ app
         }
       }
     })
-    .state('menu.tabs.agenda', {
-      url: "/agenda",
+    .state('menu.tabs.audios', {
+      url: "/audios",
       views: {
-        'agenda-tab': {
-          templateUrl: "agenda.html"
+        'audios-tab': {
+          templateUrl: "audios.html"
         }
       }
     })
-  .state('menu.tabs.profile', {
-      url: "/profile",
+  .state('menu.tabs.students', {
+      url: "/students",
       views: {
-        'profile-tab': {
-          templateUrl: "profile.html",
-          controller: "profileCtrl"
+        'students-tab': {
+          templateUrl: "students.html"
         }
       }
     })
@@ -1521,6 +1500,14 @@ app
       views: {
         'menuContent': {
           templateUrl: "lessons.html"
+        }
+      }
+    }) 
+.state('menu.corrections', {
+      url: "/corrections",
+      views: {
+        'menuContent': {
+          templateUrl: "corrections.html"
         }
       }
     }) 
@@ -1710,7 +1697,7 @@ app
     })
     ;
 
-  $urlRouterProvider.otherwise("menu/tab/profile");
+  $urlRouterProvider.otherwise("menu/tab/students");
   $ionicConfigProvider.tabs.position('bottom'); 
 })
 
@@ -1728,63 +1715,7 @@ app
    localStorage.removeItem('ADtoken');
    window.location.href = 'https://admin.mozartacademy.mx/';
   }
-	  
-   
-
  }])
-
-       .controller('profileCtrl', function($scope) {
-            $scope.isModalVisible = false;
-    let deferredPrompt;
-	const isAndroid = /Android/i.test(navigator.userAgent);
-
-    // Registrar el Service Worker
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(function(registration) {
-            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, function(err) {
-            console.log('ServiceWorker registration failed: ', err);
-        });
-    }
-
-    // Manejar el evento 'beforeinstallprompt'
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-if (isAndroid) {
-        e.preventDefault();
-        deferredPrompt = e;
-        $scope.isModalVisible = true;
-        $scope.$apply(); // Forzar la actualización del scope
-}
-    });
-
-
-    // Función para agregar a la pantalla de inicio
-    $scope.addToHomeScreen = function() {
-        $scope.isModalVisible = false;
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the A2HS prompt');
-            } else {
-                console.log('User dismissed the A2HS prompt');
-            }
-            deferredPrompt = null;
-        });
-    };
-
-    // Cerrar modal
-    $scope.closeModal = function() {
-        $scope.isModalVisible = false;
-    };
-
-    // Cerrar modal si se hace clic fuera de él
-    $scope.checkCloseModal = function(event) {
-        if (event.target.id === 'myModal') {
-            $scope.closeModal();
-        }
-    };
-       })
 
   .controller('StatusCtrl', ['$http', '$scope', '$ionicModal', 'userData', function($http, $scope, $ionicModal, userData){
          $scope.userData = userData;
