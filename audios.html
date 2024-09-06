@@ -1,14 +1,13 @@
 
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1.0, user-scalable=no">
 <script src="https://use.fontawesome.com/releases/v5.0.13/js/all.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
-
 <style>
-
-
+	
 
 
 body * {
@@ -283,32 +282,33 @@ body * {
 				<span></span>
 				<span></span>
 				<span></span>
-			</div>
+			</div>  
 		</div>
 		
 		<div class="headerLabel">
-			Revisión de audios
+			Lista de revisiones <br><br>
+     
 		</div>
 
-	</div>
+	</div>   
 	<div class="EmailsWrapper">
  
+<br>
     
-    
-  <li class="Email" ng-repeat="(index, alert) in alerts | filter:filterByProfessor" ng-click="activateEmail(index, alert)" ng-class="{ 'active': activeEmailIndex === index, 'deactive': activeEmailIndex !== null && activeEmailIndex !== index }">
+  <li class="Email" ng-repeat="(index, alert) in alerts" ng-click="activateEmail(index, alert)" ng-class="{ 'active': activeEmailIndex === index, 'deactive': activeEmailIndex !== null && activeEmailIndex !== index }">
     <div class="ImgWrapper">
-    <div class="img" style="background-image: url('https://lh3.googleusercontent.com/a/default-user');"></div>
+    <div class="img" style="background-image: url('{{alert.photo}}');"></div>
     </div>
     <div class="EmailTitle">
-      <p class="EmailTime">{{alert.status}}</p>
+      <p class="EmailTime">Bloque {{alert.blq}}</p>
       <h1>{{alert.name}}</h1>
       <h2>{{alert.level}}</h2>
     </div>
-  </li>
+  </li> 
 
    <div class="EmailFull" ng-show="activeEmailIndex !== null" ng-class="{ 'active': activeEmailIndex !== null }">
      <!-- <iframe  ng-src="{{trustAsResourceUrl(message.url)}}" frameborder="0" height="50px" width="300px"></iframe> -->
-   <li ng-repeat="(mediaIndex, media) in selectedAlert.Audios">  
+   <li ng-repeat="(mediaIndex, media) in selectedAlert.audios">  
      {{media.lesson}}
      <br>     
      <iframe  ng-src="{{trustAsResourceUrl(media.audio)}}" frameborder="0" height="50px" width="300px"></iframe> 
@@ -320,18 +320,25 @@ body * {
     <br><br> 
      
   </li>     
+    
+    
+
 </div>
+                                                                               
+    
+    
 	</div>
 </div>
 
 
 
-   <script>
-     var alertsApp = angular.module('alertsApp', []);
+	 <script>
+		 var alertsApp = angular.module('alertsApp', []);
  
 alertsApp.controller('alertsCtrl', ['$http', '$scope', '$sce', function($http, $scope, $sce) {
-
-	 var requestData = {
+  $scope.alerts = []
+  
+   var requestData = {
                 action: "getAdminData",
                 token: localStorage.getItem('ADtoken')
               };
@@ -342,37 +349,23 @@ alertsApp.controller('alertsCtrl', ['$http', '$scope', '$sce', function($http, $
                 },
                 followRedirects: true
               };
- 
-              return $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
-                .then(function(response) {
-                loadingService.setHasLoaded(true);
-                $ionicLoading.hide();
-                  return response.data;
-                });
-
    
   $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
     .then(function(response) { 
-	    return alerts = response.data.students;
+	    $scope.alerts = response.data.students;
 	});
-  
-  //$scope.alerts = [{"name": "Sergio Valenzo", "professor": "DNA", "level": "Preparatorio", "status": "Activo", "Audios": [{"lesson": "Pieza 3: Mountain Climbing", "audio": "https://drive.google.com/file/d/1mTQUvBaFdf3Wg2a39Lp1PlCS0qHvIJBl/preview", "date": "10 de Ago"}, {"lesson": "Lección 3: Intervalos de 2da y 3era", "audio": "https://drive.google.com/file/d/1mTQUvBaFdf3Wg2a39Lp1PlCS0qHvIJBl/preview", "date": "10 de Ago"}]}, {"name": "Daniel Godinez", "professor": "DNA",  "level": "Nivel 2", "status": "Activo", "Audios": [{"lesson": "Pieza 3: Mountain Climbing", "audio": "https://drive.google.com/file/d/1mTQUvBaFdf3Wg2a39Lp1PlCS0qHvIJBl/preview", "date": "10 de Ago"}]}, {"name": "Noe Bravo", "professor": "Sergio",  "level": "Preparatorio", "status": "Activo", "Audios": [{"lesson": "Pieza 3: Mountain Climbing", "audio": "https://drive.google.com/file/d/1mTQUvBaFdf3Wg2a39Lp1PlCS0qHvIJBl/preview", "date": "10 de Ago"}, {"lesson": "Lección 3: Intervalos de 2da y 3era", "audio": "https://drive.google.com/file/d/1mTQUvBaFdf3Wg2a39Lp1PlCS0qHvIJBl/preview", "date": "10 de Ago"}, {"lesson": "Lección 3: Intervalos de 2da y 3era", "audio": "https://drive.google.com/file/d/1mTQUvBaFdf3Wg2a39Lp1PlCS0qHvIJBl/preview", "date": "10 de Ago"}]},];
-    
+
    
-   $scope.filterByProfessor = function(alert) {
-    return alert.professor == "DNA";
-};
-  
   $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
   
 $scope.exit = function(mediaIndex) {
     // Elimina el media del array selectedAlert.Audios
-    $scope.selectedAlert.Audios.splice(mediaIndex, 1);
+    $scope.selectedAlert.audios.splice(mediaIndex, 1);
 
     // Si el array selectedAlert.Audios está vacío, elimina el alert de alerts
-    if ($scope.selectedAlert.Audios.length === 0) {
+    if ($scope.selectedAlert.audios.length === 0) {
         var index = $scope.alerts.indexOf($scope.selectedAlert);
         if (index !== -1) {
             $scope.alerts.splice(index, 1);
@@ -391,22 +384,8 @@ $scope.exit = function(mediaIndex) {
     alert("Mensaje enviado y actividad asignada a corrección");
 }
   }
-
-/*
-  $scope.alerts = [];
-
-  $http({
-    method: 'GET',
-    url: 'https://script.google.com/macros/s/AKfycbxOqxZIRpmYVUHlOqM3it1ofWAE9CqmlCsi47agePqX901UNIei-qKTWJLaobRsX75tfw/exec',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    }
-  }).then(function(response) {
-    $scope.alerts = response.data;
-  });
   
-  */
+
 
 $scope.activeEmailIndex = null;
   $scope.selectedAlert = null;
@@ -430,6 +409,16 @@ $scope.activeEmailIndex = null;
       $scope.alerts[$scope.activeEmailIndex].light = true;
     }
   };
+  
+  
+
+  
 }]);
 
-   </script>
+
+
+
+
+
+
+	 </script>
