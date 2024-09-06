@@ -486,62 +486,34 @@ body {
 				<a class="item item-avatar" href="" >
           
 				  <img data-ng-src="{{userData.photo}}">
-             <span class="item-note">{{userData.status}}</span>
 				  <h2>{{userData.name}}</h2>       
 				  <p>{{userData.mail}}</p>         
 				</a>
 				
-				<div class="item item-divider itemDividerforitem">Status académico</div>
-       
-				<a class="item">
-					Próximo pago
-			<p>{{userData.nextpay}}</p>   
-				</a>
-         <a class="item"> 
-					Horario de clase
-           <span class="item-note"  style=" margin-top: 3px;">{{userData.plan}}</span>
-			<p>{{userData.classtime[0]}}</p>   
-         	<p>{{userData.classtime[1]}}</p>   
-				</a>
-         <div class="item item-divider itemDividerforitem">Asistencias</div>
+			
+         <div class="item item-divider itemDividerforitem">Status Académico</div>
          
 				 <div class="item item-icon-left item-button-right">
-           <i class="icon ri-calendar-check-fill"></i> Asistencias
+           <i class="icon ri-user-follow-fill"></i> Número de Alumnos
 					<button class="button button-balanced" style=" margin-top: 10px;">
-						{{userData.classCounter}}
+						{{userData.total}}
 					</button>
-          <p style="font-size: 10px;">El contador indica cuantas clases te quedan</p> 
+          <p style="font-size: 10px;">El contador indica a cuantos alumnos impartes este mes</p> 
 				</div>
          
          <div class="item item-icon-left item-button-right">
-           <i class="icon ri-calendar-schedule-fill"></i> Reposiciones
+           <i class="icon ri-calendar-schedule-fill"></i> Próximo corte de pago
 					<button class="button button-calm"  style=" margin-top: 10px;">
-					{{userData.repositions}}
+					{{userData.payday}}
 					</button>
-         <p style="font-size: 10px;">El contador indica cuantas reposiciones te quedan</p>  
+         <p style="font-size: 10px;">Tu próxima fecha de pago</p>  
 				</div>
          
-         <div class="item item-icon-left item-button-right">
-           <i class="icon ri-calendar-event-fill"></i> Extensión de pago
-					<button class="button button-stable" style="transform: scale(.8); margin-right: -20px; margin-top: 10px;">
-						solicitar         
-					</button>
-         <p style="font-size: 10px;">Puedes solicitar 2 por semestre</p>  
+            <div class="item item-icon-left">
+           <i class="icon ri-bank-card-2-fill"></i> Total acumulado
+		  <span class="item-note"  style=" margin-top: 3px; color: black">$ {{userData.payment}}</span>
+         <p style="font-size: 10px;">Suma total que generas por cada alumno que das clase</p>  
 				</div>
-         
-         <div class="item item-icon-left item-button-right">
-           <i class="icon ri-calendar-close-fill"></i> Baja temporal
-					<button class="button button-assertive" style="transform: scale(.8); margin-right: -20px; margin-top: 10px;" ng-click="modal.show()">
-						solicitar         
-					</button>
-         <p style="font-size: 10px;">Puedes solicitar 2 por año</p>  
-				</div>
-         
-          <div class="item item-divider itemDividerforitem">Social feed</div>
-         <a class="item" ng-click="showPopup()">
-					Nombre de usuario
-			<p>{{userData.username}}</p>   
-				</a>
           
          
          </div>
