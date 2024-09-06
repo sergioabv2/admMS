@@ -200,7 +200,7 @@ li {
           <h4 class="list-group-item-text title" style="font-size: 15px; margin-top: -2px; ">Bloque {{student.blq}}</h4>
           <h5 class="list-group-item-text" style=" margin-top: 10px;">{{student.classtime}}</h5>
  
-  <span class="label label-default expertise lessonTag" ng-repeat="lsn in student.currentLsn" ng-click="abrirNuevaPestana(lsn.pdf);$event.preventDefault();$event.stopPropagation()" >
+  <span class="label label-default expertise-label" ng-repeat="lsn in student.currentLsn" ng-click="abrirNuevaPestana(lsn.pdf);$event.preventDefault();$event.stopPropagation()" >
   {{lsn.name}} 
     <br>
 </span> 
