@@ -1,14 +1,15 @@
 <head>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+  
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,700,700i">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
 </head>
 
-<style>
 
-body {
+<style>
+  body {
   font-family: "Source Sans Pro", sans-serif;
 }
 h1 {
@@ -129,6 +130,9 @@ li {
 
 
 
+
+
+
 @keyframes beat-fade {
   0%, 100% {
     opacity: 1;
@@ -173,11 +177,149 @@ div {
 }
 
 button { margin: 0 .5rem }
+
+
+
+
+
+
+
+
+.uploader {
+  text-align: center;
+   display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+  clear: both;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 600px;
+}
+.uploader label {
+  float: left;
+  clear: both;
+  width: 100%;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background: #fff;
+  border-radius: 7px;
+  border: 3px solid #eee;
+  transition: all 0.2s ease;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+.uploader label:hover {
+  border-color: #454cad;
+}
+.uploader label.hover {
+  border: 3px solid #454cad;
+  box-shadow: inset 0 0 0 6px #eee;
+}
+.uploader label.hover #start i.fa {
+  transform: scale(0.8);
+  opacity: 0.3;
+}
+.uploader #start {
+  float: left;
+  clear: both;
+  width: 100%;
+}
+.uploader #start.hidden {
+  display: none;
+}
+.uploader #start i.fa {
+  font-size: 50px;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+.uploader #response {
+  float: left;
+  clear: both;
+  width: 100%;
+}
+.uploader #response.hidden {
+  display: none;
+}
+.uploader #response #messages {
+  margin-bottom: 0.5rem;
+}
+.uploader #file-image {
+  display: inline;
+  /*margin: 0 auto 0.5rem auto;
+  width: auto;
+  height: auto;
+  max-width: 100px;*/
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  object-position: center;
+  background-color: #fff;
+}
+.uploader #file-image.hidden {
+  display: none;
+}
+.uploader #notimage {
+  display: block;
+  float: left;
+  clear: both;
+  width: 100%;
+}
+.uploader #notimage.hidden {
+  display: none;
+}
+
+
+.uploader input[type=file] {
+  display: none;
+}
+.uploader div {
+  margin: 0 0 0.5rem 0;
+  color: #5f6982;
+}
+.uploader .btn {
+  display: inline-block;
+  margin: 0.5rem 0.5rem 1rem 0.5rem;
+  clear: both;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  text-transform: initial;
+  border: none;
+  border-radius: 0.2rem;
+  outline: none;
+  padding: 0 1rem;
+  height: 36px;
+  line-height: 36px;
+  color: #fff;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+  background: #454cad;
+  border-color: #454cad;
+  cursor: pointer;
+}
+
+
+
+
+
+
+
+@media (max-width: 700px){
+  #vidContainer{
+    display: none;
+  }
+}
 </style>
 
 
+<div class="container">
 <div class="row">
       <div class="col-sm-5">
+        <div id="vidContainer">
 <div class="video-container">
 <video id="video" autoplay muted></video>
 </div>
@@ -187,6 +329,29 @@ button { margin: 0 .5rem }
 <button class="btn btn-default" onClick="recordScreenAndAudio()">Grabar pantalla</button>
 <button id="stop-btn" class="btn btn-default" onClick="stopRecording()">Stop!</button>
 </div>
+ </div>
+         
+        
+        <br><br>
+         <form id="file-upload-form" class="uploader">
+  <input id="file-upload" type="file" name="fileUpload" accept="image/*" />
+
+  <label for="file-upload" id="file-drag">
+    <img id="file-image" src="#" alt="Preview" class="hidden">
+    <div id="start2">
+      <i class="fa fa-download" aria-hidden="true"></i>
+      <div>Selecciona tu imagen</div>
+      <div id="notimage" class="hidden">Please select an image</div>
+      <span id="file-upload-btn" class="btn btn-primary">Seleccionar</span>
+    </div>
+    <div id="response" class="hidden">
+      <div id="messages"></div>
+    </div>
+     <input type="hidden" id="imageData">
+     <span id="file-send-btn" data-dismiss="modal" style="display: none;"> </span>  
+  </label> 
+                 
+</form>
   </div>       
 
 <div class="col-sm-7" >
@@ -234,11 +399,12 @@ button { margin: 0 .5rem }
             
            <div class="col-sm-7">             
           
-             
-              <div class="inside" >
-         <button type="button" class="btn btn-success" ng-click="sendVideo(student);$event.preventDefault();$event.stopPropagation()" style="position: absolute; bottom: 15px; right: 5px;">Enviar &nbsp; <i class="fa fa-chevron-circle-right" aria-hidden="true" ></i></button>
+              
+ 
+         <button type="button" class="btn btn-primary" ng-click=";$event.preventDefault();$event.stopPropagation()" style="position: absolute; bottom: 65px; right: 5px;">Abrir &nbsp; <i class="fa fa-chevron-circle-right" aria-hidden="true" ></i></button>
+                    <button type="button" class="btn btn-success" ng-click="sendVideo(student);$event.preventDefault();$event.stopPropagation()" style="position: absolute; bottom: 15px; right: 5px;">Enviar &nbsp; <i class="fa fa-chevron-circle-right" aria-hidden="true" ></i></button>
   
-           </div>    
+     
              
             </div>         
             <div class="clearfix"></div>
@@ -255,7 +421,7 @@ button { margin: 0 .5rem }
    </div>
 </div>
   </div>
-</div>
+
 
 
 <script>
@@ -440,4 +606,114 @@ async function recordScreenAndAudio() {
   
   recorder.start(200)
 }
+
+
+
+
+
+
+
+
+
+ 
+  function ekUpload(){
+  function Init() {
+
+    console.log("Upload Initialised");
+
+    var fileSelect    = document.getElementById('file-upload'),
+        fileDrag      = document.getElementById('file-drag'),
+        submitButton  = document.getElementById('submit-button');
+
+    fileSelect.addEventListener('change', fileSelectHandler, false);
+
+    // Is XHR2 available?
+    var xhr = new XMLHttpRequest();
+    if (xhr.upload) {
+      // File Drop
+      fileDrag.addEventListener('dragover', fileDragHover, false);
+      fileDrag.addEventListener('dragleave', fileDragHover, false);
+      fileDrag.addEventListener('drop', fileSelectHandler, false);
+    }
+  }
+
+  function fileDragHover(e) {
+    var fileDrag = document.getElementById('file-drag');
+
+    e.stopPropagation();
+    e.preventDefault();
+
+    fileDrag.className = (e.type === 'dragover' ? 'hover' : 'modal-body file-upload');
+  }
+
+  function fileSelectHandler(e) {
+    // Fetch FileList object
+    var files = e.target.files || e.dataTransfer.files;
+
+    // Cancel event and hover styling
+    fileDragHover(e);
+
+    // Process all File objects
+    for (var i = 0, f; f = files[i]; i++) {
+      parseFile(f);
+      convertFileToBase64(f);
+    }
+  }
+    
+    function convertFileToBase64(file) {
+    var reader = new FileReader();
+    reader.onloadend = function() {
+      var base64image = reader.result.split(',')[1];
+      document.getElementById("imageData").value = base64image;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Output
+  function output(msg) {
+    // Response
+    var m = document.getElementById('messages');
+    m.innerHTML = msg;
+  }
+
+  function parseFile(file) {
+
+    console.log(file.name);
+    output(
+      '<br><strong style="font-size: 12px;">' + encodeURI(file.name) + '</strong>'
+    );
+    
+    // var fileType = file.type;
+    // console.log(fileType);
+    var imageName = file.name;
+
+    var isGood = (/\.(?=gif|jpg|png|jpeg)/gi).test(imageName);
+    if (isGood) {
+      //document.getElementById('start2').classList.add("hidden");
+      document.getElementById('start2').style.display = 'none';
+      document.getElementById('response').classList.remove("hidden");
+       document.getElementById('file-send-btn').style.display = 'block';
+      document.getElementById('notimage').classList.add("hidden");
+      // Thumbnail Preview
+      document.getElementById('file-image').classList.remove("hidden");
+      document.getElementById('file-image').src = URL.createObjectURL(file);
+    }
+    else {
+      document.getElementById('file-image').classList.add("hidden");
+      document.getElementById('notimage').classList.remove("hidden");
+      document.getElementById('start2').classList.remove("hidden");
+      document.getElementById('response').classList.add("hidden");
+      document.getElementById("file-upload-form").reset();
+    }
+  }
+
+
+  // Check for the various File API support.
+  if (window.File && window.FileList && window.FileReader) {
+    Init();
+  } else {
+    document.getElementById('file-drag').style.display = 'none';
+  }
+}
+ekUpload();
 </script>
