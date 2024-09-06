@@ -500,16 +500,24 @@ body {
 					</button>
           <p style="font-size: 10px;">El contador indica a cuantos alumnos impartes este mes</p> 
 				</div>
+
+	        <div class="item item-icon-left item-button-right">
+           <i class="icon ri-group-2-fill"></i> Número de Grupos
+					<button class="button button-primary" style=" margin-top: 10px;">
+						{{userData.groups}}
+					</button>
+          <p style="font-size: 10px;">El número de grupos activos</p> 
+				</div>
          
          <div class="item item-icon-left">
            <i class="icon ri-calendar-schedule-fill"></i> Próximo corte de pago
-	 <span class="item-note"  style=" margin-top: 5px; color: black; font-size: 14px;">{{userData.payday}}</span>
+	 <span class="item-note"  style=" margin-top: 10px; color: black; font-size: 18px; font-weight: 600">{{userData.payday}}</span>
          <p style="font-size: 10px;">Tu próxima fecha de pago</p>  
 				</div>
          
             <div class="item item-icon-left">
            <i class="icon ri-bank-card-2-fill"></i> Total acumulado
-		  <span class="item-note"  style=" margin-top: 5px; color: black font-size: 14px;">$ {{userData.payment}}</span>
+		  <span class="item-note"  style=" margin-top: 10px; color: black; font-size: 18px; font-weight: 600">$ {{userData.payment}}</span>
          <p style="font-size: 10px;">Suma total que generas por todas tus clases</p>  
 				</div>
           
