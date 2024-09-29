@@ -1911,67 +1911,26 @@ input[type="radio"]:checked + label.green-bg::after {
         </div>
        </div>
         
-     
-        
-       <div class="explain-bar" ng-if="lvl > 0 && status == 'ACTIVO'">
-        <div class="explain-contents">
-        <div class="explain-title">Progreso</div> 
-        <div class="explain-subtitle">100%</div>
-         </div> 
-          <div class="explain-contents">
-        <div class="explain-title">Puntaje de Tests</div>
-        <div class="explain-subtitle">{{history[0].score}}</div>
-         </div>
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de inicio</div>
-        <div class="explain-subtitle">{{history[0].beginDate}}</div>
-         </div>   
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de termino</div>
-        <div class="explain-subtitle">{{history[0].finishDate}}</div>
-         </div> 
-                </div>
-        
-         <div class="explain-bar" ng-if="lvl == 0 && status == 'ACTIVO'">
+  
+   
+    <div class="explain-bar" >
         <div class="explain-contents">
         <div class="explain-title">Progreso</div>
-        <div class="explain-subtitle">{{progress}} %</div>
+        <div class="explain-subtitle">100%</div>
          </div>
         <div class="explain-contents">
-        <div class="explain-title">Límite de próxima entrega</div>
-        <div class="explain-subtitle">{{convertirFecha(currentlsns[1].limitdate)}}</div>
+        <div class="explain-title">Próximo Pago</div>
+        <div class="explain-subtitle">-</div>
          </div>
             <div class="explain-contents"> 
         <div class="explain-title">Fecha de inicio</div>
-        <div class="explain-subtitle">{{history[0].beginDate}}</div>
+        <div class="explain-subtitle">-</div>
          </div>   
         <div class="explain-contents"> 
         <div class="explain-title">Fecha de termino</div>
         <div class="explain-subtitle">-</div>
          </div> 
                 </div> 
-          
-      
-            <div class="overview-text-subheader" style="margin-top: 15px;" ng-if="status != 'ACTIVO'">Este curso establece las bases para lograr una lectura fluida de partituras, lo cual se traduce en una interpretación más limpia y precisa de las piezas.</div>
-        
-          <div class="explain-bar" ng-if="status != 'ACTIVO'">
-        <div class="explain-contents">
-        <div class="explain-title">Progreso</div>
-        <div class="explain-subtitle">-</div>
-         </div>   
-        <div class="explain-contents">
-         <div class="explain-title">Termino del nivel</div>
-        <div class="explain-subtitle">  <i class="material-icons">workspace_premium</i><span style="margin-left: 5px;">Diploma</span></div>
-         </div>
-        <div class="explain-contents">
-        <div class="explain-title">Horas en video</div>
-          <div class="explain-subtitle"><i class="material-icons">tv</i><span style="margin-left: 5px;">12 horas</span></div>
-         </div>
-        <div class="explain-contents">
-        <div class="explain-title">Recursos</div>
-        <div class="explain-subtitle">  <i class="material-icons">audio_file</i><span style="margin-left: 5px;">30 actividades</span></div>
-         </div>
-                </div>
          
                </div>
      </div>
@@ -2067,51 +2026,15 @@ input[type="radio"]:checked + label.green-bg::after {
           <span class="app-number">{{counter}} Alumnos inscritos</span>
           </div>
        </div>
-     <div class="explain-bar" ng-if="lvl > 1 && status == 'ACTIVO'">
-        <div class="explain-contents">
-        <div class="explain-title">Progreso</div> 
-        <div class="explain-subtitle">100%</div>
-         </div> 
-          <div class="explain-contents">
-        <div class="explain-title">Puntaje de Tests</div>
-        <div class="explain-subtitle">{{history[0].score}}</div>
-         </div>
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de inicio</div>
-        <div class="explain-subtitle">{{history[0].beginDate}}</div>
-         </div>   
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de termino</div>
-        <div class="explain-subtitle">{{history[0].finishDate}}</div>
-         </div> 
-                </div>
-        
-         <div class="explain-bar" ng-if="lvl == 1 && status == 'ACTIVO'">
-        <div class="explain-contents">
-        <div class="explain-title">Progreso</div>
-        <div class="explain-subtitle">{{progress}} %</div>
-         </div>
-        <div class="explain-contents">
-        <div class="explain-title">Límite de próxima entrega</div>
-        <div class="explain-subtitle">{{convertirFecha(currentlsns[1].limitdate)}}</div>
-         </div>
-            <div class="explain-contents"> 
-        <div class="explain-title">Fecha de inicio</div>
-        <div class="explain-subtitle">{{history[0].beginDate}}</div>
-         </div>   
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de termino</div>
-        <div class="explain-subtitle">-</div>
-         </div> 
-                </div> 
 
-                  <div class="explain-bar" ng-if="lvl < 1 || status != 'ACTIVO'">
+
+         <div class="explain-bar" >
         <div class="explain-contents">
         <div class="explain-title">Progreso</div>
-        <div class="explain-subtitle">-</div>
+        <div class="explain-subtitle">100%</div>
          </div>
         <div class="explain-contents">
-        <div class="explain-title">Límite de próxima entrega</div>
+        <div class="explain-title">Próximo Pago</div>
         <div class="explain-subtitle">-</div>
          </div>
             <div class="explain-contents"> 
@@ -2204,53 +2127,14 @@ input[type="radio"]:checked + label.green-bg::after {
        </div>
    
      
-
-     <div class="explain-bar" ng-if="lvl > 2 && status == 'ACTIVO'">
+        
+                  <div class="explain-bar" >
         <div class="explain-contents">
-        <div class="explain-title">Progreso</div> 
+        <div class="explain-title">Progreso</div>
         <div class="explain-subtitle">100%</div>
-         </div> 
-          <div class="explain-contents">
-        <div class="explain-title">Puntaje de Tests</div>
-        <div class="explain-subtitle">{{history[0].score}}</div>
-         </div>
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de inicio</div>
-        <div class="explain-subtitle">{{history[0].beginDate}}</div>
-         </div>   
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de termino</div>
-        <div class="explain-subtitle">{{history[0].finishDate}}</div>
-         </div> 
-                </div>
-        
-         <div class="explain-bar" ng-if="lvl == 2 && status == 'ACTIVO'">
-        <div class="explain-contents">
-        <div class="explain-title">Progreso</div>
-        <div class="explain-subtitle">{{progress}} %</div>
          </div>
         <div class="explain-contents">
-        <div class="explain-title">Límite de próxima entrega</div>
-        <div class="explain-subtitle">{{convertirFecha(currentlsns[1].limitdate)}}</div>
-         </div>
-            <div class="explain-contents"> 
-        <div class="explain-title">Fecha de inicio</div>
-        <div class="explain-subtitle">{{history[0].beginDate}}</div>
-         </div>   
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de termino</div>
-        <div class="explain-subtitle">-</div>
-         </div> 
-                </div> 
-
-        
-                  <div class="explain-bar" ng-if="lvl < 2 || status != 'ACTIVO'">
-        <div class="explain-contents">
-        <div class="explain-title">Progreso</div>
-        <div class="explain-subtitle">-</div>
-         </div>
-        <div class="explain-contents">
-        <div class="explain-title">Límite de próxima entrega</div>
+        <div class="explain-title">Próximo Pago</div>
         <div class="explain-subtitle">-</div>
          </div>
             <div class="explain-contents"> 
@@ -2339,53 +2223,14 @@ input[type="radio"]:checked + label.green-bg::after {
     <span ng-if="lvl < 3 || status != 'ACTIVO'">BLOQUEADO</span>
     <span class="app-number">{{counter}} Alumnos inscritos</span></div>
        </div>
-       <div class="explain-bar" ng-if="lvl > 3 && status == 'ACTIVO'">
+
+       <div class="explain-bar" >
         <div class="explain-contents">
-        <div class="explain-title">Progreso</div> 
+        <div class="explain-title">Progreso</div>
         <div class="explain-subtitle">100%</div>
-         </div> 
-          <div class="explain-contents">
-        <div class="explain-title">Puntaje de Tests</div>
-        <div class="explain-subtitle">{{history[0].score}}</div>
-         </div>
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de inicio</div>
-        <div class="explain-subtitle">{{history[0].beginDate}}</div>
-         </div>   
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de termino</div>
-        <div class="explain-subtitle">{{history[0].finishDate}}</div>
-         </div> 
-                </div>
-        
-         <div class="explain-bar" ng-if="lvl == 3 && status == 'ACTIVO'">
-        <div class="explain-contents">
-        <div class="explain-title">Progreso</div>
-        <div class="explain-subtitle">{{progress}} %</div>
          </div>
         <div class="explain-contents">
-        <div class="explain-title">Límite de próxima entrega</div>
-        <div class="explain-subtitle">{{convertirFecha(currentlsns[1].limitdate)}}</div>
-         </div>
-            <div class="explain-contents"> 
-        <div class="explain-title">Fecha de inicio</div>
-        <div class="explain-subtitle">{{history[0].beginDate}}</div>
-         </div>   
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de termino</div>
-        <div class="explain-subtitle">-</div>
-         </div> 
-                </div> 
-
-
-
-                  <div class="explain-bar" ng-if="lvl < 3 || status != 'ACTIVO'">
-        <div class="explain-contents">
-        <div class="explain-title">Progreso</div>
-        <div class="explain-subtitle">-</div>
-         </div>
-        <div class="explain-contents">
-        <div class="explain-title">Límite de próxima entrega</div>
+        <div class="explain-title">Próximo Pago</div>
         <div class="explain-subtitle">-</div>
          </div>
             <div class="explain-contents"> 
@@ -2472,53 +2317,15 @@ input[type="radio"]:checked + label.green-bg::after {
     <span class="app-number">{{counter}} Alumnos inscritos</span>
     </div>
        </div>
-       <div class="explain-bar" ng-if="lvl > 4 && status == 'ACTIVO'">
+
+
+     <div class="explain-bar" >
         <div class="explain-contents">
-        <div class="explain-title">Progreso</div> 
+        <div class="explain-title">Progreso</div>
         <div class="explain-subtitle">100%</div>
-         </div> 
-          <div class="explain-contents">
-        <div class="explain-title">Puntaje de Tests</div>
-        <div class="explain-subtitle">{{history[0].score}}</div>
-         </div>
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de inicio</div>
-        <div class="explain-subtitle">{{history[0].beginDate}}</div>
-         </div>   
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de termino</div>
-        <div class="explain-subtitle">{{history[0].finishDate}}</div>
-         </div> 
-                </div>
-        
-         <div class="explain-bar" ng-if="lvl == 4 && status == 'ACTIVO'">
-        <div class="explain-contents">
-        <div class="explain-title">Progreso</div>
-        <div class="explain-subtitle">{{progress}} %</div>
          </div>
         <div class="explain-contents">
-        <div class="explain-title">Límite de próxima entrega</div>
-        <div class="explain-subtitle">{{convertirFecha(currentlsns[1].limitdate)}}</div>
-         </div>
-            <div class="explain-contents"> 
-        <div class="explain-title">Fecha de inicio</div>
-        <div class="explain-subtitle">{{history[0].beginDate}}</div>
-         </div>   
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de termino</div>
-        <div class="explain-subtitle">-</div>
-         </div> 
-                </div> 
-
-
-
-                  <div class="explain-bar" ng-if="lvl < 4 || status != 'ACTIVO'">
-        <div class="explain-contents">
-        <div class="explain-title">Progreso</div>
-        <div class="explain-subtitle">-</div>
-         </div>
-        <div class="explain-contents">
-        <div class="explain-title">Límite de próxima entrega</div>
+        <div class="explain-title">Próximo Pago</div>
         <div class="explain-subtitle">-</div>
          </div>
             <div class="explain-contents"> 
@@ -2605,53 +2412,15 @@ input[type="radio"]:checked + label.green-bg::after {
     <span class="app-number">{{counter}} Alumnos inscritos</span>
  </div>
        </div>
-       <div class="explain-bar" ng-if="lvl > 5 && status == 'ACTIVO'">
+
+
+        <div class="explain-bar" >
         <div class="explain-contents">
-        <div class="explain-title">Progreso</div> 
+        <div class="explain-title">Progreso</div>
         <div class="explain-subtitle">100%</div>
-         </div> 
-          <div class="explain-contents">
-        <div class="explain-title">Puntaje de Tests</div>
-        <div class="explain-subtitle">{{history[0].score}}</div>
-         </div>
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de inicio</div>
-        <div class="explain-subtitle">{{history[0].beginDate}}</div>
-         </div>   
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de termino</div>
-        <div class="explain-subtitle">{{history[0].finishDate}}</div>
-         </div> 
-                </div>
-        
-         <div class="explain-bar" ng-if="lvl == 5 && status == 'ACTIVO'">
-        <div class="explain-contents">
-        <div class="explain-title">Progreso</div>
-        <div class="explain-subtitle">{{progress}} %</div>
          </div>
         <div class="explain-contents">
-        <div class="explain-title">Límite de próxima entrega</div>
-        <div class="explain-subtitle">{{convertirFecha(currentlsns[1].limitdate)}}</div>
-         </div>
-            <div class="explain-contents"> 
-        <div class="explain-title">Fecha de inicio</div>
-        <div class="explain-subtitle">{{history[0].beginDate}}</div>
-         </div>   
-        <div class="explain-contents"> 
-        <div class="explain-title">Fecha de termino</div>
-        <div class="explain-subtitle">-</div>
-         </div> 
-                </div> 
-
-
-
-                  <div class="explain-bar" ng-if="lvl < 5 || status != 'ACTIVO'">
-        <div class="explain-contents">
-        <div class="explain-title">Progreso</div>
-        <div class="explain-subtitle">-</div>
-         </div>
-        <div class="explain-contents">
-        <div class="explain-title">Límite de próxima entrega</div>
+        <div class="explain-title">Próximo Pago</div>
         <div class="explain-subtitle">-</div>
          </div>
             <div class="explain-contents"> 
@@ -2994,15 +2763,6 @@ app.factory('SharedState', function($http, $q) {
         $scope.lvl = data.lvl;
       $scope.progress = data.progress;
      $scope.status = data.status;
-      $scope.counter = data.counterLvl[0]
-        
-        if(data.lvl == 1){
-          $('ul.tabs').tabs('select_tab', 'test2');
-        }else if(data.lvl == 2){
-          $('ul.tabs').tabs('select_tab', 'test3');
-        }else if(data.lvl == 3){
-          $('ul.tabs').tabs('select_tab', 'test4');
-        }
         
   })
 
@@ -3016,10 +2776,7 @@ app.factory('SharedState', function($http, $q) {
     $scope.lsn = data.lsn;
       $scope.lvl = data.lvl;
       $scope.progress = data.progress;
-      $scope.counter = data.counterLvl[0]
       $scope.status = data.status;
-      $scope.currentlsns = filterCurrent(data.lssons);
-       $scope.history = data.history;
       $scope.loading = false;
   })
 
@@ -3030,17 +2787,7 @@ app.factory('SharedState', function($http, $q) {
     });
 }
   
-  $scope.convertirFecha = function(fecha) {
-  const dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
-  const [dia, mes, año] = fecha.split('/').map(Number);
-  const date = new Date(año, mes - 1, dia);
-  const nombreDia = dias[date.getDay()];
-  const nombreMes = meses[date.getMonth()];
-  return `${nombreDia} ${dia} de ${nombreMes}`;
-}
-  
   
 
     $scope.allData = [
@@ -3667,10 +3414,7 @@ app.factory('SharedState', function($http, $q) {
     $scope.lsn = data.lsn;
       $scope.lvl = data.lvl;
       $scope.progress = data.progress;
-      $scope.counter = data.counterLvl[1]
       $scope.status = data.status;
-      $scope.currentlsns = filterCurrent(data.lssons);
-       $scope.history = data.history;
   })
 
 
@@ -3679,17 +3423,7 @@ app.factory('SharedState', function($http, $q) {
         return entry.index == $scope.lsn;
     });
 }
-  
-  $scope.convertirFecha = function(fecha) {
-  const dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
-  const [dia, mes, año] = fecha.split('/').map(Number);
-  const date = new Date(año, mes - 1, dia);
-  const nombreDia = dias[date.getDay()];
-  const nombreMes = meses[date.getMonth()];
-  return `${nombreDia} ${dia} de ${nombreMes}`;
-}
    $scope.allData = [
      {
           block: "Bloque 1",
@@ -4298,10 +4032,7 @@ app.factory('SharedState', function($http, $q) {
     $scope.lsn = data.lsn;
       $scope.lvl = data.lvl;
       $scope.progress = data.progress;
-      $scope.counter = data.counterLvl[2]
       $scope.status = data.status;
-      $scope.currentlsns = filterCurrent(data.lssons);
-       $scope.history = data.history;
   })
 
 
@@ -4311,16 +4042,7 @@ app.factory('SharedState', function($http, $q) {
     });
 }
   
-  $scope.convertirFecha = function(fecha) {
-  const dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
-  const [dia, mes, año] = fecha.split('/').map(Number);
-  const date = new Date(año, mes - 1, dia);
-  const nombreDia = dias[date.getDay()];
-  const nombreMes = meses[date.getMonth()];
-  return `${nombreDia} ${dia} de ${nombreMes}`;
-}
    $scope.allData = [
      {
           block: "Bloque 1",
@@ -4823,10 +4545,7 @@ app.factory('SharedState', function($http, $q) {
     $scope.lsn = data.lsn;
       $scope.lvl = data.lvl;
       $scope.progress = data.progress;
-      $scope.counter = data.counterLvl[3]
       $scope.status = data.status;
-      $scope.currentlsns = filterCurrent(data.lssons);
-       $scope.history = data.history;
   })
 
 
@@ -4836,16 +4555,7 @@ app.factory('SharedState', function($http, $q) {
     });
 }
   
-  $scope.convertirFecha = function(fecha) {
-  const dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
-  const [dia, mes, año] = fecha.split('/').map(Number);
-  const date = new Date(año, mes - 1, dia);
-  const nombreDia = dias[date.getDay()];
-  const nombreMes = meses[date.getMonth()];
-  return `${nombreDia} ${dia} de ${nombreMes}`;
-}
     $scope.allData = [
      {
           block: "Bloque 1",
@@ -5073,10 +4783,7 @@ app.factory('SharedState', function($http, $q) {
     $scope.lsn = data.lsn;
       $scope.lvl = data.lvl;
       $scope.progress = data.progress;
-      $scope.counter = data.counterLvl[4]
       $scope.status = data.status;
-      $scope.currentlsns = filterCurrent(data.lssons);
-       $scope.history = data.history;
   })
 
 
@@ -5086,16 +4793,7 @@ app.factory('SharedState', function($http, $q) {
     });
 }
   
-  $scope.convertirFecha = function(fecha) {
-  const dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
-  const [dia, mes, año] = fecha.split('/').map(Number);
-  const date = new Date(año, mes - 1, dia);
-  const nombreDia = dias[date.getDay()];
-  const nombreMes = meses[date.getMonth()];
-  return `${nombreDia} ${dia} de ${nombreMes}`;
-}
     $scope.allData = [
      {
           block: "Bloque 1",
@@ -5321,10 +5019,7 @@ app.factory('SharedState', function($http, $q) {
     $scope.lsn = data.lsn;
       $scope.lvl = data.lvl;
       $scope.progress = data.progress;
-      $scope.counter = data.counterLvl[1]
       $scope.status = data.status;
-      $scope.currentlsns = filterCurrent(data.lssons);
-       $scope.history = data.history;
   })
 
 
@@ -5334,16 +5029,6 @@ app.factory('SharedState', function($http, $q) {
     });
 }
   
-  $scope.convertirFecha = function(fecha) {
-  const dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-
-  const [dia, mes, año] = fecha.split('/').map(Number);
-  const date = new Date(año, mes - 1, dia);
-  const nombreDia = dias[date.getDay()];
-  const nombreMes = meses[date.getMonth()];
-  return `${nombreDia} ${dia} de ${nombreMes}`;
-}
     $scope.allData = [
      {
           block: "Bloque 1",
