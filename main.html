@@ -1,8 +1,8 @@
 <head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1.0, user-scalable=no">
-<link rel="icon" href="https://lh3.googleusercontent.com/d/16vmyfZfuuu5p9xT57X_CANKBjDTA-f-S" type="image/x-icon">
-    <title>Taller de Piano</title>
+<link rel="icon" href="https://lh3.googleusercontent.com/d/1k9LA88h-FVVn9EeryBRVBrtc5tPl92CK" type="image/x-icon">
+    <title>Mozart Studio</title>
   
 <link href="https://code.ionicframework.com/1.3.3/css/ionic.min.css" rel="stylesheet">
   <script src="https://code.ionicframework.com/1.3.3/js/ionic.bundle.min.js"></script>
@@ -149,7 +149,8 @@ body {
             position: relative;
             overflow: hidden;
             max-width: 100%;
-            height:  88vh;
+            /*height:  88vh;*/
+	    height: 100%;
         }
 
 
@@ -380,13 +381,96 @@ body {
   100% { transform: rotate(360deg); }
 }
 
+	 .anim {
+    position: relative;
+    display: block;
+    
+  animation: slide_in 0.3s ease-in-out forwards;
+    opacity: 0;
+    left: -10px;
+
+}
+
+
+@keyframes slide_in {
+    from {
+        left: -10px;
+        opacity: 0;
+    }
+    to {
+        left: 0px;
+        opacity: 1;
+    }
+}
+
+.dropdownContent {
+  position: absolute;
+  top: 50px;
+  left: 10px;
+  background: #fff;
+  min-width: 250px;
+  box-shadow: 0px 0px 15px 8px rgba(50, 50, 50, 0.2);
+  border-radius: 8px;
+  z-index: 1000;
+  padding: 20px 10px;
+}
+
+#bannerRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.profileImageContainer img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+.profileName {
+  margin: 10px 0 5px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.profileEmail {
+  margin: 0;
+  color: #777;
+  font-size: 14px;
+}
+
+.dropdown-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown-item i {
+  margin-right: 10px;
+}
+
+	 
+
 </style>
 
 <body>
 
 
     
-  <section class="mainSection" style="display: none;">
+  <section class="mainSection" >
 
 
  <div ng-app="ionicApp">
@@ -400,21 +484,23 @@ body {
   <ion-nav-view animation="slide-right"></ion-nav-view>
 
     
-  <script id="menu.html" type="text/ng-template">
+ <script id="menu.html" type="text/ng-template">
     <ion-side-menus >
+      <ion-side-menu side="right" width='210'>
+         
     
-
-      <ion-side-menu side="right">
         <ion-header-bar class="bar-stable">
-          <h1 class="title">Menu</h1>
+          <h1 class="title">Menu</h1> 
         </ion-header-bar>
         <ion-content>
           <ul class="list">
-            <a href="#/menu/tab/profile" class="item" ng-class="(activeMenuClr=='profile')?'menuSelectedColor':''" ng-click="activeMenuClr = 'profile'" menu-toggle="right" ><i class="ri-shield-user-fill"></i>&nbsp&nbspPerfil</a>
-	 <a href="#/menu/corrections" class="item" ng-class="(activeMenuClr=='corrections')?'menuSelectedColor':''" ng-click="activeMenuClr = 'corrections'" menu-toggle="right"><i class="ri-edit-2-fill"></i>&nbsp&nbspCorrecciones</a>
-               <a href="#/menu/lessons" class="item" ng-class="(activeMenuClr=='lessons')?'menuSelectedColor':''" ng-click="activeMenuClr = 'lessons'" menu-toggle="right"><i class="ri-presentation-fill"></i>&nbsp&nbspLecciones</a>
-                           <a href="#/menu/library" class="item" ng-class="(activeMenuClr=='library')?'menuSelectedColor':''" ng-click="activeMenuClr = 'library'" menu-toggle="right"><i class="ri-git-repository-fill"></i>&nbsp&nbspBiblioteca</a>
-       <a href="#/menu/reel" class="item" ng-class="(activeMenuClr=='reel')?'menuSelectedColor':''" ng-click="activeMenuClr = 'reel'" menu-toggle="right"><i class="ri-award-fill"></i>&nbsp&nbspReel de logros</a>   
+          <!--     <a href="#/menu/status" class="item"  menu-toggle="right" ><i class="ri-user-fill"></i>&nbsp&nbspPerfil</a>  -->
+            <a href="#/menu/lessons" class="item" ng-class="(activeMenuClr=='lessons')?'menuSelectedColor':''" ng-click="activeMenuClr = 'lessons'" menu-toggle="right"><i class="ri-presentation-fill" ></i>&nbsp&nbspCursos</a> 
+          <a href="#/menu/profile" class="item" ng-class="(activeMenuClr=='profile')?'menuSelectedColor':''" ng-click="activeMenuClr = 'profile'" menu-toggle="right"><i class="ri-volume-up-fill" ></i>&nbsp&nbspRevisiones</a> 
+              
+                         <!--  <a href="#/menu/library" class="item" ng-class="(activeMenuClr=='library')?'menuSelectedColor':''" ng-click="activeMenuClr = 'library'" menu-toggle="right"><i class="ri-volume-up-fill" ></i>&nbsp&nbspRevisiones</a> -->
+     
+       <a href="#/menu/reel" class="item" ng-class="(activeMenuClr=='reel')?'menuSelectedColor':''" ng-click="activeMenuClr = 'reel'" menu-toggle="right"><i class="ri-edit-2-fill" ></i>&nbsp&nbspCorrecciones</a>   
 	<!--   <a href="#/menu/resources" class="item" ng-class="(activeMenuClr=='resources')?'menuSelectedColor':''" ng-click="activeMenuClr = 'resources'" menu-toggle="right"><i class="ri-dashboard-fill"></i>&nbsp&nbspRecursos</a>
 	  <a href="#/menu/chat" class="item" ng-class="(activeMenuClr=='chat')?'menuSelectedColor':''" ng-click="activeMenuClr = 'chat'"  menu-toggle="right"><i class="ri-question-answer-fill"></i>&nbsp&nbspTutor</a>     
              <a href="#/menu/about" class="item" ng-class="(activeMenuClr=='about')?'menuSelectedColor':''" ng-click="activeMenuClr = 'about'" menu-toggle="right"><i class="ri-file-paper-2-fill"></i>&nbsp&nbspLineamientos</a> -->
@@ -431,56 +517,42 @@ body {
       </ion-side-menu-content>
 
     </ion-side-menus>
-  </script>    
+  </script>     
     
-  <script id="tabs.html" type="text/ng-template">
+ 
 
-      <ion-nav-bar class="bar-stable" >    
-        <ion-nav-buttons side="right">
-          <button class="button button-icon button-clear ion-navicon" ng-click="toggleRight()"></button>
-        </ion-nav-buttons>      
-    </ion-nav-bar>   
 
-       <ion-tabs class="tabs-icon-top tabs-stable"  >
-       <ion-tab title="Revisiones" icon="ion-ios-volume-high" href="#/menu/tab/audios" >
-        <ion-nav-view name="audios-tab"></ion-nav-view>
-      </ion-tab>     
-     <ion-tab title="Alumos" icon="ion-ios-people" href="#/menu/tab/students">
-        <ion-nav-view name="students-tab"></ion-nav-view>
-      </ion-tab>  
-       <ion-tab title="Status" icon="ion-android-clipboard" href="#/menu/tab/status">
-        <ion-nav-view name="status-tab"></ion-nav-view>
-      </ion-tab>
+
+  <script id="agenda.html" type="text/ng-template">
+    <ion-view >
       
-    </ion-tabs>
-
-  </script>
-
-
-
-  <script id="audios.html" type="text/ng-template">
-    <ion-view title="Revisión de audios">
+    <ion-back-button></ion-back-button>
+    
       <ion-content>
 
-       <div class="iframe-container"><iframe id="agendaFrame" src="https://admin.mozartacademy.mx/audios" frameborder="0" allowfullscreen></iframe></div>
+       <div class="iframe-container"><iframe id="agendaFrame" src="https://admin.mozartacademy.mx/students" frameborder="0" allowfullscreen></iframe></div>
     
       </ion-content>
     </ion-view>
   </script>
     
-    <script id="students.html" type="text/ng-template">
-    <ion-view title="Perfil">
-      <ion-content >
- 
-        <div class="iframe-container"><iframe id="profileFrame" src="https://admin.mozartacademy.mx/students" frameborder="0" allowfullscreen></iframe></div> 
-        
+    <script id="profile.html" type="text/ng-template">
+    <ion-view >
+      
+       <ion-back-button></ion-back-button>
+      <ion-content > 
+
+
+        <div class="iframe-container"><iframe id="profileFrame" src="https://admin.mozartacademy.mx/audios" frameborder="0" allowfullscreen></iframe></div>   
       </ion-content>
     </ion-view>
   </script>
 
 
+   
        <script id="status.html" type="text/ng-template">
-    <ion-view title="Status">
+    <ion-view >
+	              <ion-back-button></ion-back-button>
       <ion-content >
        <div class="list">
 				<a class="item item-avatar" href="" >
@@ -528,12 +600,49 @@ body {
   </script>
     
      <script id="lessons.html" type="text/ng-template">
-    <ion-view title="Lecciones">
+    <ion-view >
 
-      <ion-nav-bar class="bar-stable">
+      <ion-nav-bar class="bar-light" >      
+        <ion-nav-buttons side="left">
+  <!--  <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
+      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
+       Mozart Academy
+    </button> -->
+       <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
+      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
+      Mozart Academy
+  <div style="position: absolute; bottom: -5px; left: 25px; width: 15px; height: 15px; background-color: #d3d3d3; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
+        <i class="icon ion-chevron-down" style="font-size: 8px; color: black; transform: scale(0.27);"></i>
+    </div>
+    </button>
+  </ion-nav-buttons>
+       
         <ion-nav-buttons side="right">
-          <button class="button button-icon button-clear ion-navicon" ng-click="toggleRight()"></button>
-        </ion-nav-buttons>      
+          <button class="button button-clear" ng-click="toggleRight()">menu<i class="button button-icon ion-navicon"></i></button>
+        </ion-nav-buttons>   
+       
+        <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
+     <div id="bannerRow">
+      <div class="profileImageContainer">
+        <img src="{{userData.photo}}"  />
+      </div>
+      <p class="profileName">{{userData.name}}</p>
+      <p class="profileEmail">{{userData.mail}}</p>
+    </div>
+    <div class="dropdown-item" ng-click="goToStatus()">
+      <i class="ion-ios-contact-outline"></i> Perfil
+    </div>
+    <div class="dropdown-item" ng-click="goToAgenda()">
+      <i class="ion-android-calendar"></i> Alumnos
+    </div>
+    <div class="dropdown-item" ng-click="goToLibrary()">
+      <i class="ion-android-download" ></i> Biblioteca
+    </div>
+
+
+	     
+  </div>
+        
     </ion-nav-bar>
 
      <ion-content>
@@ -544,33 +653,48 @@ body {
 
     </ion-view>
   </script>   
-
-
-<script id="corrections.html" type="text/ng-template">
-    <ion-view title="Correcciones">
-
-      <ion-nav-bar class="bar-stable">
-        <ion-nav-buttons side="right">
-          <button class="button button-icon button-clear ion-navicon" ng-click="toggleRight()"></button>
-        </ion-nav-buttons>      
-    </ion-nav-bar>
-
-     <ion-content>
-       
-   <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/corrections" frameborder="0" allowfullscreen></iframe></div>
-
-      </ion-content>
-
-    </ion-view>
-  </script>   
-
     
       <script id="reel.html" type="text/ng-template">
-    <ion-view title="Reel de logros">
-	       <ion-nav-bar class="bar-stable">
+    <ion-view >
+	  
+        <ion-nav-bar class="bar-light" >      
+        <ion-nav-buttons side="left">
+  <!--  <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
+      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
+       Mozart Academy
+    </button> -->
+       <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
+      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
+     Mozart Academy
+ <div style="position: absolute; bottom: -5px; left: 25px; width: 15px; height: 15px; background-color: #d3d3d3; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
+        <i class="icon ion-chevron-down" style="font-size: 8px; color: black; transform: scale(0.27);"></i>
+    </div>
+    </button>
+  </ion-nav-buttons>
+       
         <ion-nav-buttons side="right">
-          <button class="button button-icon button-clear ion-navicon" ng-click="toggleRight()"></button>
-        </ion-nav-buttons>      
+          <button class="button button-clear" ng-click="toggleRight()">menu<i class="button button-icon ion-navicon"></i></button>
+        </ion-nav-buttons>   
+       
+        <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
+     <div id="bannerRow">
+      <div class="profileImageContainer">
+        <img src="{{userData.photo}}"  />
+      </div>
+      <p class="profileName">{{userData.name}}</p>
+      <p class="profileEmail">{{userData.mail}}</p>
+    </div>
+    <div class="dropdown-item" ng-click="goToStatus()">
+      <i class="ion-ios-contact-outline"></i> Perfil
+    </div>
+    <div class="dropdown-item" ng-click="goToAgenda()">
+      <i class="ion-android-calendar"></i> Alumnos
+    </div>
+    <div class="dropdown-item" ng-click="goToLibrary()">
+      <i class="ion-android-download" ></i> Biblioteca
+    </div>
+  </div>
+        
     </ion-nav-bar>
 	      
       <ion-content >
@@ -583,30 +707,69 @@ body {
 
     
         <script id="chat.html" type="text/ng-template">
-    <ion-view title="Asesoría">
+    <ion-view >
 
-     <ion-nav-bar class="bar-stable">
-        <ion-nav-buttons side="right">
-          <button class="button button-icon button-clear ion-navicon" ng-click="toggleRight()"></button>
-        </ion-nav-buttons>      
-    </ion-nav-bar>
+      <ion-back-button></ion-back-button>
     
       <ion-content>
-        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/chat" frameborder="0" allowfullscreen ></iframe></div> 
+        <div class="iframe-container"><iframe src="https://app.mozartacademy.mx/chat" frameborder="0" allowfullscreen ></iframe></div> 
       </ion-content>
     </ion-view>
   </script>
 
 
-   
+         <script id="payment.html" type="text/ng-template">
+    <ion-view >
+
+     <ion-back-button></ion-back-button>
+    
+      <ion-content>
+        <div class="iframe-container"><iframe src="https://app.mozartacademy.mx/payment" frameborder="0" allowfullscreen ></iframe></div> 
+      </ion-content>
+    </ion-view>
+  </script>
     
    <script id="library.html" type="text/ng-template">
-    <ion-view title="Biblioteca">
+    <ion-view >
 
-      <ion-nav-bar class="bar-stable">
+      <ion-nav-bar class="bar-light" >      
+        <ion-nav-buttons side="left">
+  <!--  <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
+      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
+       Mozart Academy
+    </button> -->
+       <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
+      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
+      Mozart Academy
+  <div style="position: absolute; bottom: -5px; left: 25px; width: 15px; height: 15px; background-color: #d3d3d3; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
+        <i class="icon ion-chevron-down" style="font-size: 8px; color: black; transform: scale(0.27);"></i>
+    </div>
+    </button>
+  </ion-nav-buttons>
+       
         <ion-nav-buttons side="right">
-          <button class="button button-icon button-clear ion-navicon" ng-click="toggleRight()"></button>
-        </ion-nav-buttons>      
+          <button class="button button-clear" ng-click="toggleRight()">menu<i class="button button-icon ion-navicon"></i></button>
+        </ion-nav-buttons>   
+       
+        <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
+     <div id="bannerRow">
+      <div class="profileImageContainer">
+        <img src="{{userData.photo}}"  />
+      </div>
+      <p class="profileName">{{userData.name}}</p>
+      <p class="profileEmail">{{userData.mail}}</p>
+    </div>
+     <div class="dropdown-item" ng-click="goToStatus()">
+      <i class="ion-ios-contact-outline"></i> Perfil
+    </div>
+    <div class="dropdown-item" ng-click="goToAgenda()">
+      <i class="ion-android-calendar"></i> Alumnos
+    </div>
+    <div class="dropdown-item" ng-click="goToLibrary()">
+      <i class="ion-android-download" ></i> Biblioteca
+    </div>
+  </div>
+        
     </ion-nav-bar>
 
 
@@ -1249,7 +1412,7 @@ body {
 
           <ion-back-button></ion-back-button>
 
-    <div class="iframe-container"><iframe src="https://dashboard.mozart.studio/notereader" frameborder="0" allowfullscreen></iframe></div>
+    <div class="iframe-container"><iframe src="https://app.mozartacademy.mx/notereader" frameborder="0" allowfullscreen></iframe></div>
        
       </ion-content>
     </ion-view>
@@ -1262,7 +1425,7 @@ body {
 
           <ion-back-button></ion-back-button>
 
-   <div class="iframe-container"><iframe src="https://dashboard.mozart.studio/circleoffifths" frameborder="0" allowfullscreen></iframe></div>
+   <div class="iframe-container"><iframe src="https://app.mozartacademy.mx/circleoffifths" frameborder="0" allowfullscreen></iframe></div>
        
       </ion-content>
     </ion-view>
@@ -1299,38 +1462,6 @@ body {
 
 
 
-  <script id="regulation.html" type="text/ng-template">   
-    <ion-view>
-        <ion-content>
-            <ion-back-button></ion-back-button>
-
-            <ion-list>
-                <div ng-repeat="group in groups">
-                    <ion-item class="item-stable item-icon-right" ng-click="toggleGroup(group)" ng-class="{active: isGroupShown(group)}">
-                        <i class="icon" ng-class="isGroupShown(group) ? 'ion-chevron-up' : 'ion-chevron-down'" style="font-size:20px;"></i>
-                        &nbsp;
-                       {{group.heading}}
-                    </ion-item>
-                    <div class="item-accordion" ng-show="isGroupShown(group)">
-                        <div class="list">
-                            <div ng-repeat="bodyitem in group.body">
-                                <a class="item" ng-click="toggleDetail(bodyitem)">
-                  {{ bodyitem.no }}  {{bodyitem.name}}
-                                </a>
-                                <div ng-show="isDetailShown(bodyitem)">
-                                <div class="list card card-4" style="height: 100%;">
-        <div class="item item-body">
-     <p> {{ bodyitem.text }}</p>
-         </div> </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </ion-list>
-        </ion-content>
-    </ion-view>
-</script>
 
 
 
@@ -1382,10 +1513,11 @@ body {
 
   </section>
 
- <section class="preloader" >
+	 <section class="preloader" style="display: none;">
     <div id="loading">&nbsp;</div>
     <div id="loading-text">Cargando</div>
   </section> 
+
 
 </body>
 
@@ -1394,16 +1526,36 @@ body {
 
   var app = angular.module('ionicApp', ['ionic']);
 app
-.service('loadingService', function() {
-  var hasLoaded = false;
-  this.getHasLoaded = function() {
-    return hasLoaded;
+.factory('SharedState', function($http, $q) {
+  var requestData = {
+                action: "getAdminData",
+                token: localStorage.getItem('ADtoken')
+              };
+  var config = {
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    }
   };
-  this.setHasLoaded = function(value) {
-    hasLoaded = value;
+
+  var getNum = function() {
+    var deferred = $q.defer();
+
+    $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
+      .then(function(response) {
+        deferred.resolve({	
+          data: response.data
+        });
+      }, function(error) {
+        deferred.reject(error);
+      });
+
+    return deferred.promise;
+  };
+
+  return {
+    getNum: getNum
   };
 })
-
 .config(function ($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
 
    $stateProvider
@@ -1413,21 +1565,13 @@ app
       templateUrl: "menu.html",
       controller: 'MenuCtrl'
     })
-    .state('menu.tabs', {
-      url: "/tab",
-      views: {
-        'menuContent' :{
-          templateUrl: "tabs.html"
-        }
-      }
-    })
-   .state('menu.tabs.status', {
+   .state('menu.status', {
       url: "/status",
       views: {
-        'status-tab': {
+        'menuContent': {
           templateUrl: "status.html",
           controller: 'StatusCtrl',
-	  resolve: {
+           resolve: {
             userData: function($http, $ionicLoading, loadingService) {
 	     if (!loadingService.getHasLoaded()) {
 	        $ionicLoading.show({
@@ -1453,23 +1597,23 @@ app
                   return response.data;
                 });
             }
-          }	
+          }
         }
       }
     })
-    .state('menu.tabs.audios', {
-      url: "/audios",
+    .state('menu.agenda', {
+      url: "/agenda",
       views: {
-        'audios-tab': {
-          templateUrl: "audios.html"
+        'menuContent': {
+          templateUrl: "agenda.html"
         }
       }
     })
-  .state('menu.tabs.students', {
-      url: "/students",
+  .state('menu.profile', {
+      url: "/profile",
       views: {
-        'students-tab': {
-          templateUrl: "students.html"
+        'menuContent': {
+          templateUrl: "profile.html"
         }
       }
     })
@@ -1481,14 +1625,6 @@ app
         }
       }
     }) 
-.state('menu.corrections', {
-      url: "/corrections",
-      views: {
-        'menuContent': {
-          templateUrl: "corrections.html"
-        }
-      }
-    }) 
  .state('menu.chat', {
       url: "/chat",
       views: {
@@ -1497,7 +1633,14 @@ app
         }
       }
     })
-
+ .state('menu.payment', {
+      url: "/payment",
+      views: {
+        'menuContent': {
+          templateUrl: "payment.html"
+        }
+      }
+    })
    .state('menu.metronome', {
       url: "/metronome",
       views: {
@@ -1673,9 +1816,9 @@ app
         }
       }
     })
-    ;
+    ; 
 
-  $urlRouterProvider.otherwise("menu/tab/students");
+  $urlRouterProvider.otherwise("menu/lessons");
   $ionicConfigProvider.tabs.position('bottom'); 
 })
 
@@ -1686,30 +1829,63 @@ app
 
 .controller('MenuCtrl', ['$http', '$scope', '$ionicSideMenuDelegate', '$ionicModal', function($http, $scope, $ionicSideMenuDelegate, $ionicModal) {
   $scope.toggleRight = function() {
+    $('.item').removeClass('anim');
+    setTimeout(function() {
+        $('.item').each(function(index) {
+            $(this).addClass('anim').css('animation-delay', (index * 0.1) + 's');
+        });
+    }, 10);
+    
     $ionicSideMenuDelegate.toggleRight();
-  };
+};
+  
+  SharedState.getNum().then(function(data) {
+       $scope.userData = data.data;
+  })
+
+	  $scope.isDropdownVisible = false;
+    $scope.toggleDropdown = function() {
+      $scope.isDropdownVisible = !$scope.isDropdownVisible;
+    };
+   $scope.goToProfile = function() {
+  window.location.href = '#/menu/profile';
+};  
+     $scope.goToAgenda = function() {
+  window.location.href = '#/menu/agenda';
+};  
+     $scope.goToStatus = function() {
+  window.location.href = '#/menu/status';
+};
+	  $scope.goToLibrary = function() {
+  window.location.href = '#/menu/library';
+};  
+
+
+
 
   $scope.logout = function() {
    localStorage.removeItem('ADtoken');
    window.location.href = 'https://admin.mozartacademy.mx/';
   }
+
+
  }])
 
   .controller('StatusCtrl', ['$http', '$scope', '$ionicModal', 'userData', function($http, $scope, $ionicModal, userData){
-         $scope.userData = userData;
+     $scope.userData = userData;
   
-	   $ionicModal.fromTemplateUrl('modal.html', {
+	/*   $ionicModal.fromTemplateUrl('modal.html', {
   scope: $scope,
   animation: 'slide-in-up'  
 }).then(function(modal) {
   $scope.modal = modal;
-});
+});*/
       $scope.goToPayment = function() {
   window.location.href = '#/menu/payment';
 };
       
     }])
-   .controller('manualsCtrl', ['$http', '$scope', '$sce', 'SharedState', function($http, $scope, $sce, SharedState){
+   .controller('manualsCtrl', ['$http', '$scope', '$sce', function($http, $scope, $sce){
     $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
@@ -1729,12 +1905,8 @@ app
         }, 400);
     };
 
-   $scope.isLoading = true;
-  SharedState.getNum().then(function(data) {
-    $scope.lvl = data.lvl;
-    $scope.blq = data.blq;
-     $scope.isLoading = false;
-  })
+   $scope.lvl = 3;
+    $scope.blq = 3;
 
  $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
@@ -1748,7 +1920,7 @@ app
 
  
 }])
-	 .controller('repCtrl1', ['$http', '$scope', '$sce', 'SharedState', function($http, $scope, $sce, SharedState){
+	 .controller('repCtrl1', ['$http', '$scope', '$sce', function($http, $scope, $sce){
     $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
@@ -1768,12 +1940,8 @@ app
         }, 400);
     };
 
-     $scope.isLoading = true;
-  SharedState.getNum().then(function(data) {
-    $scope.lvl = data.lvl;
-    $scope.blq = data.blq;
-     $scope.isLoading = false;
-  })
+   $scope.lvl = 3;
+    $scope.blq = 3;
 	    
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
@@ -1786,7 +1954,7 @@ $scope.manuals = [
     ];
     
 }])
-   .controller('repCtrl2', ['$http', '$scope', '$sce', 'SharedState', function($http, $scope, $sce, SharedState){
+   .controller('repCtrl2', ['$http', '$scope', '$sce', function($http, $scope, $sce){
     $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
@@ -1806,12 +1974,8 @@ $scope.manuals = [
         }, 400);
     };
 
-     $scope.isLoading = true;
-  SharedState.getNum().then(function(data) {
-    $scope.lvl = data.lvl;
-    $scope.blq = data.blq;
-     $scope.isLoading = false;
-  })
+   $scope.lvl = 3;
+    $scope.blq = 3;
 	    
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
@@ -1824,7 +1988,7 @@ $scope.manuals = [
     ];
     
 }])
-	   .controller('repCtrl3', ['$http', '$scope', '$sce', 'SharedState', function($http, $scope, $sce, SharedState){
+	   .controller('repCtrl3', ['$http', '$scope', '$sce', function($http, $scope, $sce){
     $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
@@ -1844,12 +2008,8 @@ $scope.manuals = [
         }, 400);
     };
 
-     $scope.isLoading = true;
-  SharedState.getNum().then(function(data) {
-    $scope.lvl = data.lvl;
-    $scope.blq = data.blq;
-     $scope.isLoading = false;
-  })
+   $scope.lvl = 3;
+    $scope.blq = 3;
 	    
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
@@ -1863,7 +2023,7 @@ $scope.manuals = [
     
 }])
 	
-	   .controller('repCtrl4', ['$http', '$scope', '$sce', 'SharedState', function($http, $scope, $sce, SharedState){
+	   .controller('repCtrl4', ['$http', '$scope', '$sce', function($http, $scope, $sce){
     $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
@@ -1883,12 +2043,8 @@ $scope.manuals = [
         }, 400);
     };
 
-     $scope.isLoading = true;
-  SharedState.getNum().then(function(data) {
-    $scope.lvl = data.lvl;
-    $scope.blq = data.blq;
-     $scope.isLoading = false;
-  })
+    $scope.lvl = 3;
+    $scope.blq = 3;
 	    
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
@@ -1902,7 +2058,7 @@ $scope.manuals = [
     
 }])
 
-	   .controller('booksCtrl1', ['$http', '$scope', '$sce', 'SharedState', function($http, $scope, $sce, SharedState){
+	   .controller('booksCtrl1', ['$http', '$scope', '$sce', function($http, $scope, $sce){
     $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
@@ -1922,12 +2078,8 @@ $scope.manuals = [
         }, 400);
     };
 
-     $scope.isLoading = true;
-  SharedState.getNum().then(function(data) {
-    $scope.lvl = data.lvl;
-    $scope.blq = data.blq;
-     $scope.isLoading = false;
-  })
+    $scope.lvl = 3;
+    $scope.blq = 3;
 	    
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
@@ -1960,12 +2112,8 @@ $scope.manuals = [
         }, 400);
     };
 
-     $scope.isLoading = true;
-  SharedState.getNum().then(function(data) {
-    $scope.lvl = data.lvl;
-    $scope.blq = data.blq;
-     $scope.isLoading = false;
-  })
+    $scope.lvl = 3;
+    $scope.blq = 3;
 	    
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
@@ -1978,7 +2126,7 @@ $scope.manuals = [
     ];
     
 }])
-	   .controller('booksCtrl3', ['$http', '$scope', '$sce', 'SharedState', function($http, $scope, $sce, SharedState){
+	   .controller('booksCtrl3', ['$http', '$scope', '$sce', function($http, $scope, $sce){
     $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
@@ -1998,12 +2146,9 @@ $scope.manuals = [
         }, 400);
     };
 
-     $scope.isLoading = true;
-  SharedState.getNum().then(function(data) {
-    $scope.lvl = data.lvl;
-    $scope.blq = data.blq;
-     $scope.isLoading = false;
-  })
+    $scope.lvl = 3;
+    $scope.blq = 3;
+
 	    
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
@@ -2016,72 +2161,8 @@ $scope.manuals = [
     ];
     
 }])
-    
-  .controller('AccordianCtrl', function($scope){
-    $scope.groups = [{
-        "heading": "Matrícula",
-        "body": [
-            {"no":1, "name":"Asignación de horario", "text":"El alumno elegirá un horario de clase dentro de los disponibles en la academia, es posible elegirlo para comenzar a la media (por ejemplo de 2:30 a 3:30) siempre y cuando se acuerde con la administración. "},
-            {"no":2, "name":"Cambio de horario", "text":"Para tramitar un cambio de horario o plan de pago, se deberá realizar al término de la mensualidad vigente. "}
-        ]
-    },{
-        "heading": "Asistencias",
-        "body": [
-           {"no":1, "name":"raj", "text":"25"},
-            {"no":2, "name":"kumar", "text":"24"},
-            {"no":3, "name":"kumar", "text":"24"}
-        ]
-    }, {
-        "heading": "Inasistencias",
-        "body": [
-            {"sno":10, "name":"John", "age":"25", "sex":"M", "status":"Pass"},
-            {"sno":20, "name":"Ravi", "age":"24", "sex":"M", "status":"fail"},
-            {"sno":30, "name":"Priya", "age":"26", "sex":"F", "status":"Fail"}
-        ]
-    }, {
-        "heading": "Retardos",
-        "body": [
-            {"sno":10, "name":"John", "age":"25", "sex":"M", "status":"Pass"},
-            {"sno":20, "name":"Ravi", "age":"24", "sex":"M", "status":"fail"},
-            {"sno":30, "name":"Priya", "age":"26", "sex":"F", "status":"Fail"}
-        ]
-    }
-                    
-                    ]; 
-
-    /*
-    * if given group is the selected group, deselect it
-    * else, select the given group
-    */
-    $scope.toggleGroup = function(group) {
-        if ($scope.isGroupShown(group)) {
-            $scope.shownGroup = null;
-        } else {
-            $scope.shownGroup = group;
-        }
-    };
-
-    $scope.isGroupShown = function(group) {
-        return $scope.shownGroup === group;
-    };
-
-    $scope.isDetailShown = function(bodyitem) {
-        return $scope.shownDetail === bodyitem;
-    };
-
-    $scope.toggleDetail = function(bodyitem) {
-        if ($scope.isDetailShown(bodyitem)) {
-            $scope.shownDetail = null;
-        } else {
-            $scope.shownDetail = bodyitem;
-        }
-    };
-});
 
     </script>
-
-
-
 
 
 
@@ -2098,7 +2179,7 @@ $(window).on('load', function() {
       headers: {
         "Content-Type": "text/plain;charset=utf-8"
       },
-      body: JSON.stringify({
+     body: JSON.stringify({
         action: "accessAdmin",
         token: storedToken
       })
@@ -2110,18 +2191,16 @@ $(window).on('load', function() {
     var validation = JSON.parse(res);
     if (validation.status == "success") {
       $('.preloader').css({'display':'none'})  
-      $('.mainSection').fadeIn('slow') 
+      $('.mainSection').fadeIn('slow')  
     } else {
       localStorage.removeItem('ADtoken');
-      window.location.href = 'https://admin.mozartacademy.mx/';
+     window.location.href = 'https://admin.mozartacademy.mx/';
     }
   })
   } else {
     window.location.href = 'https://admin.mozartacademy.mx/';
   }
 });
-
-
 
 
 </script>
