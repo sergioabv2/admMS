@@ -2937,9 +2937,9 @@ input[type="radio"]:checked + label.green-bg::after {
   //Angular Materialize
 var app = angular.module('materializeApp', ['ui.materialize']);
 app.factory('SharedState', function($http, $q) {
-  var requestData = {
-    action: "getBasicData",
-    token: localStorage.getItem('MStoken')
+ var requestData = {
+      action: "getAdminData",
+      token: localStorage.getItem('ADtoken')
   };
 
   var config = {
