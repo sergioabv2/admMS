@@ -296,7 +296,7 @@ body * {
  
 <br>
     
-  <li class="Email" ng-repeat="(index, alert) in alerts" ng-click="activateEmail(index, alert)" ng-class="{ 'active': activeEmailIndex === index, 'deactive': activeEmailIndex !== null && activeEmailIndex !== index }">
+  <li class="Email" ng-repeat="(index, alert) in filteredStudents(alerts)" ng-click="activateEmail(index, alert)" ng-class="{ 'active': activeEmailIndex === index, 'deactive': activeEmailIndex !== null && activeEmailIndex !== index }">
     <div class="ImgWrapper">
     <div class="img" style="background-image: url('{{alert.photo}}');"></div>
     </div>
@@ -356,7 +356,12 @@ alertsApp.controller('alertsCtrl', ['$http', '$scope', '$sce', function($http, $
 	    $scope.alerts = response.data.students;
 	});
 
-   
+    $scope.filteredStudents = function(students) {
+  return students.filter(student => 
+    student.audios.length > 0
+  );
+};
+	
   $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
