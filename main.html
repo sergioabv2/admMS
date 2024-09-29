@@ -498,9 +498,10 @@ body {
             <a href="#/menu/lessons" class="item" ng-class="(activeMenuClr=='lessons')?'menuSelectedColor':''" ng-click="activeMenuClr = 'lessons'" menu-toggle="right"><i class="ri-presentation-fill" ></i>&nbsp&nbspCursos</a> 
           <a href="#/menu/profile" class="item" ng-class="(activeMenuClr=='profile')?'menuSelectedColor':''" ng-click="activeMenuClr = 'profile'" menu-toggle="right"><i class="ri-volume-up-fill" ></i>&nbsp&nbspRevisiones</a> 
               
-                         <!--  <a href="#/menu/library" class="item" ng-class="(activeMenuClr=='library')?'menuSelectedColor':''" ng-click="activeMenuClr = 'library'" menu-toggle="right"><i class="ri-volume-up-fill" ></i>&nbsp&nbspRevisiones</a> -->
+           
      
-       <a href="#/menu/reel" class="item" ng-class="(activeMenuClr=='reel')?'menuSelectedColor':''" ng-click="activeMenuClr = 'reel'" menu-toggle="right"><i class="ri-edit-2-fill" ></i>&nbsp&nbspCorrecciones</a>   
+       <a href="#/menu/reel" class="item" ng-class="(activeMenuClr=='reel')?'menuSelectedColor':''" ng-click="activeMenuClr = 'reel'" menu-toggle="right"><i class="ri-edit-2-fill" ></i>&nbsp&nbspCorrecciones</a>  
+	     <a href="#/menu/library" class="item" ng-class="(activeMenuClr=='library')?'menuSelectedColor':''" ng-click="activeMenuClr = 'library'" menu-toggle="right"><i class="ri-git-repository-fill" ></i>&nbsp&nbspBiblioteca</a> 
 	<!--   <a href="#/menu/resources" class="item" ng-class="(activeMenuClr=='resources')?'menuSelectedColor':''" ng-click="activeMenuClr = 'resources'" menu-toggle="right"><i class="ri-dashboard-fill"></i>&nbsp&nbspRecursos</a>
 	  <a href="#/menu/chat" class="item" ng-class="(activeMenuClr=='chat')?'menuSelectedColor':''" ng-click="activeMenuClr = 'chat'"  menu-toggle="right"><i class="ri-question-answer-fill"></i>&nbsp&nbspTutor</a>     
              <a href="#/menu/about" class="item" ng-class="(activeMenuClr=='about')?'menuSelectedColor':''" ng-click="activeMenuClr = 'about'" menu-toggle="right"><i class="ri-file-paper-2-fill"></i>&nbsp&nbspLineamientos</a> -->
@@ -569,10 +570,7 @@ body {
       <i class="ion-ios-contact-outline"></i> Perfil
     </div>
     <div class="dropdown-item" ng-click="goToAgenda()">
-      <i class="ion-android-calendar"></i> Alumnos
-    </div>
-    <div class="dropdown-item" ng-click="goToLibrary()">
-      <i class="ion-android-download" ></i> Biblioteca
+      <i class="ion-ios-people"></i> Alumnos
     </div>
   </div>
         
@@ -671,10 +669,7 @@ body {
       <i class="ion-ios-contact-outline"></i> Perfil
     </div>
     <div class="dropdown-item" ng-click="goToAgenda()">
-      <i class="ion-android-calendar"></i> Alumnos
-    </div>
-    <div class="dropdown-item" ng-click="goToLibrary()">
-      <i class="ion-android-download" ></i> Biblioteca
+      <i class="ion-ios-people"></i> Alumnos
     </div>
 
 
@@ -726,10 +721,7 @@ body {
       <i class="ion-ios-contact-outline"></i> Perfil
     </div>
     <div class="dropdown-item" ng-click="goToAgenda()">
-      <i class="ion-android-calendar"></i> Alumnos
-    </div>
-    <div class="dropdown-item" ng-click="goToLibrary()">
-      <i class="ion-android-download" ></i> Biblioteca
+      <i class="ion-ios-people"></i> Alumnos
     </div>
   </div>
         
@@ -801,10 +793,7 @@ body {
       <i class="ion-ios-contact-outline"></i> Perfil
     </div>
     <div class="dropdown-item" ng-click="goToAgenda()">
-      <i class="ion-android-calendar"></i> Alumnos
-    </div>
-    <div class="dropdown-item" ng-click="goToLibrary()">
-      <i class="ion-android-download" ></i> Biblioteca
+      <i class="ion-ios-people"></i> Alumnos
     </div>
   </div>
         
@@ -1564,6 +1553,15 @@ body {
 
   var app = angular.module('ionicApp', ['ionic']);
 app
+	.service('loadingService', function() {
+  var hasLoaded = false;
+  this.getHasLoaded = function() {
+    return hasLoaded;
+  };
+  this.setHasLoaded = function(value) {
+    hasLoaded = value;
+  };
+})
 .factory('SharedState', function($http, $q) {
   var requestData = {
                 action: "getAdminData",
@@ -1918,10 +1916,7 @@ app
 }).then(function(modal) {
   $scope.modal = modal;
 });*/
-      $scope.goToPayment = function() {
-  window.location.href = '#/menu/payment';
-};
-      
+ 
     }])
    .controller('manualsCtrl', ['$http', '$scope', '$sce', function($http, $scope, $sce){
     $scope.trustAsResourceUrl = function(url) {
