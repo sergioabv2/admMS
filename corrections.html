@@ -2,15 +2,15 @@
   
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,700,700i">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
 </head>
 
 
+
 <style>
-  body {
-  font-family: "Source Sans Pro", sans-serif;
+    body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 h1 {
   text-align: center;
@@ -308,13 +308,12 @@ button { margin: 0 .5rem }
 
 
 
-@media (max-width: 700px){
+@media (max-width: 750px){
   #vidContainer{
     display: none;
   }
 }
 </style>
-
 
 <div class="container">
 <div class="row">
@@ -328,6 +327,8 @@ button { margin: 0 .5rem }
 <div>
 <button class="btn btn-default" onClick="recordScreenAndAudio()">Grabar pantalla</button>
 <button id="stop-btn" class="btn btn-default" onClick="stopRecording()">Stop!</button>
+  <br>
+  <button id="play-btn" class="btn btn-default" onClick="playGeneratedVideo()" style="display: none">Play</button>
 </div>
  </div>
          
@@ -350,7 +351,7 @@ button { margin: 0 .5rem }
      <input type="hidden" id="imageData">
      <span id="file-send-btn" data-dismiss="modal" style="display: none;"> </span>  
   </label> 
-                 
+                  
 </form>
   </div>       
 
@@ -358,54 +359,36 @@ button { margin: 0 .5rem }
   <div id="students" ng-app="studentsApp" ng-controller="studentsCtrl">
 <div id="users">
   <div class="container">
-    <div class="row">
-      <div class="col-sm-7">
-    <input ng-model="query" class="search form-control" placeholder="Buscar" type="text" id="query" />   
-        <br>
-  <div ng-model="orderList">
-    <button class="btn btn-warning" ng-click="filterByColor('orange')">
-    Marcados
-  </button>
-     <button class="btn btn-light" ng-click="filterByColor('green')" >
-    Todos
-  </button>
-  
-    
-    </div>
-        
-      </div>
-    </div>
+
 <br>     
         
-    <li ng-repeat="student in filteredStudents | filter: { name: query } | orderBy: orderList" id="active" ng-click="$event.preventDefault();$event.stopPropagation()"> 
+    <li ng-repeat="student in filteredStudents(students)" id="active" ng-click="$event.preventDefault();$event.stopPropagation()"> 
    
         <div class="list-group list">
           <a href="#" class="list-group-item" >
-            
-  
 
         <div class="col-sm-7">  
+           <button type="button" class="btn btn-success" ng-click="sendData(student);$event.preventDefault();$event.stopPropagation()" style="float: right; margin-top: 20px;">Enviar &nbsp; <i class="fa fa-chevron-circle-right" aria-hidden="true" ></i></button>
+           
               <h4 class="list-group-item-heading name">{{student.name}}</h4>     
      <h5 class="list-group-item-text title" style="font-size: 15px;">Nivel Preparatorio</h5>  
-   <span class="label label-default expertise lessonTag" ng-click="abrirNuevaPestana('https://www.facebook.com');$event.preventDefault();$event.stopPropagation()">
-  3. Lección: Intervalos de 2da y 3era
-</span> <br>          
-
-   <div style="font-weight: 600; margin-top:5px;">  Fecha de entrega: <br>
-        <span style="font-weight: 400;"> {{student.schedule}} </span></div>         
+   <span class="label label-default expertise-label" ng-repeat="lsn in student.currentLsn" ng-click="abrirNuevaPestana(lsn.pdf);$event.preventDefault();$event.stopPropagation()">
+  {{lsn.name}} 
+     <br>  
+</span>         
+      
+          
+   <div style="font-weight: 600; margin-top:5px;" ng-repeat="media in student.audios | filter: { correction: true }">  {{media.lesson}} <br>
+     
+     
+      <iframe  ng-src="{{trustAsResourceUrl(media.audio)}}" frameborder="0" height="50px" width="300px"></iframe>   
+     <div style="display: none" lsn-Name="{{media.lesson}}" lsn-Index="{{media.index}}" id="{{student.mail}}"></div>
             </div>    
-            
-
+          </div>         
+ 
             
            <div class="col-sm-7">             
-          
-              
- 
-         <button type="button" class="btn btn-primary" ng-click=";$event.preventDefault();$event.stopPropagation()" style="position: absolute; bottom: 65px; right: 5px;">Abrir &nbsp; <i class="fa fa-chevron-circle-right" aria-hidden="true" ></i></button>
-                    <button type="button" class="btn btn-success" ng-click="sendVideo(student);$event.preventDefault();$event.stopPropagation()" style="position: absolute; bottom: 15px; right: 5px;">Enviar &nbsp; <i class="fa fa-chevron-circle-right" aria-hidden="true" ></i></button>
-  
-     
-             
+            
             </div>         
             <div class="clearfix"></div>
           </a>
@@ -422,93 +405,117 @@ button { margin: 0 .5rem }
 </div>
   </div>
 
-
-
 <script>
   var studentsApp = angular.module('studentsApp', []);
+ 
 
-
-studentsApp.controller('studentsCtrl', ['$http', '$scope', function($http, $scope) {
+studentsApp.controller('studentsCtrl', ['$http', '$scope', '$sce', function($http, $scope, $sce) {
   $scope.students = [];
   $scope.orderList = 'name';
 
-  $http({
-    method: 'GET',
-    url: 'https://script.google.com/macros/s/AKfycbxOqxZIRpmYVUHlOqM3it1ofWAE9CqmlCsi47agePqX901UNIei-qKTWJLaobRsX75tfw/exec',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    }
-  }).then(function(response) {
-    $scope.students = response.data;
-     $scope.filterByColor('orange');
+   var requestData = {
+                action: "getAdminData",
+                token: "U2FsdGVkX1+m/gQ8vJ6sOJXa+EkPHlIr1KdWqGZUhtljm8TRG44vpQjT0IyMs2n0"
+              };
+
+              var config = {
+                headers: {
+                  "Content-Type": "text/plain;charset=utf-8"
+                },
+                followRedirects: true
+              };
+   
+  $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
+    .then(function(response) { 
+      $scope.students = response.data.students;
+    $scope.filterByHour();
   });
   
 
   
   
-  $scope.abrirNuevaPestana = function(URL) {
-    window.open(URL, '_blank');
+ $scope.abrirNuevaPestana = function(URL) {
+     const regex = /\/d\/([^\/]+)\//;
+    const matches = URL.match(regex);
+    var id = matches ? matches[1] : null;
+     var url = "https://admin.mozartacademy.mx/edit?fileId="+id
+    window.open(url, '_blank');
   };
   
- 
+  $scope.trustAsResourceUrl = function(url) {
+        return $sce.trustAsResourceUrl(url);
+    };
   
- $scope.setOrder = function(color) {
-    $scope.orderList = color;
-    $scope.students = $scope.students.filter(function(student) {
-      if ($scope.orderList === 'green' && student.color === 'green') {
-        return true;
-      } else if ($scope.orderList === 'orange' && student.color === 'orange') {
-        return true;
-      } else if ($scope.orderList === 'red' && student.color === 'red') {
-        return true;
-      } else {
-        return false;
-      }
-    });
-  };
+  $scope.filteredStudents = function(students) {
+  return students.filter(student => 
+    student.audios.some(audio => audio.correction === true)
+  );
+};
 
-   $scope.filteredStudents = [];
-
-  $scope.filterByColor = function(color) {
-    $scope.filteredStudents = $scope.students.filter(function(student) {
-      return student.color === color;
-    });
-  };
   
-  
-   $scope.sendVideo = function(student) { 
+   $scope.sendData = function(student) { 
      var base64Video = document.getElementById("videodata").textContent
-     
-   /* var requestData = {
-    action: "postVideo",
-    mail: "sergioabv2@gmail.com",
-    blob: base64Video
-  };
-
-  var config = {
-    headers: {
-      "Content-Type": "text/plain;charset=utf-8"
-    },
-    followRedirects: true, 
-  };
-  
-
-  $http.post('https://script.google.com/macros/s/AKfycbzIra465SJypRhzRL6ihOF0dmuCCykgZF3F4PufbHR76OBkyhS7NLvAu0joiJr5VfwM/exec', requestData, config)
+     var base64Image = document.getElementById("imageData").value
+     var lsnName = document.getElementById(student.mail).getAttribute('lsn-Name');
+     var lsnIndex = document.getElementById(student.mail).getAttribute('lsn-Index');
+      
+      if(base64Image == "" && base64Video == ""){
+        alert("No se ha grabado video o cargado una imagen")
+      }else{
+ 
+     if(base64Image != ""){
+      var requestData = {
+        action: "postImgC",
+        mail: student.mail,
+        lsn: lsnName,
+        index: lsnIndex,
+        blob: base64Image
+      };
+        document.getElementById("imageData").value = "";
+       document.getElementById('file-image').classList.add("hidden");
+        document.getElementById('response').classList.add("hidden");
+        document.getElementById('start2').style.display = 'block';
+       document.getElementById("file-upload-form").reset();
+     }else if(base64Video != ""){
+       var requestData = {
+        action: "postVideoC",
+       mail: student.mail,
+        lsn: lsnName,
+        index: lsnIndex,
+        blob: base64Video
+      };    
+   var video = document.getElementById('video')
+   video.srcObject = null;
+  video.src = '';
+  video.muted = true;
+  document.getElementById('videodata').textContent = '';
+     document.getElementById('play-btn').style.display = 'none';
+   $("#stop-btn").removeClass("btn-danger").addClass("btn-default");
+    }  
+        
+   var config = {
+     headers: {
+       "Content-Type": "text/plain;charset=utf-8"
+     },
+       followRedirects: true, 
+     };
+       /* $http.post('https://script.google.com/macros/s/AKfycbzIra465SJypRhzRL6ihOF0dmuCCykgZF3F4PufbHR76OBkyhS7NLvAu0joiJr5VfwM/exec', requestData, config)
     .then(function(response) {
       //$scope.userData = response.data;
-    })*/
-     alert(student.name)
-      var index = $scope.filteredStudents.indexOf(student);
-        if (index !== -1) {
-            $scope.filteredStudents.splice(index, 1);
-        }
-     $("#stop-btn").removeClass("btn-danger").addClass("btn-default");
+    })  */
+        
+    /*    var index = $scope.students.indexOf(student);
+                if (index !== -1) {
+                    $scope.students.splice(index, 1);
+                }    */
+        
+   }
+
+
+ 
+    
    };
-  
-  
-   
-  
+
 }]);
 
 
@@ -601,12 +608,17 @@ async function recordScreenAndAudio() {
     reader.onloadend = function() {
     const base64Video = reader.result;
     document.getElementById('videodata').textContent = base64Video;
+      document.getElementById('play-btn').style.display = 'block';
     }
    }
   
   recorder.start(200)
 }
 
+function playGeneratedVideo() {
+  var video = document.getElementById('video')
+    video.play();
+}
 
 
 
@@ -663,7 +675,7 @@ async function recordScreenAndAudio() {
     function convertFileToBase64(file) {
     var reader = new FileReader();
     reader.onloadend = function() {
-      var base64image = reader.result.split(',')[1];
+      var base64image = reader.result;
       document.getElementById("imageData").value = base64image;
     };
     reader.readAsDataURL(file);
