@@ -1,9 +1,9 @@
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
-
+ <link href="https://cdn.jsdelivr.net/npm/remixicon@3.7.0/fonts/remixicon.css" rel="stylesheet"/>
 
 
 <style>
@@ -13,13 +13,16 @@
 h1 {
   text-align: center;
 }
+  .container{
+    max-width: 720px;
+  }
 .row {
   margin-top: 10px;
   margin-bottom: 10px;
 }
 .photo {
   border-radius: 45px;
-  margin-right: 20px;
+
   width: 90px;
   height: 90px;
 }
@@ -80,73 +83,351 @@ li {
   text-align: center; 
 }
 
-.fa-check-circle{
+
+
+
+@media only screen and (min-width: 992px) {
+
+
+  .radial-menu{
+     margin-right: -80px;
+  }
+  .radial-menu:hover .menu-item{
+	left: 18px;
+    top:-40px;
+    transform-origin: calc(60%) calc(50% + 70px);
+  }
+  
+  }  
+  
+
+
+
+   
+.radial-menu{
+    z-index: 20;
+		width:100px;
+		height:100px;
+		margin:auto;
+right: -10px;
+  top: 25px;
+		position:absolute;
+		border-radius:50%;
+		display:flex;
+		justify-content:center;
+		align-items:center;
+		cursor: pointer;
+		font-size: 20px;
+
+}
+
+.larger-area{
+	background: transparent;
+	width: 100px;
+	height: 100px;
+	position: absolute;
+	border-radius: 50%;
+	z-index: -2;
+	transition: 1s ease;
+  cursor:default;
+}
+.radial-menu:hover .larger-area{
+	width: 230px;
+	height: 230px;
+	transition: 1s ease;
+}
+.menu-item{
+    position:absolute;
+    width:50px;
+    height:50px;
+    justify-content:center;
+    align-items:center;
+    z-index:19;
+  display: flex;
+    border-radius:50%;
+		top:calc(50% - 25px);
+		left: 50%;
+		transform-origin: 0;
+		transition: 1s ease;
+		font-size: 30px;
+		color: #2e2e2e;
+  opacity: 0;
+    visibility: hidden;
+}
+.radial-menu:hover .menu-item{
+	top:-35px;
+	left: -120px;
+	transition: 1s ease;
+	transform-origin: calc(60%) calc(70% + 55px);
+  opacity: 1;
+    visibility: visible;
+}
+
+._1{
+  background-image: linear-gradient(-45deg, #c1cfff, #889AD9);
+		transform:rotate(0);
+}
+._1:hover{
+  background-image: linear-gradient(-45deg, #a8b4dc, #6a77a6);
+		transition: background-image 0s;
+}
+._1>div{
+    transform:rotate(0);
+		transition: 1s ease;
+}
+.radial-menu:hover ._1>div{
+    transform:rotate(calc(360deg));
+		transition: 1s ease;
+}
+._2{
+		background-image: linear-gradient(135deg, #fbf5f1, #DED5CE);
+		transform:rotate(-45deg);
+}
+._2:hover{
+		background-image: linear-gradient(135deg, #d7cec8, #9c9189);
+		transition: background-image 0s;
+}
+._2>div{
+    transform:rotate(0);
+		transition: 1s ease;
+}
+.radial-menu:hover ._2>div{
+    transform:rotate(calc(45deg + 360deg));
+		transition: 1s ease;
+}
+._3{
+		background-image: linear-gradient(-90deg, #fde7ea, #DDBEC3);
+		transform:rotate(-90deg);
+}
+._3:hover{
+		background-image: linear-gradient(-90deg, #d7c2c5, #ae9297);
+		transition: background-image 0s;
+}
+._3>div{
+    transform:rotate(0);
+		transition: 1s ease;
+}
+.radial-menu:hover ._3>div{
+    transform:rotate(calc(90deg + 360deg));
+		transition: 1s ease;
+}
+._4{
+		background-image: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+		transform:rotate(-135deg);
+}
+._4:hover{
+	 background-image: linear-gradient(135deg, #80deea, #4dd0e1);
+		transition: background-image 0s;
+}
+._4>div{
+    transform:rotate(0);
+		transition: 1s ease;
+}
+.radial-menu:hover ._4>div{
+    transform:rotate(calc(135deg + 360deg));
+		transition: 1s ease;
+}
+._5{
+		background-image: linear-gradient(0deg, #fb9084, #C5685E);
+		transform:rotate(-180deg);
+}
+._5:hover{
+		background-image: linear-gradient(0deg, #c77066, #964e47);
+		transition: background-image 0s;
+}
+._5>div{
+    transform:rotate(0);
+		transition: 1s ease;
+}
+.radial-menu:hover ._5>div{
+    transform:rotate(calc(180deg + 360deg));
+		transition: 1s ease;
+}
+._6{
+		background-image: linear-gradient(45deg, #dbeaec, #90a4a6);
+		transform:rotate(-225deg);
+}
+._6:hover{
+		background-image: linear-gradient(45deg, #bfcdcf, #6f8285);
+		transition: background-image 0s;
+}
+._6>div{
+    transform:rotate(0);
+		transition: 1s ease;
+}
+.radial-menu:hover ._6>div{
+    transform:rotate(calc(225deg + 360deg));
+		transition: 1s ease;
+}
+._7{
+		background-image: linear-gradient(90deg, #fbf4f8, #DFCED8);
+		transform:rotate(-270deg);
+}
+._7:hover{
+		background-image: linear-gradient(90deg, #dcced6, #aea0a9);
+		transition: background-image 0s;
+}
+._7>div{
+    transform:rotate(0);
+		transition: 1s ease;
+}
+.radial-menu:hover ._7>div{
+    transform:rotate(calc(270deg + 360deg));
+		transition: 1s ease;
+}
+._8 {
+    background-image: linear-gradient(135deg, #e0f2e9, #b3d9c5);
+    transform: rotate(-315deg);
+}
+
+._8:hover {
+    background-image: linear-gradient(135deg, #a6cbb2, #749c83);
+    transition: background-image 0s;
+}
+
+._8>div{
+    transform:rotate(0);
+		transition: 1s ease;
+}
+.radial-menu:hover ._8>div{
+    transform:rotate(calc(315deg + 360deg));
+		transition: 1s ease;
+}
+@keyframes rot{
+    100%{transform:rotate(360deg);}
+}
+
+
+
+
+
+
+
+
+
+.modal-container {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 999;
+}
+
+.custom-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px; 
+  text-align: center;
+}
+
+/* Estilos para el label */
+.custom-label {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Estilos para el select */
+.custom-select {
+  width: 100%; /* Ajusta para ocupar todo el ancho */
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 20px; /* Espacio entre select y botones */
+}
+
+.button-group {
+  display: flex;
+   justify-content: center; /* Centra los botones */
+  gap: 10px;
+}
+
+.custom-button {
+  padding: 10px 20px;
+  background-color: #adb5bd;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.custom-select2 {
+  width: 45px; /* Ajusta el tamaño para que los select se alineen */
+  padding: 5px;
+  font-size: 16px;
+margin-left: -20px;
+  margin-bottom: 10px;
+}
+
+.custom-label2 {
+  font-size: 16px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-group {
+  display: flex;
+  justify-content: space-between; /* Para alinear los selects en una fila */
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.close-btn {
+  position: absolute;
+  top: -50px;
+  right: -20px;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  font-size: 30px;
+}
+
+
+.payed{
   color: green; 
   position: absolute; 
   top: 0; 
   right: 0; 
-  
   animation: beat-fade 0.5s;
-  transform: scale(2.5); 
+  transform: scale(2); 
 }
 
-.fa-star{
-  color: SkyBlue; 
-  z-index: 5;
+.unpayed{
+  color: red; 
   position: absolute; 
-  top: 70px; 
-  right: 60px; 
-  font-size: 30px;
-  animation: superbeat-fade 0.7s;
-  transform: scale(2.5); 
+  top: 0; 
+  right: 0; 
+  animation: beat-fade 0.5s;
+  transform: scale(2); 
 }
-
-
-.pull-right{
-  margin-right: -20px;
-}
-
-
-@media only screen and (min-width: 990px) {
-  .col-md-2{
-    margin-top: 150px;
-    margin-left: -20px;
-  }
-  
-  .pull-right{
-    margin-top: 15px;
-    margin-right: -150px;
-}
-  
-  
-}
-
-
 
 @keyframes beat-fade {
   0%, 100% {
     opacity: 1;
-    transform: scale(2.4);
+    transform: scale(2);
   }
   
   50% {
     opacity: 0.5;
-    transform: scale(2.7);
+    transform: scale(4);
   }
 }
-
-@keyframes superbeat-fade {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(2.4);
-  }
-  
-  50% {
-    opacity: 0.7;
-    transform: scale(10);
-  }
-}
-
 </style>
 
 
@@ -165,7 +446,7 @@ li {
       <div class="col-md-12">
     <input ng-model="query" class="search form-control" placeholder="Buscar" type="text" id="query" />   
         <br>
-  <div ng-model="orderList">
+  <div ng-model="orderList" style="margin-top: 10px;">
      <button class="btn btn-success" ng-click="filterByHour()">
     Ahora
   </button>
@@ -194,28 +475,37 @@ li {
             
             
         <div class="col-md-10" ng-style="{'background-image': 'linear-gradient(90deg, ' + student.color + ' 10px, transparent 11px)'}">  
-            <img src="{{student.photo}}" class="pull-right photo" ng-click="togglePago(student);$event.preventDefault();$event.stopPropagation()">
-          <i ng-show="student.pagoRegistrado" class="fa fa-check-circle"></i>  
-     <i ng-show="student.pagoExtension" class="fa fa-star"></i> 
+          
+           
+   <div class="radial-menu">
+           <img src="{{student.photo}}" class="photo" >
+     <i ng-show="student.payed" class="ri-checkbox-circle-fill payed"></i> 
+     <i ng-show="student.unpayed" class="ri-close-fill unpayed"></i> 
+            <div class="larger-area"></div>
+            <div class="menu-item _1"><div ng-click="openModal(student, 3)"><i class="ri-calendar-check-fill"></i></div></div>
+            <div class="menu-item _2"><div><i class=""></i></div></div>
+            <div class="menu-item _3"><div><i class=""></i></div></div>
+            <div class="menu-item _4"><div ng-click="newPayment(student)"><i class="ri-money-dollar-circle-line"></i></div></div>
+            <div class="menu-item _5"><div ng-click=""><i class="ri-edit-2-fill"></i></div></div>
+            <div class="menu-item _6"><div ng-click="openModal(student, 1)"><i class="ri-list-check-2"></i></div></div>
+            <div class="menu-item _7"><div ng-click="openModal(student, 2)"><i class="ri-list-check-3"></i></div></div>
+        <div class="menu-item _8"><div ng-click="evaluate(student)"><i class="ri-checkbox-multiple-fill"></i></div></div>
+        </div>        
+       
               <h3 class="list-group-item-heading name" style="font-size: 21px;">{{student.name}}</h3> 
               <h3 class="list-group-item-text title" style="font-size: 18px; margin-top: -2px; color:{{student.color}}">{{student.level}}</h3>
           <h4 class="list-group-item-text title" style="font-size: 15px; margin-top: -2px; ">Bloque {{student.blq}}</h4>
           <h5 class="list-group-item-text" style=" margin-top: 10px;">{{student.classtime}}</h5>
  
   <span class="label label-default expertise-label" ng-repeat="lsn in student.currentLsn" ng-click="abrirNuevaPestana(lsn.pdf);$event.preventDefault();$event.stopPropagation()" >
-  {{lsn.name}} 
+    {{lsn.name}} <i class="ri-close-fill" style="float: right; color: red; font-weight: 700; margin-right: -25px; margin-top: -2px; font-size: 19px;" ng-if="lsn.status == 'A corrección'"></i> <i class="ri-check-fill" style="float: right; color: green; font-weight: 700; margin-right: -25px; margin-top: -2px; font-size: 19px;" ng-if="lsn.status == 'Evaluada'"></i>
     <br>
 </span> 
        
  <br>
     
             </div>    
-           <div class="col-md-2">
             
-                <button type="button" class="btn btn-success" ng-click="toggleExtension(student);$event.preventDefault();$event.stopPropagation()" style="position: absolute; bottom: 5px; right: -7px; ">Evaluar &nbsp; <i class="fa fa-chevron-circle-right" aria-hidden="true" ></i></button>
-           
-         
-            </div>         
             <div class="clearfix"></div>
           </a>
           
@@ -225,9 +515,96 @@ li {
       
     </li>
   
-  </div>
-        
+  </div>    
+</div>
+    
+    
+   <div class="modal-container" ng-show="currentUser.modalState.isModalOpen2">
+  <div class="custom-modal">
+    <div class="modal-content">
+      <label for="userSelect" class="custom-label">Elige la actividad por evaluar:</label><br>
+      <div class="form-row">
+        <select id="userSelect" class="custom-select">
+          <option value="lección">Lección</option>
+          <option value="pieza">Pieza</option>
+          <option value="solfeo">Solfeo</option>
+        </select>
+        <div class="button-group">
+          <button class="custom-button btn-secondary"  ng-click="closeModal(2)">Cerrar</button>
+          <button class="custom-button btn-success" ng-click="closeModal(2)">Evaluar</button>   
+        </div>
       </div>
+    </div>
+  </div>
+</div>
+    
+    
+    
+    
+    <div class="modal-container" ng-show="currentUser.modalState.isModalOpen3">
+  <div class="custom-modal">
+       
+    <div class="modal-content"> 
+      <button class="custom-button close-btn" ng-click="closeModal(3)"><i class="ri-close-fill"></i></button>
+      <label for="dateSelect" class="custom-label">Elige la fecha</label><br>
+      <div class="form-row">
+       <select id="dateSelect" class="custom-select" ng-model="selectedDate">
+  <option ng-repeat="date in currentUser.agenda |  filter: attendanceFilter" value="{{date.title}}">
+    {{returnDateFormat(date.start)}}
+  </option>   
+</select>
+
+        <div class="button-group">
+          
+          <button class="custom-button btn-danger"  ng-click="absence(currentUser, selectedDate)">Falta</button>
+          <button class="custom-button btn-success" ng-click="attendance(currentUser, selectedDate)">Asistió</button>   
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+     
+       
+        <div class="modal-container" ng-show="currentUser.modalState.isModalOpen1">
+    <div class="custom-modal">
+    <div class="modal-content">
+      <div class="form-group">
+        <label for="nivelSelect" class="custom-label2">Nivel:</label>
+        <select id="nivelSelect" class="custom-select2"  ng-model="selectedlvl">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+
+        <label for="leccionSelect" class="custom-label2">Lección:</label>
+        <select id="leccionSelect" class="custom-select2"  ng-model="selectedlsn">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+      
+      <div class="button-group">
+      <button class="custom-button btn-secondary"  ng-click="closeModal(1)">Cerrar</button>
+          <button class="custom-button btn-success" ng-click="span(currentUser, selectedlvl, selectedlsn)">Generar</button>   
+      </div>
+    </div>
+  </div>
+    </div>  
+          
+    
+    
     </div>
   </div>
 </div>
@@ -243,7 +620,8 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', function($http, $scop
 
    var requestData = {
                 action: "getAdminData",
-                token: localStorage.getItem('ADtoken')
+                token: "U2FsdGVkX19FIE+E8FpvkMxOZo1u4xby0/CffZfQmhrcIWavhFpXISrp/BBYZzmm"
+     //localStorage.getItem('ADtoken')
               };
 
               var config = {
@@ -257,21 +635,14 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', function($http, $scop
     .then(function(response) { 
       $scope.students = response.data.students;
     $scope.filterByHour();
+   $scope.students.forEach(function(student) {
+     student.modalState = { isModalOpen1: false, isModalOpen2: false, isModalOpen3: false};
+        });
   });
   
  
-  $scope.myFunc = function(student) {
-    alert(student.name);
-  }
-  
-  $scope.togglePago = function(student) {
-    student.pagoRegistrado = !student.pagoRegistrado;
-  };
-  
-  $scope.toggleExtension = function(student) {
-    student.pagoExtension = !student.pagoExtension;
-  };
-  
+
+
 
   $scope.abrirNuevaPestana = function(URL) {
      const regex = /\/d\/([^\/]+)\//;
@@ -282,20 +653,154 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', function($http, $scop
   };
   
 
-  
-   $scope.toggleBackground = function(student) {
-    // Cambia el estado del fondo según el estado actual
-    student.backgroundActive = !student.backgroundActive;
-
-    // Actualiza el color predeterminado a rojo después de presionar el botón
-    if (student.backgroundActive) {
-      student.backgroundDefaultColor = 'red';
-    } else {
-      student.backgroundDefaultColor = student.color;
-    }
+  //attendance, payment
+    function postUpdate(mail, action) {
+     var requestData = {
+    action: action,
+   mail: mail
   };
+
+  var config = {
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    followRedirects: true, 
+  };
+     
+$http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
+   };
   
-//
+   //evaluate
+    function postEvaluation(mail, type, index) {
+     var requestData = {
+    action: "evaluate",
+       type: type,
+   mail: mail
+  };
+
+  var config = {
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    followRedirects: true, 
+  };
+     
+$http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
+       .then(function(response) { 
+  $scope.students[index].currentLsn = response.data.newlessons
+}) 
+   };
+  
+   //span
+    function postSpan(mail, lvl, lsn, index) {
+     var requestData = {
+    action: "span",
+   lvl: lvl,
+       lsn: lsn,
+       mail: mail
+  }; 
+  
+  var config = {
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    followRedirects: true, 
+  };
+     
+$http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
+      .then(function(response) { 
+  $scope.students[index].currentLsn = response.data.newlessons
+  $scope.students[index].level = "Nivel "+lvl
+  $scope.students[index].blq = ""
+    $scope.students[index].color = lvlColor(lvl)
+}) 
+   };
+  
+  function lvlColor(lvl){
+    if(lvl == 0){
+      return "#ff0404"
+    }else if(lvl == 1){
+      return "#9024dc" 
+    }else if(lvl == 2){
+        return "#1894cc" 
+    }else if(lvl == 3){
+        return "#489454" 
+    }else if(lvl == 4){
+        return "#f0ac14" 
+    }else if(lvl == 5){
+        return "#485cb4" 
+    }
+  }
+  
+   $scope.evaluate = function(student, lvl, lsn) {
+     alert(student.mail + lvl + lsn)
+      $scope.currentUser.modalState.isModalOpen1 = false;
+  } 
+  
+   $scope.span = function(selectedStudent, lvl, lsn) {
+     $scope.currentUser.modalState.isModalOpen1 = false;
+     var index = $scope.students.findIndex(function(student) {
+    return student === selectedStudent;
+  });
+     postSpan(selectedStudent.mail, lvl, lsn, index)
+  }
+  
+  
+  
+  $scope.openModal = function(user, modalNumber) {
+        $scope.students.forEach(function(student) {
+            student.modalState.isModalOpen1 = false;
+            student.modalState.isModalOpen2 = false;
+          student.modalState.isModalOpen3 = false;
+        });
+
+        $scope.currentUser = user;
+        if (modalNumber === 1) {
+            $scope.currentUser.modalState.isModalOpen1 = true;
+        } else if (modalNumber === 2) {
+          $scope.currentUser.modalState.isModalOpen2 = true;
+        } else if (modalNumber === 3) {
+         $scope.currentUser.modalState.isModalOpen3 = true;
+        }
+    };
+
+    $scope.closeModal = function(modalNumber) {
+        if (modalNumber === 1) {
+           $scope.currentUser.modalState.isModalOpen1 = false;
+        } else if (modalNumber === 2) {
+         $scope.currentUser.modalState.isModalOpen2 = false;
+        }else if (modalNumber === 3) {
+         $scope.currentUser.modalState.isModalOpen3 = false;
+        }
+    };
+   
+  
+   $scope.newPayment = function() {
+     var result = confirm("¿Registrar pago?");
+if (result) {
+    alert("Pago registrado")
+} 
+  } 
+    
+   $scope.attendance = function(student, selectedDate) {
+     alert(selectedDate)
+     student.payed = !student.payed;
+     $scope.currentUser.modalState.isModalOpen3 = false;
+  }
+  
+    $scope.absence = function(student, selectedDate) {
+      alert(selectedDate)
+     student.unpayed = !student.unpayed;
+      $scope.currentUser.modalState.isModalOpen3 = false;
+  }
+  
+   $scope.returnDateFormat = function(date){
+    const dat = new Date(date);
+  const options = { weekday: 'long', month: 'long', day: 'numeric' };
+    var dat2 = dat.toLocaleDateString("es-mx",options).replace(",","");
+    return dat2.charAt(0).toUpperCase() + dat2.slice(1);
+  }
+  
 
     $scope.getCurrentDay = function() {
     var days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -318,7 +823,7 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', function($http, $scop
     $scope.filteredStudents = $scope.students.filter(function(student) {
       return student.classtime.split(" ")[0] === $scope.getCurrentDay();
     });
-      $scope.noStudentsMessage = '';
+     $scope.noStudentsMessage = $scope.filteredStudents.length === 0 ? 'No hay alumnos en este instante.' : '';
   };
 
   
@@ -335,10 +840,14 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', function($http, $scop
   $scope.noStudentsMessage = '';
 };
    
-   
-  
-}]);
+  $scope.attendanceFilter = function(item) {
+  return item.attendance == '';
+};
 
+    
+   
+}]);
+ 
 
 
 </script>
