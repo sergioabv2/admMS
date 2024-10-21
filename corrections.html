@@ -4,9 +4,8 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-
-
 
 <style>
     body {
@@ -78,7 +77,34 @@ li {
   list-style: none; 
 }
 
+.inside .fa-download{
+  color: CadetBlue; 
+  position: absolute; 
+  bottom: 85px; 
+  right: 110px; 
+  font-size: 24px;
+  animation: beat-fade 1s infinite ease-in-out;
+}
 
+.fa-check-circle{
+  color: green; 
+  position: absolute; 
+  top: 15px; 
+  right: 15px; 
+  
+  animation: beat-fade 0.5s;
+  transform: scale(2.5); 
+}
+
+.fa-pause-circle-o{
+  color: orange;
+  position: absolute; 
+  top: 15px; 
+  right: 15px; 
+  
+  animation: beat-fade 0.5s;
+  transform: scale(2.5); 
+}
 
 
 
@@ -160,121 +186,45 @@ button { margin: 0 .5rem }
 
 
 
-.uploader {
-  text-align: center;
-   display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-  clear: both;
-  margin: 0 auto;
-  width: 100%;
-  max-width: 600px;
-}
-.uploader label {
-  float: left;
-  clear: both;
-  width: 100%;
-  padding: 2rem 1.5rem;
-  text-align: center;
-  background: #fff;
-  border-radius: 7px;
-  border: 3px solid #eee;
-  transition: all 0.2s ease;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-}
-.uploader label:hover {
-  border-color: #454cad;
-}
-.uploader label.hover {
-  border: 3px solid #454cad;
-  box-shadow: inset 0 0 0 6px #eee;
-}
-.uploader label.hover #start i.fa {
-  transform: scale(0.8);
-  opacity: 0.3;
-}
-.uploader #start {
-  float: left;
-  clear: both;
-  width: 100%;
-}
-.uploader #start.hidden {
-  display: none;
-}
-.uploader #start i.fa {
-  font-size: 50px;
-  margin-bottom: 1rem;
-  transition: all 0.2s ease-in-out;
-}
-.uploader #response {
-  float: left;
-  clear: both;
-  width: 100%;
-}
-.uploader #response.hidden {
-  display: none;
-}
-.uploader #response #messages {
-  margin-bottom: 0.5rem;
-}
-.uploader #file-image {
-  display: inline;
-  /*margin: 0 auto 0.5rem auto;
-  width: auto;
-  height: auto;
-  max-width: 100px;*/
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  object-position: center;
-  background-color: #fff;
-}
-.uploader #file-image.hidden {
-  display: none;
-}
-.uploader #notimage {
-  display: block;
-  float: left;
-  clear: both;
-  width: 100%;
-}
-.uploader #notimage.hidden {
-  display: none;
+
+.PDFcontainer {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
 
 
-.uploader input[type=file] {
-  display: none;
+
+input[type="file"] {
+    display: block;
+    margin: 10px 0;
 }
-.uploader div {
-  margin: 0 0 0.5rem 0;
-  color: #5f6982;
+
+
+
+#imagePreview {
+    margin-bottom: 20px;
 }
-.uploader .btn {
-  display: inline-block;
-  margin: 0.5rem 0.5rem 1rem 0.5rem;
-  clear: both;
-  font-family: inherit;
-  font-weight: 700;
-  font-size: 14px;
-  text-decoration: none;
-  text-transform: initial;
-  border: none;
-  border-radius: 0.2rem;
-  outline: none;
-  padding: 0 1rem;
-  height: 36px;
-  line-height: 36px;
-  color: #fff;
-  transition: all 0.2s ease-in-out;
-  box-sizing: border-box;
-  background: #454cad;
-  border-color: #454cad;
-  cursor: pointer;
+
+#imagePreview img {
+    max-width: 100px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.drop-area {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+    color: #888;
+    cursor: pointer;
+}
+
+.drop-area.dragover {
+    background-color: #f0f0f0;
+    border-color: #333;
 }
 
 
@@ -289,6 +239,8 @@ button { margin: 0 .5rem }
   }
 }
 </style>
+
+
 
 <div class="container">
 <div class="row">
@@ -309,25 +261,16 @@ button { margin: 0 .5rem }
          
         
         <br><br>
-         <form id="file-upload-form" class="uploader">
-  <input id="file-upload" type="file" name="fileUpload" accept="image/*" />
+  <div class="PDFcontainer">
+    <div id="pdfdata" style="display: none"></div>
+        <div id="dropArea" class="drop-area">
+            Arrastra y suelta tus imágenes PNG aquí
+            <input type="file" id="fileInput" accept="image/png" multiple>
+        </div>
 
-  <label for="file-upload" id="file-drag">
-    <img id="file-image" src="#" alt="Preview" class="hidden">
-    <div id="start2">
-      <i class="fa fa-download" aria-hidden="true"></i>
-      <div>Selecciona tu imagen</div>
-      <div id="notimage" class="hidden">Please select an image</div>
-      <span id="file-upload-btn" class="btn btn-primary">Seleccionar</span>
+        <div id="imagePreview"></div>
+        <button id="downloadPdfBtn" disabled>Generar PDF</button>
     </div>
-    <div id="response" class="hidden">
-      <div id="messages"></div>
-    </div>
-     <input type="hidden" id="imageData">
-     <span id="file-send-btn" data-dismiss="modal" style="display: none;"> </span>  
-  </label> 
-                  
-</form>
   </div>       
 
 <div class="col-sm-7" >
@@ -380,9 +323,11 @@ button { margin: 0 .5rem }
 </div>
   </div>
 
+
+
 <script>
   var studentsApp = angular.module('studentsApp', []);
- 
+   
 
 studentsApp.controller('studentsCtrl', ['$http', '$scope', '$sce', function($http, $scope, $sce) {
   $scope.students = [];
@@ -430,7 +375,7 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', '$sce', function($htt
   
    $scope.sendData = function(student) { 
      var base64Video = document.getElementById("videodata").textContent
-     var base64Image = document.getElementById("imageData").value
+     var base64Image = document.getElementById("pdfdata").textContent
      var lsnName = document.getElementById(student.mail).getAttribute('lsn-Name');
      var lsnIndex = document.getElementById(student.mail).getAttribute('lsn-Index');
       
@@ -440,20 +385,16 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', '$sce', function($htt
  
      if(base64Image != ""){
       var requestData = {
-        action: "postImgC",
+        action: "postPDF",
         mail: student.mail,
         lsn: lsnName,
-        index: lsnIndex,
+        index: lsnIndex, 
         blob: base64Image
-      };
-        document.getElementById("imageData").value = "";
-       document.getElementById('file-image').classList.add("hidden");
-        document.getElementById('response').classList.add("hidden");
-        document.getElementById('start2').style.display = 'block';
-       document.getElementById("file-upload-form").reset();
+      }; 
+ alert(base64Image)
      }else if(base64Video != ""){
        var requestData = {
-        action: "postVideoC",
+        action: "postVideo",
        mail: student.mail,
         lsn: lsnName,
         index: lsnIndex,
@@ -474,15 +415,15 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', '$sce', function($htt
      },
        followRedirects: true, 
      };
-       /* $http.post('https://script.google.com/macros/s/AKfycbzIra465SJypRhzRL6ihOF0dmuCCykgZF3F4PufbHR76OBkyhS7NLvAu0joiJr5VfwM/exec', requestData, config)
+       $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
     .then(function(response) {
       //$scope.userData = response.data;
-    })  */
+    })  
         
-    /*    var index = $scope.students.indexOf(student);
-                if (index !== -1) {
-                    $scope.students.splice(index, 1);
-                }    */
+   /*   var index = $scope.students.indexOf(student);
+      if (index !== -1) {
+         $scope.students.splice(index, 1);
+      }   */
         
    }
 
@@ -602,105 +543,112 @@ function playGeneratedVideo() {
 
 
 
- 
-  function ekUpload(){
-  function Init() {
+ // Seleccionar elementos del DOM
+const fileInput = document.getElementById('fileInput');
+const dropArea = document.getElementById('dropArea');
+const imagePreview = document.getElementById('imagePreview');
+const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+let images = [];  // Array para almacenar las imágenes cargadas
 
-    console.log("Upload Initialised");
+// Prevenir comportamiento por defecto en eventos de arrastre
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, preventDefaults, false);
+});
 
-    var fileSelect    = document.getElementById('file-upload'),
-        fileDrag      = document.getElementById('file-drag'),
-        submitButton  = document.getElementById('submit-button');
-
-    fileSelect.addEventListener('change', fileSelectHandler, false);
-
-    // Is XHR2 available?
-    var xhr = new XMLHttpRequest();
-    if (xhr.upload) {
-      // File Drop
-      fileDrag.addEventListener('dragover', fileDragHover, false);
-      fileDrag.addEventListener('dragleave', fileDragHover, false);
-      fileDrag.addEventListener('drop', fileSelectHandler, false);
-    }
-  }
-
-  function fileDragHover(e) {
-    var fileDrag = document.getElementById('file-drag');
-
-    e.stopPropagation();
+function preventDefaults(e) {
     e.preventDefault();
-
-    fileDrag.className = (e.type === 'dragover' ? 'hover' : 'modal-body file-upload');
-  }
-
-  function fileSelectHandler(e) {
-    // Fetch FileList object
-    var files = e.target.files || e.dataTransfer.files;
-
-    // Cancel event and hover styling
-    fileDragHover(e);
-
-    // Process all File objects
-    for (var i = 0, f; f = files[i]; i++) {
-      parseFile(f);
-      convertFileToBase64(f);
-    }
-  }
-    
-    function convertFileToBase64(file) {
-    var reader = new FileReader();
-    reader.onloadend = function() {
-      var base64image = reader.result;
-      document.getElementById("imageData").value = base64image;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  // Output
-  function output(msg) {
-    // Response
-    var m = document.getElementById('messages');
-    m.innerHTML = msg;
-  }
-
-  function parseFile(file) {
-
-    console.log(file.name);
-    output(
-      '<br><strong style="font-size: 12px;">' + encodeURI(file.name) + '</strong>'
-    );
-    
-    // var fileType = file.type;
-    // console.log(fileType);
-    var imageName = file.name;
-
-    var isGood = (/\.(?=gif|jpg|png|jpeg)/gi).test(imageName);
-    if (isGood) {
-      //document.getElementById('start2').classList.add("hidden");
-      document.getElementById('start2').style.display = 'none';
-      document.getElementById('response').classList.remove("hidden");
-       document.getElementById('file-send-btn').style.display = 'block';
-      document.getElementById('notimage').classList.add("hidden");
-      // Thumbnail Preview
-      document.getElementById('file-image').classList.remove("hidden");
-      document.getElementById('file-image').src = URL.createObjectURL(file);
-    }
-    else {
-      document.getElementById('file-image').classList.add("hidden");
-      document.getElementById('notimage').classList.remove("hidden");
-      document.getElementById('start2').classList.remove("hidden");
-      document.getElementById('response').classList.add("hidden");
-      document.getElementById("file-upload-form").reset();
-    }
-  }
-
-
-  // Check for the various File API support.
-  if (window.File && window.FileList && window.FileReader) {
-    Init();
-  } else {
-    document.getElementById('file-drag').style.display = 'none';
-  }
+    e.stopPropagation();
 }
-ekUpload();
+
+// Añadir clase cuando el archivo esté sobre la zona de drop
+['dragenter', 'dragover'].forEach(eventName => {
+    dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'), false);
+});
+['dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
+});
+
+// Manejar archivos arrastrados
+dropArea.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    handleFiles(files);
+}
+
+// Manejar la subida de archivos desde el input
+fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+function handleFiles(files) {
+    Array.from(files).forEach(file => {
+        if (file.type === 'image/png') {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    images.push(img);  // Almacenar la imagen cargada en el array
+                    
+                    // Mostrar la imagen en el área de previsualización
+                    const imgPreview = document.createElement('img');
+                    imgPreview.src = e.target.result;
+                    imagePreview.appendChild(imgPreview);
+                    
+                    // Habilitar el botón de descarga si hay imágenes cargadas
+                    if (images.length > 0) {
+                        downloadPdfBtn.disabled = false;
+                    }
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+// Escuchar cuando se hace clic en el botón de descargar como PDF
+downloadPdfBtn.addEventListener('click', function() {
+    const { jsPDF } = window.jspdf;
+
+    // Crear el documento PDF
+    const pdf = new jsPDF();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    images.forEach((img, index) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        const imgData = canvas.toDataURL('image/png');
+
+        // Obtener las dimensiones de la imagen original
+        const imgWidth = img.width;
+        const imgHeight = img.height;
+
+        // Calcular el factor de escala para que la imagen encaje dentro de la página sin distorsionarse
+        const scaleFactor = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
+
+        // Calcular el nuevo tamaño escalado manteniendo la proporción
+        const scaledWidth = imgWidth * scaleFactor;
+        const scaledHeight = imgHeight * scaleFactor;
+
+        // Añadir la imagen como página en el PDF y centrarla
+        if (index > 0) {
+            pdf.addPage();  // Añadir nueva página si no es la primera
+        }
+        const xPos = (pageWidth - scaledWidth) / 2;  // Centrar en el eje X
+        const yPos = (pageHeight - scaledHeight) / 2;  // Centrar en el eje Y
+        pdf.addImage(imgData, 'PNG', xPos, yPos, scaledWidth, scaledHeight);
+    });
+  
+   const base64Pdf = pdf.output('datauristring');
+    document.getElementById('pdfdata').textContent = base64Pdf;
+
+    // Descargar el PDF con todas las imágenes
+   // pdf.save('imagenes.pdf');
+});
+
 </script>
