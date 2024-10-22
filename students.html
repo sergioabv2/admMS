@@ -430,16 +430,19 @@ margin-left: -20px;
 .formLoader {
   overflow: hidden;
   height: 80%;
-  position: absolute;
-  width: 90%;
+  position: fixed; /* Cambiar de absolute a fixed para que siga en el viewport */
+  top: 0; /* Asegurarse que empieza desde la parte superior */
+  left: 0; /* Asegurarse que empieza desde la parte izquierda */
+  width: 100%; /* Asegurarse que cubre todo el ancho de la pantalla */
   min-height: 150px;
-  display: none;
+  z-index: 9999; /* Asegurarse que está por encima de otros elementos */
+  display: flex; /* Flexbox para centrar vertical y horizontalmente */
+  justify-content: center; /* Centramos horizontalmente */
+  align-items: center; /* Centramos verticalmente */
 }
 
 .formLoader ul {
-  height: 100%;
-  position: absolute;
-  width: 100%;
+  position: relative; /* Se ajusta para mantener la relación con su contenedor padre */
   z-index: 9999;
   margin: 0;
 }
@@ -460,16 +463,9 @@ margin-left: -20px;
 }
 
 .formLoader .formLoading {
-  display: block;
-  height: 14px;
-  margin: 0 auto;
-  top: 70%;
-  left: 100%;
-  transform: translateY(-50%);
-  transform: translateX(-50%);
-  position: absolute;
-  width: 100%;
-  padding: 0;
+  display: flex; /* Usar flexbox para centrar los elementos de la lista si es necesario */
+  justify-content: center; /* Centramos los elementos de la lista horizontalmente */
+  align-items: center; /* Centramos verticalmente */
 }
 
 .formLoader .formLoading li {
