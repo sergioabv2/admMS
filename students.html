@@ -734,10 +734,14 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
   }
 	
 
-  //attendance, payment
-    function postUpdate(mail, action) {
+
+
+
+	
+  //payment
+    function postPayment(mail, action) {
      var requestData = {
-    action: action,
+    action: "payment",
    mail: mail
   };
 
@@ -749,22 +753,26 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
   };
      
 $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
+	     .then(function(response) { 
+		     if(response.data.status == "success"){
+			     alert("Pago registrado")
+		     }
+	     }
    };
   
 
-  
-
-  
-  
-
-   
-  
-   $scope.newPayment = function() {
+     $scope.newPayment = function(student) {
      var result = confirm("¿Registrar pago?");
 if (result) {
-    alert("Pago registrado")
+    postPayment(student.mail)
 } 
   } 
+
+
+
+
+
+	
     
    $scope.attendance = function(student, selectedDate) {
      alert(selectedDate)
@@ -777,6 +785,13 @@ if (result) {
      student.unpayed = !student.unpayed;
       $scope.currentUser.modalState.isModalOpen3 = false;
   }
+
+  
+  
+
+   
+  
+
   
    $scope.returnDateFormat = function(date){
     const dat = new Date(date);
