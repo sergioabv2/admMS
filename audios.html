@@ -298,7 +298,7 @@ body * {
     <div class="img" style="background-image: url('{{alert.photo}}');"></div>
     </div>
     <div class="EmailTitle">
-      <p class="EmailTime">Bloque {{alert.blq}}</p>
+      <p class="EmailTime">{{alert.status}}</p>
       <h1>{{alert.name}}</h1>
       <h2>{{alert.level}}</h2>
     </div>
@@ -306,7 +306,7 @@ body * {
 
    <div class="EmailFull" ng-show="activeEmailIndex !== null" ng-class="{ 'active': activeEmailIndex !== null }">
      <!-- <iframe  ng-src="{{trustAsResourceUrl(message.url)}}" frameborder="0" height="50px" width="300px"></iframe> -->
-   <li ng-repeat="(mediaIndex, media) in selectedAlert.audios">  
+   <li ng-repeat="(mediaIndex, media) in selectedAlert.audios" ng-if="!media.correction">  
      {{media.lesson}}
      <br>     
      <iframe  ng-src="{{trustAsResourceUrl(media.audio)}}" frameborder="0" height="50px" width="300px"></iframe> 
