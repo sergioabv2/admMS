@@ -754,10 +754,11 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', function($http, $scop
   };
   
 
+
   //attendance, payment
-    function postUpdate(mail, action) {
+    function postPay(mail) {
      var requestData = {
-    action: action,
+    action: "payment",
    mail: mail
   };
 
@@ -769,10 +770,18 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', function($http, $scop
   };
      
 $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
+	    alert("Pago registrado")
    };
 
+ $scope.newPayment = function(student) {
+     var result = confirm("¿Registrar pago?");
+	if (result) {
+	    postPay(student.mail)
+	} 
+  } 
 
 
+	
 	
    //evaluate
     function postEvaluation(mail, type, index) {
@@ -907,8 +916,43 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
   
 
 
+
+//Attendance	
+function postPay(mail, nClass, log) {
+     var requestData = {
+    action: "attendance",
+   mail: mail,
+   nClass: nClass,
+   log: log
+  };
+
+  var config = {
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    followRedirects: true, 
+  };
+     
+$http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
+   };
+
 	
+   $scope.attendance = function(student, selectedDate) {
+	   postPay(student.mail, selectedDate, 1)
+     student.payed = !student.payed;
+     $scope.currentUser.modalState.isModalOpen3 = false;
+  }
   
+    $scope.absence = function(student, selectedDate) {
+	postPay(student.mail, selectedDate, 0)
+     student.unpayed = !student.unpayed;
+      $scope.currentUser.modalState.isModalOpen3 = false;
+  }
+
+
+
+
+	
   $scope.openModal = function(user, modalNumber) {
         $scope.students.forEach(function(student) {
             student.modalState.isModalOpen1 = false;
@@ -941,24 +985,12 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
     };
    
   
-   $scope.newPayment = function() {
-     var result = confirm("¿Registrar pago?");
-if (result) {
-    alert("Pago registrado")
-} 
-  } 
+ 
+
+
+	
     
-   $scope.attendance = function(student, selectedDate) {
-     alert(selectedDate)
-     student.payed = !student.payed;
-     $scope.currentUser.modalState.isModalOpen3 = false;
-  }
   
-    $scope.absence = function(student, selectedDate) {
-      alert(selectedDate)
-     student.unpayed = !student.unpayed;
-      $scope.currentUser.modalState.isModalOpen3 = false;
-  }
   
    $scope.returnDateFormat = function(date){
     const dat = new Date(date);
