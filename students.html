@@ -436,7 +436,7 @@ margin-left: -20px;
   width: 100%; /* Asegurarse que cubre todo el ancho de la pantalla */
   min-height: 150px;
   z-index: 9999; /* Asegurarse que está por encima de otros elementos */
-  display: flex; /* Flexbox para centrar vertical y horizontalmente */
+  display: none; /* Flexbox para centrar vertical y horizontalmente */
   justify-content: center; /* Centramos horizontalmente */
   align-items: center; /* Centramos verticalmente */
 }
@@ -798,7 +798,7 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
    };
 
    $scope.evaluate = function(selectedStudent, type) {
-    $(".formLoader").css("display", "block");
+    $(".formLoader").css("display", "flex");
     $("#students").css("filter", "blur(2px)");
       var index = $scope.students.findIndex(function(student) {
     return student === selectedStudent;
@@ -834,7 +834,7 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
    };
 
    $scope.restore = function(selectedStudent, type) {
-    $(".formLoader").css("display", "block");
+    $(".formLoader").css("display", "flex");
     $("#students").css("filter", "blur(2px)");
       var index = $scope.students.findIndex(function(student) {
     return student === selectedStudent;
@@ -896,7 +896,7 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
   
 
    $scope.span = function(selectedStudent, lvl, lsn) {
-	   $(".formLoader").css("display", "block");
+	   $(".formLoader").css("display", "flex");
     $("#students").css("filter", "blur(2px)");
      var index = $scope.students.findIndex(function(student) {
     return student === selectedStudent;
