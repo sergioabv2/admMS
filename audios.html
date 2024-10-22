@@ -400,6 +400,43 @@ $scope.evaluate = function(media, index){
    postEvaluation($scope.selectedAlert.mail, media.lesson, index)
 }
 
+
+ function postCorrection(mail, mediaIndex) {
+     var requestData = {
+    action: "correctionFlag",
+    mail: mail,
+    index: mediaIndex
+  };
+
+  var config = {
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    followRedirects: true, 
+  };
+     
+$http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
+       .then(function(response) { 
+        $scope.selectedAlert.audios.splice(mediaIndex, 1);
+
+    // Si el array selectedAlert.Audios está vacío, elimina el alert de alerts
+    if ($scope.selectedAlert.audios.length === 0) {
+        var index = $scope.alerts.indexOf($scope.selectedAlert);
+        if (index !== -1) {
+            $scope.alerts.splice(index, 1);
+        }
+        // Si se eliminó el único elemento, cierra todos los elementos
+        $scope.closeAll();
+    }
+}) 
+   };
+
+
+$scope.correction = function(index){
+   postCorrection($scope.selectedAlert.mail, index)
+}
+		 
+
 $scope.activeEmailIndex = null;
   $scope.selectedAlert = null;
 
