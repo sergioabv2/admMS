@@ -524,10 +524,10 @@ margin-left: -20px;
     <div class="modal-content">
       <label for="userSelect" class="custom-label">Elige la actividad por evaluar:</label><br>
       <div class="form-row">
-        <select id="userSelect" class="custom-select">
-          <option value="lección">Lección</option>
-          <option value="pieza">Pieza</option>
-          <option value="solfeo">Solfeo</option>
+        <select id="userSelect" class="custom-select" ng-model="selectedType">
+           <option ng-repeat="lsn in currentUser.currentLsn" value="{{lsn.name}}">
+    {{lsn.name}}
+  </option>
         </select>
         <div class="button-group">
           <button class="custom-button btn-secondary"  ng-click="closeModal(2)">Cerrar</button>
@@ -653,10 +653,38 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', function($http, $scop
 
 
 
-function postEvaluation(selectedStudent, type, index) {       
+	  $scope.openModal = function(user, modalNumber) {
+        $scope.students.forEach(function(student) {
+            student.modalState.isModalOpen1 = false;
+            student.modalState.isModalOpen2 = false;
+          student.modalState.isModalOpen3 = false;
+        });
+
+        $scope.currentUser = user;
+        if (modalNumber === 1) {
+            $scope.currentUser.modalState.isModalOpen1 = true;
+        } else if (modalNumber === 2) {
+          $scope.currentUser.modalState.isModalOpen2 = true;
+        } else if (modalNumber === 3) {
+         $scope.currentUser.modalState.isModalOpen3 = true;
+        }
+    };
+
+    $scope.closeModal = function(modalNumber) {
+        if (modalNumber === 1) {
+           $scope.currentUser.modalState.isModalOpen1 = false;
+        } else if (modalNumber === 2) {
+         $scope.currentUser.modalState.isModalOpen2 = false;
+        }else if (modalNumber === 3) {
+         $scope.currentUser.modalState.isModalOpen3 = false;
+        }
+    };
+
+
+function postEvaluation(selectedStudent, name, index) {       
    var requestData = {
     action: "evaluate",
-       type: type,
+       name: name,
    mail: selectedStudent.mail
   };
 
@@ -673,11 +701,11 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 }) 
    };
 
-  $scope.evaluate = function(selectedStudent, type) {
+  $scope.evaluate = function(selectedStudent, name) {
       var index = $scope.students.findIndex(function(student) {
     return student === selectedStudent;
   });
-     postEvaluation(selectedStudent, type, index) 
+     postEvaluation(selectedStudent, name, index) 
         $scope.currentUser.modalState.isModalOpen2 = false;
   } 	
 	
