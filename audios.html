@@ -312,9 +312,9 @@ body * {
      <iframe  ng-src="{{trustAsResourceUrl(media.audio)}}" frameborder="0" height="50px" width="300px"></iframe> 
 
      <br> 
-     <button ng-click="options()"><i class="ri-close-fill" style=" font-size: 15px;"></i> Corregir</button> 
-     <button ng-click="exit(mediaIndex)"><i class="ri-check-fill" style=" font-size: 15px;"></i> Correcto</button> 
-     <button > <i class="ri-award-fill" style="margin-right: 5px; font-size: 15px;"></i>Perfecto</button>
+     <button ng-click="exit(mediaIndex)"><i class="ri-close-fill" style=" font-size: 15px;"></i> Corregir</button> 
+     <button ng-click="evaluate(media)"><i class="ri-check-fill" style=" font-size: 15px;"></i> Listo</button> 
+    <!-- <button > <i class="ri-award-fill" style="margin-right: 5px; font-size: 15px;"></i>Perfecto</button> -->
     <br><br> 
      
   </li>     
@@ -379,13 +379,8 @@ $scope.exit = function(mediaIndex) {
 }
 
   
-  $scope.options = function(){
-    if (confirm("Enviar a revisión con video?")) {
-    alert("Audio enviado a revisión completa");
-} else {
-    var userInput = prompt("Ingresa el texto:");
-    alert("Mensaje enviado y actividad asignada a corrección");
-}
+  $scope.evaluate = function(media){
+	alert(media.name)
   }
   
 
