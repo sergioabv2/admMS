@@ -667,7 +667,7 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
    };
   
    //evaluate
-    function postEvaluation(selectedStudent, type, index) {
+    function postEvaluation(mail, type, index) {
      var requestData = {
     action: "evaluate",
        type: type,
@@ -738,7 +738,7 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
       var index = $scope.students.findIndex(function(student) {
     return student === selectedStudent;
   });
-     postEvaluation(selectedStudent, type, index) 
+     postEvaluation(selectedStudent.mail, type, index) 
         $scope.currentUser.modalState.isModalOpen2 = false;
   } 
   
