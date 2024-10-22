@@ -335,7 +335,7 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', '$sce', function($htt
 
    var requestData = {
                 action: "getAdminData",
-                token: "U2FsdGVkX1+m/gQ8vJ6sOJXa+EkPHlIr1KdWqGZUhtljm8TRG44vpQjT0IyMs2n0"
+                token: localStorage.getItem('ADtoken')
               };
 
               var config = {
