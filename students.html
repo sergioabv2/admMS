@@ -425,8 +425,96 @@ margin-left: -20px;
   }  
   
 
+
+	
+.formLoader {
+  overflow: hidden;
+  height: 80%;
+  position: absolute;
+  width: 90%;
+  min-height: 150px;
+  display: none;
+}
+
+.formLoader ul {
+  height: 100%;
+  position: absolute;
+  width: 100%;
+  z-index: 9999;
+  margin: 0;
+}
+
+@keyframes preload {
+  0% {
+    background: #ed7c00;
+    opacity: 1
+  }
+  50% {
+    background: #fff;
+    opacity: 0.5
+  }
+  100% {
+    background: #ed7c00;
+    opacity: 1
+  }
+}
+
+.formLoader .formLoading {
+  display: block;
+  height: 14px;
+  margin: 0 auto;
+  top: 70%;
+  left: 100%;
+  transform: translateY(-50%);
+  transform: translateX(-50%);
+  position: absolute;
+  width: 100%;
+  padding: 0;
+}
+
+.formLoader .formLoading li {
+  background: #fff;
+  opacity: 0.5;
+  display: block;
+  float: left;
+  width: 12px;
+  height: 12px;
+  border: 1px solid #ed7c00;
+  line-height: 12px;
+  padding: 0;
+  position: relative;
+  margin: 0 0 0 4px;
+  animation: preload 1s infinite;
+  top: -50%;
+  border-radius: 50%;
+}
+
+.formLoader .formLoading li:first-child {
+  margin-left: 0
+}
+
+.formLoader .formLoading li:nth-child(2) {
+  animation-delay: .15s
+}
+
+.formLoader .formLoading li:nth-child(3) {
+  animation-delay: .3s
+}
+
+.formLoader.formLoader-complete {
+  opacity: 0;
+  visibility: hidden;
+  transition-duration: 1s
+}
 </style>
 
+ <div class="formLoader">
+    <ul class="formLoading">
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+</div>
 
 <div class="container">
   <div class="row">
@@ -684,6 +772,8 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
        .then(function(response) { 
   $scope.students[index].currentLsn = response.data.newlessons
+    $(".formLoader").css("display", "none");
+    $("#students").css("filter", "none");
 }) 
    };
   
@@ -713,6 +803,8 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 	      } 
   $scope.students[index].blq = ""
     $scope.students[index].color = lvlColor(lvl)
+	       $(".formLoader").css("display", "none");
+    $("#students").css("filter", "none");
 }) 
    };
   
@@ -734,7 +826,8 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
   
 
    $scope.evaluate = function(selectedStudent, type) {
-   
+    $(".formLoader").css("display", "block");
+    $("#students").css("filter", "blur(2px)");
       var index = $scope.students.findIndex(function(student) {
     return student === selectedStudent;
   });
@@ -743,6 +836,8 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
   } 
   
    $scope.span = function(selectedStudent, lvl, lsn) {
+	   $(".formLoader").css("display", "block");
+    $("#students").css("filter", "blur(2px)");
      var index = $scope.students.findIndex(function(student) {
     return student === selectedStudent;
   });
