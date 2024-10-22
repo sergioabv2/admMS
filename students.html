@@ -708,7 +708,11 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
       .then(function(response) { 
   $scope.students[index].currentLsn = response.data.newlessons
-  $scope.students[index].level = "Nivel "+lvl
+	      if(lvl == 0){
+		 $scope.students[index].level = "Nivel Preparatorio"
+	      }else{
+		 $scope.students[index].level = "Nivel "+lvl
+	      } 
   $scope.students[index].blq = ""
     $scope.students[index].color = lvlColor(lvl)
 }) 
