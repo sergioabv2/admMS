@@ -363,9 +363,25 @@ alertsApp.controller('alertsCtrl', ['$http', '$scope', '$sce', function($http, $
         return $sce.trustAsResourceUrl(url);
     };
   
-$scope.exit = function(mediaIndex) {
-    // Elimina el media del array selectedAlert.Audios
-    $scope.selectedAlert.audios.splice(mediaIndex, 1);
+ function postEvaluation(mail, lsn, mediaIndex) {
+     var requestData = {
+    action: "evaluateAudio",
+    mail: mail,
+    lsn: lsn,
+    mediaindex: mediaIndex
+   
+  };
+
+  var config = {
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    followRedirects: true, 
+  };
+     
+$http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
+       .then(function(response) { 
+        $scope.selectedAlert.audios.splice(mediaIndex, 1);
 
     // Si el array selectedAlert.Audios está vacío, elimina el alert de alerts
     if ($scope.selectedAlert.audios.length === 0) {
@@ -376,14 +392,13 @@ $scope.exit = function(mediaIndex) {
         // Si se eliminó el único elemento, cierra todos los elementos
         $scope.closeAll();
     }
+}) 
+   };
+
+
+$scope.evaluate = function(media, index){
+   postEvaluation($scope.selectedAlert.mail, media.lesson, index)
 }
-
-  
-  $scope.evaluate = function(media){
-	alert(media.name)
-  }
-  
-
 
 $scope.activeEmailIndex = null;
   $scope.selectedAlert = null;
