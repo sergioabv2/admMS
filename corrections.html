@@ -3,6 +3,7 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+ <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -229,7 +230,21 @@ input[type="file"] {
 
 
 
-
+ .modal-content {
+            opacity: 0.8; 
+            background-color: #f7f7f7;
+   width: 200px;
+   margin: 0 auto;
+        }
+        .modal-body p {
+            text-align: center;
+            font-size: 16px;
+        }
+        .modal-dialog {
+            position: relative;
+            top: 40%;
+            transform: translateY(-40%);
+        }
 
 
 
@@ -240,6 +255,16 @@ input[type="file"] {
 }
 </style>
 
+
+<div class="modal fade" id="dataCleanedModal" tabindex="-1" role="dialog" aria-labelledby="dataCleanedLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content" style="opacity: 0.8;">
+      <div class="modal-body">
+        <p>PDF Generado</p>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 <div class="container">
@@ -663,6 +688,11 @@ downloadPdfBtn.addEventListener('click', function() {
   
    const base64Pdf = pdf.output('datauristring');
     document.getElementById('pdfdata').textContent = base64Pdf;
+
+   $('#dataCleanedModal').modal('show');
+        setTimeout(function() {
+            $('#dataCleanedModal').modal('hide');
+        }, 1000);
 
     // Descargar el PDF con todas las imágenes
    // pdf.save('imagenes.pdf');
