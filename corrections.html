@@ -259,7 +259,7 @@ input[type="file"] {
 </div>
  </div>
          
-        
+         
         <br><br>
   <div class="PDFcontainer">
     <div id="pdfdata" style="display: none"></div>
@@ -286,7 +286,7 @@ input[type="file"] {
           <a href="#" class="list-group-item" >
 
         <div class="col-sm-7">  
-           <button type="button" class="btn btn-success" ng-click="sendData(student);$event.preventDefault();$event.stopPropagation()" style="float: right; margin-top: 20px;">Enviar &nbsp; <i class="fa fa-chevron-circle-right" aria-hidden="true" ></i></button>
+
            
               <h4 class="list-group-item-heading name">{{student.name}}</h4>     
      <h5 class="list-group-item-text title" style="font-size: 15px;">Nivel Preparatorio</h5>  
@@ -300,6 +300,8 @@ input[type="file"] {
      
      
       <iframe  ng-src="{{trustAsResourceUrl(media.audio)}}" frameborder="0" height="50px" width="300px"></iframe>   
+      <button type="button" class="btn btn-success" ng-click="sendData(student, media, $index);$event.preventDefault();$event.stopPropagation()" style="position: absolute; right: 0; margin-top: 10px;">Enviar &nbsp; <i class="fa fa-chevron-circle-right" aria-hidden="true" ></i></button>
+     
      <div style="display: none" lsn-Name="{{media.lesson}}" lsn-Index="{{media.index}}" id="{{student.mail}}"></div>
             </div>    
           </div>         
@@ -373,31 +375,45 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', '$sce', function($htt
 };
 
   
-   $scope.sendData = function(student) { 
+   $scope.sendData = function(student, media, index) { 
      var base64Video = document.getElementById("videodata").textContent
      var base64Image = document.getElementById("pdfdata").textContent
-     var lsnName = document.getElementById(student.mail).getAttribute('lsn-Name');
-     var lsnIndex = document.getElementById(student.mail).getAttribute('lsn-Index');
-      
+
+     
       if(base64Image == "" && base64Video == ""){
-        alert("No se ha grabado video o cargado una imagen")
+        alert("No se ha grabado video o generado el PDF")
       }else{
  
      if(base64Image != ""){
       var requestData = {
         action: "postPDF",
         mail: student.mail,
-        lsn: lsnName,
-        index: lsnIndex, 
+        lsn: media.lesson,
+        index: media.index, 
+        mediaindex: index, 
         blob: base64Image
       }; 
- alert(base64Image)
+       
+const fileInput = document.getElementById('fileInput');
+const imagePreview = document.getElementById('imagePreview');
+const pdfData = document.getElementById('pdfdata');
+const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+const clearBtn = document.getElementById('clearBtn');
+       
+ imagePreview.innerHTML = '';
+ fileInput.value = '';
+ pdfData.style.display = 'none';
+ pdfData.innerHTML = '';
+ downloadPdfBtn.disabled = true;
+
+       
      }else if(base64Video != ""){
        var requestData = {
         action: "postVideo",
        mail: student.mail,
-        lsn: lsnName,
-        index: lsnIndex,
+        lsn: media.lesson,
+        index: media.index, 
+        mediaindex: index,
         blob: base64Video
       };    
    var video = document.getElementById('video')
@@ -408,6 +424,7 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', '$sce', function($htt
      document.getElementById('play-btn').style.display = 'none';
    $("#stop-btn").removeClass("btn-danger").addClass("btn-default");
     }  
+            
         
    var config = {
      headers: {
@@ -417,20 +434,20 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', '$sce', function($htt
      };
        $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
     .then(function(response) {
-      //$scope.userData = response.data;
+      
     })  
         
-   /*   var index = $scope.students.indexOf(student);
-      if (index !== -1) {
-         $scope.students.splice(index, 1);
-      }   */
+  student.audios.splice(index, 1);
+    if (student.audios.length === 0) {
+        var sIndex = $scope.students.indexOf(student);
+        if (sIndex !== -1) {
+            $scope.students.splice(sIndex, 1);
+        }
+    }
+
         
-   }
-
-
- 
-    
-   };
+  }   
+};
 
 }]);
 
