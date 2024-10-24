@@ -301,7 +301,7 @@ body * {
  <div class="modal fade" tabindex="-1" role="dialog" ng-show="isModalVisible">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-        <p>Actividad evaluada</p>
+        <p>Cargando...</p>
     </div>
   </div>
 </div>
@@ -369,7 +369,7 @@ body * {
 	 <script>
 		 var alertsApp = angular.module('alertsApp', []);
  
-alertsApp.controller('alertsCtrl', ['$http', '$scope', '$sce', '$timeout', function($http, $scope, $sce, $timeout) {
+alertsApp.controller('alertsCtrl', ['$http', '$scope', '$sce', function($http, $scope, $sce) {
   $scope.alerts = []
   $scope.isModalVisible = false;
   
@@ -401,6 +401,7 @@ alertsApp.controller('alertsCtrl', ['$http', '$scope', '$sce', '$timeout', funct
     };
   
  function postEvaluation(mail, lsn, mediaIndex) {
+   $scope.isModalVisible = true; 
      var requestData = {
     action: "evaluateAudio",
     mail: mail,
@@ -418,6 +419,7 @@ alertsApp.controller('alertsCtrl', ['$http', '$scope', '$sce', '$timeout', funct
      
 $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
        .then(function(response) { 
+	$scope.isModalVisible = false; 
         $scope.selectedAlert.audios.splice(mediaIndex, 1);
 
     // Si el array selectedAlert.Audios está vacío, elimina el alert de alerts
@@ -434,15 +436,12 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 
 
 $scope.evaluate = function(media, index){
-	 $scope.isModalVisible = true;  
-    $timeout(function() {
-      $scope.isModalVisible = false;  
-    }, 1000);
    postEvaluation($scope.selectedAlert.mail, media.lesson, index)
 }
 
 
  function postCorrection(mail, mediaIndex) {
+ $scope.isModalVisible = true; 
      var requestData = {
     action: "correctionFlag",
     mail: mail,
@@ -458,6 +457,7 @@ $scope.evaluate = function(media, index){
      
 $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
        .then(function(response) { 
+	 $scope.isModalVisible = false; 
         $scope.selectedAlert.audios.splice(mediaIndex, 1);
 
     // Si el array selectedAlert.Audios está vacío, elimina el alert de alerts
@@ -474,10 +474,6 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 
 
 $scope.correction = function(index){
-	 $scope.isModalVisible = true;  
-    $timeout(function() {
-      $scope.isModalVisible = false;  
-    }, 1000);
    postCorrection($scope.selectedAlert.mail, index)
 }
 		 
