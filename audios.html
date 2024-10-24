@@ -265,11 +265,47 @@ body * {
 
 
 
+.modal {
+  display: block; /* Asegura que el modal se muestre */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Centra el modal */
+  z-index: 1050;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
+  width: 100%;
+  height: 100%;
+}
 
+.modal-dialog {
+  position: relative;
+  width: 300px; /* Puedes ajustar el tamaño del modal */
+  margin: 0 auto;
+  top: 50%;
+  transform: translateY(-50%); /* Centra verticalmente dentro de la ventana */
+}
+
+.modal-content {
+  	font-family: Helvetica;
+  background-color: #fff;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+  text-align: center; 
+}
 </style>
 
  <div ng-app="alertsApp" ng-controller="alertsCtrl">
 
+	 
+ <div class="modal fade" tabindex="-1" role="dialog" ng-show="isModalVisible">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <p>Actividad evaluada</p>
+    </div>
+  </div>
+</div>
+	 
 <div class="wrapper" >
 	<div class="statusBar">
 	</div>
@@ -333,8 +369,9 @@ body * {
 	 <script>
 		 var alertsApp = angular.module('alertsApp', []);
  
-alertsApp.controller('alertsCtrl', ['$http', '$scope', '$sce', function($http, $scope, $sce) {
+alertsApp.controller('alertsCtrl', ['$http', '$scope', '$sce', '$timeout', function($http, $scope, $sce, $timeout) {
   $scope.alerts = []
+  $scope.isModalVisible = false;
   
    var requestData = {
                 action: "getAdminData",
@@ -397,6 +434,10 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 
 
 $scope.evaluate = function(media, index){
+	 $scope.isModalVisible = true;  
+    $timeout(function() {
+      $scope.isModalVisible = false;  
+    }, 1000);
    postEvaluation($scope.selectedAlert.mail, media.lesson, index)
 }
 
@@ -433,6 +474,10 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 
 
 $scope.correction = function(index){
+	 $scope.isModalVisible = true;  
+    $timeout(function() {
+      $scope.isModalVisible = false;  
+    }, 1000);
    postCorrection($scope.selectedAlert.mail, index)
 }
 		 
