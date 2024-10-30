@@ -495,13 +495,14 @@ body {
         <ion-content>
           <ul class="list">
           <!--     <a href="#/menu/status" class="item"  menu-toggle="right" ><i class="ri-user-fill"></i>&nbsp&nbspPerfil</a>  -->
-            <a href="#/menu/lessons" class="item" ng-class="(activeMenuClr=='lessons')?'menuSelectedColor':''" ng-click="activeMenuClr = 'lessons'" menu-toggle="right"><i class="ri-presentation-fill" ></i>&nbsp&nbspCursos</a> 
-          <a href="#/menu/profile" class="item" ng-class="(activeMenuClr=='profile')?'menuSelectedColor':''" ng-click="activeMenuClr = 'profile'" menu-toggle="right"><i class="ri-volume-up-fill" ></i>&nbsp&nbspRevisiones</a> 
+            <a href="#/menu/agenda" class="item" ng-class="(activeMenuClr=='agenda')?'menuSelectedColor':''" ng-click="activeMenuClr = 'agenda'" menu-toggle="right"><i class="ri-team-fill" ></i>&nbsp&nbspAlumnos</a> 
+          <a href="#/menu/profile" class="item" ng-class="(activeMenuClr=='profile')?'menuSelectedColor':''" ng-click="activeMenuClr = 'profile'" menu-toggle="right"><i class="ri-volume-up-fill" ></i>&nbsp&nbspAudios</a> 
               
            
      
        <a href="#/menu/reel" class="item" ng-class="(activeMenuClr=='reel')?'menuSelectedColor':''" ng-click="activeMenuClr = 'reel'" menu-toggle="right"><i class="ri-edit-2-fill" ></i>&nbsp&nbspCorrecciones</a>  
 	     <a href="#/menu/library" class="item" ng-class="(activeMenuClr=='library')?'menuSelectedColor':''" ng-click="activeMenuClr = 'library'" menu-toggle="right"><i class="ri-git-repository-fill" ></i>&nbsp&nbspBiblioteca</a> 
+	     <a href="#/menu/mozart" class="item" ng-class="(activeMenuClr=='mozart')?'menuSelectedColor':''" ng-click="activeMenuClr = 'mozart'" menu-toggle="right"><i >🎹</i>&nbsp&nbspMozart Academy</a> 
 	<!--   <a href="#/menu/resources" class="item" ng-class="(activeMenuClr=='resources')?'menuSelectedColor':''" ng-click="activeMenuClr = 'resources'" menu-toggle="right"><i class="ri-dashboard-fill"></i>&nbsp&nbspRecursos</a>
 	  <a href="#/menu/chat" class="item" ng-class="(activeMenuClr=='chat')?'menuSelectedColor':''" ng-click="activeMenuClr = 'chat'"  menu-toggle="right"><i class="ri-question-answer-fill"></i>&nbsp&nbspTutor</a>     
              <a href="#/menu/about" class="item" ng-class="(activeMenuClr=='about')?'menuSelectedColor':''" ng-click="activeMenuClr = 'about'" menu-toggle="right"><i class="ri-file-paper-2-fill"></i>&nbsp&nbspLineamientos</a> -->
@@ -527,7 +528,57 @@ body {
   <script id="agenda.html" type="text/ng-template">
     <ion-view >
       
-    <ion-back-button></ion-back-button>
+  <ion-nav-bar class="bar-light" >      
+        <ion-nav-buttons side="left">
+  <!--  <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
+      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
+       Mozart Academy
+    </button> -->
+       <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
+      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
+      Taller de Piano
+  <div style="position: absolute; bottom: -5px; left: 25px; width: 15px; height: 15px; background-color: #d3d3d3; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
+        <i class="icon ion-chevron-down" style="font-size: 8px; color: black; transform: scale(0.27);"></i>
+    </div>
+    </button>
+  </ion-nav-buttons>
+       
+        <ion-nav-buttons side="right">
+          <button class="button button-clear" ng-click="toggleRight()">menu<i class="button button-icon ion-navicon"></i></button>
+        </ion-nav-buttons>   
+       
+        <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
+     <div id="bannerRow">
+      <div class="profileImageContainer">
+        <img src="{{userData.photo}}"  />
+      </div>
+      <p class="profileName">{{userData.name}}</p>
+      <p class="profileEmail">{{userData.mail}}</p>
+    </div>
+     <div class="dropdown-item" ng-click="goToStatus()">
+      <i class="ion-ios-contact-outline"></i> Perfil
+    </div>
+   <div class="dropdown-item" ng-click="installApp()">
+      <i class="ion-android-download" ></i> Instalar App
+    </div>
+
+   <div id="myModal" class="modal" ng-show="isModalVisible">
+    <div class="modal-content">
+      <span class="close" ng-click="closeModal()" style="color: black">&times;</span>
+       <img src="https://lh3.googleusercontent.com/d/14h1sox3jQT6akLOHzvt_RK2y6cEsT_Di" alt="Agregar a inicio" style="max-width: 100%;" />
+    <p style="text-align: center; font-weight: bold;">
+      <br> Agrega a inicio:   </p> 
+        <p style="text-align: center;" >
+       1. <i class="ri-share-2-fill"></i> Icono de compartir  <br>
+       2. <i class="ri-add-box-line"></i> Agregar a inicio <br>
+       3. Agregar
+       </p>
+    </div>
+  </div>
+	  
+  </div>
+        
+    </ion-nav-bar>
     
       <ion-content>
 
@@ -536,7 +587,9 @@ body {
       </ion-content>
     </ion-view>
   </script>
-    
+
+
+	  
     <script id="profile.html" type="text/ng-template">
     <ion-view >
           <ion-nav-bar class="bar-light" >      
@@ -568,9 +621,6 @@ body {
     </div>
      <div class="dropdown-item" ng-click="goToStatus()">
       <i class="ion-ios-contact-outline"></i> Perfil
-    </div>
-    <div class="dropdown-item" ng-click="goToAgenda()">
-      <i class="ion-ios-people"></i> Alumnos
     </div>
   </div>
         
@@ -635,129 +685,23 @@ body {
     </ion-view>
   </script>
     
-     <script id="lessons.html" type="text/ng-template">
-    <ion-view >
 
-      <ion-nav-bar class="bar-light" >      
-        <ion-nav-buttons side="left">
-  <!--  <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
-      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
-       Mozart Academy
-    </button> -->
-       <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
-      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
-      Taller de Piano
-  <div style="position: absolute; bottom: -5px; left: 25px; width: 15px; height: 15px; background-color: #d3d3d3; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
-        <i class="icon ion-chevron-down" style="font-size: 8px; color: black; transform: scale(0.27);"></i>
-    </div>
-    </button>
-  </ion-nav-buttons>
-       
-        <ion-nav-buttons side="right">
-          <button class="button button-clear" ng-click="toggleRight()">menu<i class="button button-icon ion-navicon"></i></button>
-        </ion-nav-buttons>   
-       
-        <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
-     <div id="bannerRow">
-      <div class="profileImageContainer">
-        <img src="{{userData.photo}}"  />
-      </div>
-      <p class="profileName">{{userData.name}}</p>
-      <p class="profileEmail">{{userData.mail}}</p>
-    </div>
-    <div class="dropdown-item" ng-click="goToStatus()">
-      <i class="ion-ios-contact-outline"></i> Perfil
-    </div>
-    <div class="dropdown-item" ng-click="goToAgenda()">
-      <i class="ion-ios-people"></i> Alumnos
-    </div>
+ 
 
 
-	     
-  </div>
-        
-    </ion-nav-bar>
 
-     <ion-content>
-       
-   <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/lessons" frameborder="0" allowfullscreen></iframe></div>
-
-      </ion-content>
-
-    </ion-view>
-  </script>   
-    
-      <script id="reel.html" type="text/ng-template">
-    <ion-view >
-	  
-        <ion-nav-bar class="bar-light" >      
-        <ion-nav-buttons side="left">
-  <!--  <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
-      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
-       Mozart Academy
-    </button> -->
-       <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
-      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
-     Taller de Piano
- <div style="position: absolute; bottom: -5px; left: 25px; width: 15px; height: 15px; background-color: #d3d3d3; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
-        <i class="icon ion-chevron-down" style="font-size: 8px; color: black; transform: scale(0.27);"></i>
-    </div>
-    </button>
-  </ion-nav-buttons>
-       
-        <ion-nav-buttons side="right">
-          <button class="button button-clear" ng-click="toggleRight()">menu<i class="button button-icon ion-navicon"></i></button>
-        </ion-nav-buttons>   
-       
-        <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
-     <div id="bannerRow">
-      <div class="profileImageContainer">
-        <img src="{{userData.photo}}"  />
-      </div>
-      <p class="profileName">{{userData.name}}</p>
-      <p class="profileEmail">{{userData.mail}}</p>
-    </div>
-    <div class="dropdown-item" ng-click="goToStatus()">
-      <i class="ion-ios-contact-outline"></i> Perfil
-    </div>
-    <div class="dropdown-item" ng-click="goToAgenda()">
-      <i class="ion-ios-people"></i> Alumnos
-    </div>
-  </div>
-        
-    </ion-nav-bar>
-	      
-      <ion-content >
-       
-        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/corrections" frameborder="0" allowfullscreen ></iframe></div> 
-    
-      </ion-content>
-    </ion-view>
-  </script>
-
-    
-        <script id="chat.html" type="text/ng-template">
-    <ion-view >
-
-      <ion-back-button></ion-back-button>
-    
-      <ion-content>
-        <div class="iframe-container"><iframe src="https://app.mozartacademy.mx/chat" frameborder="0" allowfullscreen ></iframe></div> 
-      </ion-content>
-    </ion-view>
-  </script>
-
-
-         <script id="payment.html" type="text/ng-template">
+   <script id="mozart.html" type="text/ng-template">
     <ion-view >
 
      <ion-back-button></ion-back-button>
     
       <ion-content>
-        <div class="iframe-container"><iframe src="https://app.mozartacademy.mx/payment" frameborder="0" allowfullscreen ></iframe></div> 
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/mStudents" frameborder="0" allowfullscreen ></iframe></div> 
       </ion-content>
     </ion-view>
   </script>
+	  
+
     
    <script id="library.html" type="text/ng-template">
     <ion-view >
@@ -792,9 +736,6 @@ body {
      <div class="dropdown-item" ng-click="goToStatus()">
       <i class="ion-ios-contact-outline"></i> Perfil
     </div>
-    <div class="dropdown-item" ng-click="goToAgenda()">
-      <i class="ion-ios-people"></i> Alumnos
-    </div>
   </div>
         
     </ion-nav-bar>
@@ -821,16 +762,6 @@ body {
         </a>
      
      
-  <div class="item item-divider itemDividerforitem">Historial</div>
-       <a class="item item-icon-left item-button-right" href="#/menu/diplomas">
-           <i class="icon ri-award-fill"></i> Diplomas
-          <p style="font-size: 10px;">Reconocimientos por terminar cada nivel</p> 
-        </a>
-      <a class="item item-icon-left item-button-right" href="#/menu/statistics">
-           <i class="icon ri-pie-chart-box-fill"></i> Estadísticas
-          <p style="font-size: 10px;">Métricas de tu desempeño</p> 
-        </a>	   
-   </div>
       </ion-content>
       
      
@@ -1189,22 +1120,7 @@ body {
           <p style="font-size: 10px;"> Habilidad para interpretar música al instante.</p> 
         </a>
 
-	     <div class="item item-divider itemDividerforitem">Apps musicales</div>
-	 <a class="item item-avatar" href="#/menu/metronome">
-        <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/42/1e/07/421e07cc-b33b-e384-1995-06183618693a/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/460x0w.webp">
-           <h2> Metrónomo</h2>
-     <p> metronome beats </p>
-          </a>
-     <a class="item item-avatar" href="#/menu/notereader">
-            <img src="https://play-lh.googleusercontent.com/NzG7u3_0xrBfYdx-_ddIZn9x8VFv5oBtOuMsgpWIZJ8vqB8pWUIUeIMcl-9saY8-N0o=w480-h960-rw">
-           <h2> Lectura de notas </h2>
-     <p> Entrenamiento melódico</p>
-          </a>
-      <a class="item item-avatar" href="#/menu/circlefifths">
-            <img src="https://lh3.googleusercontent.com/d/16w1B_HGaZPCaG5uhMjTA824i_uTFcnTF=s100-p">
-           <h2> Círculo de quintas </h2>
-     <p> Entrenamiento armónico</p>
-          </a>
+
 	    
     </div>  
 
@@ -1386,21 +1302,6 @@ body {
   </script>
 
 
-      <script id="diplomas.html" type="text/ng-template">   
-       <ion-view>
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-   <div style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-  <div class="alert alert-danger" style="text-align: center; width: 250px; padding: 15px;">
-    Sin elementos para mostrar aún
-  </div>
-</div>
- 
-      </ion-content>
-    </ion-view>
-  </script>
 
 
 	  
@@ -1420,30 +1321,7 @@ body {
   </script>  
 
 
- <script id="metronome.html" type="text/ng-template">   
-       <ion-view>
-      <ion-content >
 
-          <ion-back-button></ion-back-button>
-
-       <div class="iframe-container"><iframe src="https://embed.metronome.app/" frameborder="0" allowfullscreen></iframe></div>
-       
-      </ion-content>
-    </ion-view>
-  </script>
-	  
-
- <script id="notereader.html" type="text/ng-template">   
-       <ion-view>
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-    <div class="iframe-container"><iframe src="https://app.mozartacademy.mx/notereader" frameborder="0" allowfullscreen></iframe></div>
-       
-      </ion-content>
-    </ion-view>
-  </script>
 
 
      <script id="circlefifths.html" type="text/ng-template">   
@@ -1459,50 +1337,6 @@ body {
   </script>
 
 
-
-
-
-<script id="about.html" type="text/ng-template">
- 
-   <ion-view title="Lineamientos">
-
-      <ion-nav-bar class="bar-stable">
-        <ion-nav-buttons side="right">
-          <button class="button button-icon button-clear ion-navicon" ng-click="toggleRight()"></button>
-        </ion-nav-buttons>      
-    </ion-nav-bar>
-
-     <ion-content>
-    <div class="list">
-          <a class="item" href="#/menu/regulation">
-            Reglamento
-          </a>
-
-
-          <a class="item" href="#/menu/aboutus">
-           Acerca de
-          </a>
-</div>
-      </ion-content>
-    </ion-view>
-  </script>   
-
-
-
-
-
-
-   <script id="aboutus.html" type="text/ng-template">   
-       <ion-view>
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-        <h2>Acerca de</h2>
- 
-      </ion-content>
-    </ion-view>
-  </script>
 
 
 
@@ -1653,43 +1487,12 @@ app
         }
       }
     })
-    .state('menu.lessons', {
-      url: "/lessons",
+
+ .state('menu.mozart', {
+      url: "/mozart",
       views: {
         'menuContent': {
-          templateUrl: "lessons.html"
-        }
-      }
-    }) 
- .state('menu.chat', {
-      url: "/chat",
-      views: {
-        'menuContent': {
-          templateUrl: "chat.html"
-        }
-      }
-    })
- .state('menu.payment', {
-      url: "/payment",
-      views: {
-        'menuContent': {
-          templateUrl: "payment.html"
-        }
-      }
-    })
-   .state('menu.metronome', {
-      url: "/metronome",
-      views: {
-        'menuContent': {
-          templateUrl: "metronome.html"
-        }
-      }
-    })
-   .state('menu.notereader', {
-      url: "/notereader",
-      views: {
-        'menuContent': {
-          templateUrl: "notereader.html"
+          templateUrl: "mozart.html"
         }
       }
     })
@@ -1802,14 +1605,7 @@ app
         }
       }
     })
-	   .state('menu.diplomas', {
-      url: "/diplomas",
-      views: {
-        'menuContent': {
-          templateUrl: "diplomas.html"
-        }
-      }
-    })
+
  .state('menu.statistics', {
       url: "/statistics",
       views: {
@@ -1818,43 +1614,11 @@ app
         }
       }
     })
-   .state('menu.reel', {
-      url: "/reel",
-      views: {
-        'menuContent': {
-          templateUrl: "reel.html"
-        }
-      }
-    })
-    .state('menu.about', {
-      url: "/about",
-      views: {
-        'menuContent': {
-          templateUrl: "about.html"
-        }
-      }
-    })
-  .state('menu.regulation', {
-      url: "/regulation",
-      views: {
-        'menuContent': {
-          templateUrl: "regulation.html",
-          controller: "AccordianCtrl"
-        }
-      }
-    })
 
-  .state('menu.aboutus', {
-      url: "/aboutus",
-      views: {
-        'menuContent': {
-          templateUrl: "aboutus.html"
-        }
-      }
-    })
+
     ; 
 
-  $urlRouterProvider.otherwise("menu/lessons");
+  $urlRouterProvider.otherwise("menu/students");
   $ionicConfigProvider.tabs.position('bottom'); 
 })
 
@@ -1883,6 +1647,7 @@ app
     $scope.toggleDropdown = function() {
       $scope.isDropdownVisible = !$scope.isDropdownVisible;
     };
+	
    $scope.goToProfile = function() {
   window.location.href = '#/menu/profile';
 };  
@@ -1892,12 +1657,53 @@ app
      $scope.goToStatus = function() {
   window.location.href = '#/menu/status';
 };
-	  $scope.goToLibrary = function() {
-  window.location.href = '#/menu/library';
-};  
+	
 
 
+	$scope.isModalVisible = false;
+let deferredPrompt;
+const isAndroid = /Android/i.test(navigator.userAgent);
+const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
+// Registrar el Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(function (registration) {
+    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+  }, function (err) {
+    console.log('ServiceWorker registration failed: ', err);
+  });
+}
+
+// Manejar el evento 'beforeinstallprompt'
+window.addEventListener('beforeinstallprompt', (e) => {
+  if (isAndroid) {
+    e.preventDefault();
+    deferredPrompt = e;
+  }
+});
+
+// Función para agregar a la pantalla de inicio
+$scope.installApp = function () {
+  if (isAndroid && deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the A2HS prompt');
+      } else {
+        console.log('User dismissed the A2HS prompt');
+      }
+      deferredPrompt = null;
+    });
+  } else if (isIOS) {
+    // Mostrar modal con la animación GIF para iOS
+    $scope.isModalVisible = true;
+  }
+};
+
+// Cerrar modal
+$scope.closeModal = function () {
+  $scope.isModalVisible = false;
+};
 
   $scope.logout = function() {
    localStorage.removeItem('ADtoken');
