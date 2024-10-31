@@ -176,11 +176,11 @@ right: -10px;
 		transition: 1s ease;
 }
 ._3{
-		background-image: linear-gradient(-90deg, #fde7ea, #DDBEC3);
+		background-image: linear-gradient(-90deg, #e0f7ec, #a6d9c8);
 		transform:rotate(-90deg);
 }
 ._3:hover{
-		background-image: linear-gradient(-90deg, #d7c2c5, #ae9297);
+		background-image: linear-gradient(-90deg, #c3e6d1, #8ccab0);
 		transition: background-image 0s;
 }
 ._3>div{
@@ -548,7 +548,7 @@ margin-left: -20px;
     <li ng-repeat="student in filteredStudents | filter: { name: query } | orderBy: orderList" id="active" ng-click="$event.preventDefault();$event.stopPropagation()"> 
    
         <div class="list-group list">
-          <a href="#" class="list-group-item" ng-style="{'background-color': loadingInfo.loading && loadingInfo.index === $index ? loadingInfo.loadingColor : 'inherit'}">
+          <a href="#" class="list-group-item" ng-style="{'background-color': student.statusColor}">
             
 
             
@@ -564,7 +564,7 @@ margin-left: -20px;
             <div class="larger-area"></div>
             <div class="menu-item _1"><div ng-click="openModal(student, 3)"><i class="ri-calendar-check-fill"></i></div></div>
             <div class="menu-item _2"><div><i class=""></i></div></div>
-            <div class="menu-item _3"><div><i class=""></i></div></div>
+            <div class="menu-item _3"><div ng-click="sendWhatsapp(student.phone)"><i class="ri-whatsapp-fill"></i></div></div>
             <div class="menu-item _4"><div ng-click="newPayment(student)"><i class="ri-money-dollar-circle-line"></i></div></div>
             <div class="menu-item _5"><div ng-click="openModal(student, 4)"><i class="ri-history-fill"></i></div></div>
             <div class="menu-item _6"><div ng-click="openModal(student, 1)"><i class="ri-list-check-2"></i></div></div>
@@ -574,7 +574,8 @@ margin-left: -20px;
        
               <h3 class="list-group-item-heading name" style="font-size: 21px;">{{student.name}}</h3> 
               <h3 class="list-group-item-text title" style="font-size: 18px; margin-top: -2px; color:{{student.color}}">{{student.level}}</h3>
-          <h4 class="list-group-item-text title" style="font-size: 15px; margin-top: -2px; ">Bloque {{student.blq}}</h4>
+          <h4 class="list-group-item-text title" style="font-size: 15px; margin-top: -2px; color: green" ng-if="student.status == 'ACTIVO'">ACTIVO</h4>
+	<h4 class="list-group-item-text title" style="font-size: 15px; margin-top: -2px; color: red" ng-if="student.status != 'ACTIVO'">PAGO PENDIENTE</h4>
           <h5 class="list-group-item-text" style=" margin-top: 10px;">{{student.classtime}}</h5>
  
   <span class="label label-default expertise-label" ng-repeat="lsn in student.currentLsn" ng-click="abrirNuevaPestana(lsn.pdf);$event.preventDefault();$event.stopPropagation()" >
@@ -737,6 +738,7 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', function($http, $scop
     $scope.filterByHour();
    $scope.students.forEach(function(student) {
      student.modalState = { isModalOpen1: false, isModalOpen2: false, isModalOpen3: false};
+     student.statusColor = student.status === "ACTIVO" ? "green" : "red";
         });
   });
   
@@ -949,7 +951,16 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
   }
 
 
+//Send whatsapp
 
+$scope.sendWhatsapp = function(phone) {
+    if (phone.length === 10 && /^\d+$/.test(phone)) {
+        const url = `https://wa.me/521${phone}`;
+        window.open(url, '_blank');
+    } else {
+        alert("Número de teléfono inválido.");
+    }
+};
 
 	
   $scope.openModal = function(user, modalNumber) {
