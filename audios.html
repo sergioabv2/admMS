@@ -293,6 +293,30 @@ body * {
   box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
   text-align: center; 
 }
+    .custom-input {
+  width: 20%; /* Ajusta para ocupar todo el ancho */
+  padding: 10px;
+  font-size: 16px;
+    margin-left: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 20px; /* Espacio entre select y botones */
+}
+
+.button-group {
+  display: flex;
+   justify-content: center; /* Centra los botones */
+  gap: 10px;
+}
+
+.custom-button {
+  padding: 10px 20px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
 </style>
 
  <div ng-app="alertsApp" ng-controller="alertsCtrl">
@@ -349,7 +373,7 @@ body * {
 
      <br> 
      <button ng-click="correction(mediaIndex)"><i class="ri-close-fill" style=" font-size: 15px;"></i> Corregir</button> 
-     <button ng-click="evaluate(media, mediaIndex)"><i class="ri-check-fill" style=" font-size: 15px;"></i> Listo</button> 
+     <button ng-click="openModal(media, mediaIndex)"><i class="ri-check-fill" style=" font-size: 15px;"></i> Listo</button> 
     <!-- <button > <i class="ri-award-fill" style="margin-right: 5px; font-size: 15px;"></i>Perfecto</button> -->
     <br><br> 
      
@@ -357,15 +381,31 @@ body * {
     
     
 
-</div>
-                                                                               
-    
-    
+</div> 
 	</div>
 </div>
 
 
+   
+   
+      <div class="modal fade" ng-show="scoreModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+     
+      <div class="form-row">
+       
+  Calificación: <input class="custom-input" maxlength="3" ng-pattern="/^\d{1,3}$/" placeholder="100" ng-model="inputScore"/>
+        <div class="button-group">
+          <button class="custom-button" style="background-color: #adb5bd" ng-click="closeModal()">Cerrar</button>
+          <button class="custom-button" style="background-color: green" ng-click="evaluate(inputScore)">Evaluar</button>   
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
+   
+</div>
 	 <script>
 		 var alertsApp = angular.module('alertsApp', []);
  
@@ -400,12 +440,13 @@ alertsApp.controller('alertsCtrl', ['$http', '$scope', '$sce', function($http, $
         return $sce.trustAsResourceUrl(url);
     };
   
- function postEvaluation(mail, lsn, mediaIndex) {
+ function postEvaluation(mail, lsn, mediaIndex, score) {
    $scope.isModalVisible = true; 
      var requestData = {
     action: "evaluateAudio",
     mail: mail,
     lsn: lsn,
+       score: score,
     mediaindex: mediaIndex
    
   };
@@ -435,9 +476,26 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
    };
 
 
-$scope.evaluate = function(media, index){
-   postEvaluation($scope.selectedAlert.mail, media.lesson, index)
+$scope.evaluate = function(score){
+  if(!score){
+    score = 100
+  }
+ postEvaluation($scope.selectedAlert.mail, $scope.selectedMedia, $scope.selectedMediaIndex, score) 
+  $scope.inputScore = '';
+  $scope.scoreModal  = false;
 }
+ 
+  $scope.scoreModal = false
+     $scope.openModal = function(media, mediaIndex) {
+       $scope.selectedMedia = media.lesson;
+        $scope.selectedMediaIndex = mediaIndex;
+        $scope.scoreModal = true;
+    };
+
+    $scope.closeModal = function() {
+      $scope.inputScore = '';
+           $scope.scoreModal  = false;
+    }
 
 
  function postCorrection(mail, mediaIndex) {
