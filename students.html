@@ -548,7 +548,7 @@ margin-left: -20px;
     <li ng-repeat="student in filteredStudents | filter: { name: query } | orderBy: orderList" id="active" ng-click="$event.preventDefault();$event.stopPropagation()"> 
    
         <div class="list-group list">
-          <a href="#" class="list-group-item" ng-style="{'background-color': loadingInfo.loading && loadingInfo.index === $index ? loadingInfo.loadingColor : student.statusColor}">
+          <a href="#" class="list-group-item" ng-style="{'background-color': loadingInfo.loading && loadingInfo.index === $index ? loadingInfo.loadingColor : 'inherit'}">
             
 
             
