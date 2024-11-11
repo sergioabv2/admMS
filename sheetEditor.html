@@ -1,0 +1,243 @@
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" href="https://lh3.googleusercontent.com/d/1h0PAuatp8mguH19cso6wh19mjMVa0K5V" type="image/x-icon">
+    <title>Mozart Academy</title>
+  <script src="https://cdn.rawgit.com/konvajs/konva/1.6.3/konva.min.js"></script>
+
+<style>
+  .wrapper {
+	margin-top: 2rem;
+}
+.title {
+	text-align: center;
+	margin: 0 auto;
+	display: block;
+	width: 50rem;
+	line-height: 2rem;
+	font-size: 2rem;
+	font-family: 'Roboto Condensed', sans-serif;
+	border: none;
+}
+.sheet {
+	margin: 0 auto;
+	width: 50rem;
+	padding-top: 4rem;
+}
+.fiveline {
+	margin-bottom: 4rem;
+	position: relative;
+}
+.key {
+	width: 2.8rem;
+	position: absolute;
+	top: -20px;
+}
+.line {
+	height: 1px;
+	width: 100%;
+	background: #000;
+	margin-bottom: .8rem;
+}
+.canvas {
+	position: absolute;
+	top: 5px;
+	width: 100%;
+	height: 100%;
+}
+</style>
+ 
+<div class="wrapper">
+  <input class="title" autofocus="autofocus" placeholder="Drag the note"/><br>
+  <div class="sheet">
+    <div class="fiveline"><img class="key" src="http://www.clker.com/cliparts/6/0/d/5/12428097721630408111Treble_Clef_without_line.svg"/>
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <div class="fiveline"><img class="key" src="http://www.clker.com/cliparts/Z/6/U/Y/f/n/bass-clef-md.png" style="margin-top: 20px;"/>
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <div class="fiveline"><img class="key" src="http://www.clker.com/cliparts/6/0/d/5/12428097721630408111Treble_Clef_without_line.svg"/>
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <div class="fiveline"><img class="key" src="http://www.clker.com/cliparts/Z/6/U/Y/f/n/bass-clef-md.png" style="margin-top: 20px;"/>
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+  
+  </div>
+</div>
+<div class="canvas" id="container">
+
+  <p>&#9833;</p>
+</div>
+
+
+  <script>
+    var width = window.innerWidth;
+var height = window.innerHeight;
+var stage = new Konva.Stage({
+      container: 'container',
+      width: width,
+      height: height
+});
+var layer = new Konva.Layer();
+//ta
+var imageObjTa = new Image();
+imageObjTa.onload = function() {
+  var ta = new Konva.Image({
+        x: 40,
+        y: 40,
+        image: imageObjTa,
+        width: 70,
+        height: 70,
+				draggable: true
+   });
+   layer.add(ta);
+   stage.add(layer);
+	 ta.on('dragstart', function() {
+			// stop dragging original rect
+			ta.stopDrag();
+			// clone it
+			var clone = ta.clone();
+			// events will also be cloned
+			// so we need to disable dragstart
+			clone.off('dragstart');
+			// then add to layer and start dragging new shape
+			layer.add(clone);
+			clone.startDrag();
+	});
+};
+imageObjTa.src = 'https://lh3.googleusercontent.com/d/1pUSUdrJ-TX4RGMo00OS4o47xod2Ix7W6';
+
+//titi
+var imageObjTiti = new Image();
+imageObjTiti.onload = function() {
+  var titi = new Konva.Image({
+        x: 80,
+        y: 40,
+        image: imageObjTiti,
+        width: 72,
+        height: 72,
+				draggable: true
+   });
+   layer.add(titi);
+   stage.add(layer);
+	 titi.on('dragstart', function() {
+			titi.stopDrag();
+			var clone = titi.clone();
+			clone.off('dragstart');
+			layer.add(clone);
+			clone.startDrag();
+	});
+};
+imageObjTiti.src = 'https://lh3.googleusercontent.com/d/10iLegtb_pOrAA-9oNdrRGjLDFOV_nO_A';
+
+//ti
+var imageObjTi = new Image();
+imageObjTi.onload = function() {
+  var ti = new Konva.Image({
+        x: 130,
+        y: 40,
+        image: imageObjTi,
+        width: 70,
+        height: 70,
+				draggable: true
+   });
+   layer.add(ti);
+   stage.add(layer);
+	 ti.on('dragstart', function() {
+			ti.stopDrag();
+			var clone = ti.clone();
+			clone.off('dragstart');
+			layer.add(clone);
+			clone.startDrag();
+	});
+};
+imageObjTi.src = 'https://lh3.googleusercontent.com/d/1oYzR7luPZvj44BWHwCmXuhd0PU7vzFbY';
+
+//tai
+var imageObjTai = new Image();
+imageObjTai.onload = function() {
+  var tai = new Konva.Image({
+        x: 180,
+        y: 50,
+        image: imageObjTai,
+        width: 65,
+        height: 65,
+				draggable: true
+   });
+   layer.add(tai);
+   stage.add(layer);
+	 tai.on('dragstart', function() {
+			tai.stopDrag();
+			var clone = tai.clone();
+			clone.off('dragstart');
+			layer.add(clone);
+			clone.startDrag();
+	});
+};
+imageObjTai.src = 'https://lh3.googleusercontent.com/d/15iuP73vzcfX-5HbBLZ068PJXe6cL2ACS';
+
+
+//tai
+var imageObjPa = new Image();
+imageObjPa.onload = function() {
+  var pa = new Konva.Image({
+        x: 215,
+        y: 50,
+        image: imageObjPa,
+        width: 65,
+        height: 65,
+				draggable: true
+   });
+   layer.add(pa);
+   stage.add(layer);
+	 pa.on('dragstart', function() {
+			pa.stopDrag();
+			var clone = pa.clone();
+			clone.off('dragstart');
+			layer.add(clone);
+			clone.startDrag();
+	});
+};
+imageObjPa.src = 'https://lh3.googleusercontent.com/d/1M7fohJ7Ead0hA7yZjW61CMmjLLL01ZPt';
+
+
+
+var imageObjSS = new Image();
+imageObjSS.onload = function() {
+  var ss = new Konva.Image({
+        x: 250,
+        y: 40,
+        image: imageObjSS,
+        width: 65,
+        height: 65,
+        draggable: true
+   });
+   layer.add(ss);
+   stage.add(layer);
+   ss.on('dragstart', function() {
+      ss.stopDrag();
+      var clone = ss.clone();
+      clone.off('dragstart');
+      layer.add(clone);
+      clone.startDrag();
+  });
+};
+imageObjSS.src = 'https://lh3.googleusercontent.com/d/1pNItgYWHeNIu3MPyFWc7Y1aGLPifa8Wj';
+
+  </script>
