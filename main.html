@@ -24,7 +24,7 @@
     }
 
 
-	 
+   
 .loadInfo{
   z-index: 4;
   position: absolute; 
@@ -150,7 +150,7 @@ body {
             overflow: hidden;
             max-width: 100%;
             /*height:  88vh;*/
-	    height: 100%;
+      height: 100%;
         }
 
 
@@ -365,7 +365,7 @@ body {
     display: block; 
   }
 
-	 
+   
 .ionic-spinner {
   border: 4px solid rgba(0, 0, 0, 0.2);
   border-top: 4px solid #333;
@@ -381,7 +381,7 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-	 .anim {
+   .anim {
     position: relative;
     display: block;
     
@@ -462,7 +462,7 @@ body {
   margin-right: 10px;
 }
 
-	 
+   
 
 </style>
 
@@ -501,10 +501,10 @@ body {
            
      
        <a href="#/menu/reel" class="item" ng-class="(activeMenuClr=='reel')?'menuSelectedColor':''" ng-click="activeMenuClr = 'reel'" menu-toggle="right"><i class="ri-edit-2-fill" ></i>&nbsp&nbspCorrecciones</a>  
-	     <a href="#/menu/library" class="item" ng-class="(activeMenuClr=='library')?'menuSelectedColor':''" ng-click="activeMenuClr = 'library'" menu-toggle="right"><i class="ri-git-repository-fill" ></i>&nbsp&nbspBiblioteca</a> 
-	     <a href="#/menu/mozart" class="item" ng-class="(activeMenuClr=='mozart')?'menuSelectedColor':''" ng-click="activeMenuClr = 'mozart'" menu-toggle="right"><i >🎹</i>&nbsp&nbspMozart Academy</a> 
-	<!--   <a href="#/menu/resources" class="item" ng-class="(activeMenuClr=='resources')?'menuSelectedColor':''" ng-click="activeMenuClr = 'resources'" menu-toggle="right"><i class="ri-dashboard-fill"></i>&nbsp&nbspRecursos</a>
-	  <a href="#/menu/chat" class="item" ng-class="(activeMenuClr=='chat')?'menuSelectedColor':''" ng-click="activeMenuClr = 'chat'"  menu-toggle="right"><i class="ri-question-answer-fill"></i>&nbsp&nbspTutor</a>     
+       <a href="#/menu/library" class="item" ng-class="(activeMenuClr=='library')?'menuSelectedColor':''" ng-click="activeMenuClr = 'library'" menu-toggle="right"><i class="ri-tools-fill" ></i>&nbsp&nbspHerramientas</a> 
+       <a href="#/menu/mozart" class="item" ng-class="(activeMenuClr=='mozart')?'menuSelectedColor':''" ng-click="activeMenuClr = 'mozart'" menu-toggle="right"><i >🎹</i>&nbsp&nbspMozart Academy</a> 
+  <!--   <a href="#/menu/resources" class="item" ng-class="(activeMenuClr=='resources')?'menuSelectedColor':''" ng-click="activeMenuClr = 'resources'" menu-toggle="right"><i class="ri-dashboard-fill"></i>&nbsp&nbspRecursos</a>
+    <a href="#/menu/chat" class="item" ng-class="(activeMenuClr=='chat')?'menuSelectedColor':''" ng-click="activeMenuClr = 'chat'"  menu-toggle="right"><i class="ri-question-answer-fill"></i>&nbsp&nbspTutor</a>     
              <a href="#/menu/about" class="item" ng-class="(activeMenuClr=='about')?'menuSelectedColor':''" ng-click="activeMenuClr = 'about'" menu-toggle="right"><i class="ri-file-paper-2-fill"></i>&nbsp&nbspLineamientos</a> -->
           </ul>
         </ion-content>
@@ -575,7 +575,7 @@ body {
        </p>
     </div>
   </div>
-	  
+    
   </div>
         
     </ion-nav-bar>
@@ -589,7 +589,7 @@ body {
   </script>
 
 
-	  
+    
     <script id="profile.html" type="text/ng-template">
     <ion-view >
           <ion-nav-bar class="bar-light" >      
@@ -625,7 +625,7 @@ body {
   </div>
         
     </ion-nav-bar>
-	    
+      
       <ion-content > 
 
 
@@ -638,46 +638,46 @@ body {
    
        <script id="status.html" type="text/ng-template">
     <ion-view >
-	              <ion-back-button></ion-back-button>
+                <ion-back-button></ion-back-button>
       <ion-content >
        <div class="list">
-				<a class="item item-avatar" href="" >
+        <a class="item item-avatar" href="" >
           
-				  <img data-ng-src="{{userData.photo}}">
-				  <h2>{{userData.name}}</h2>       
-				  <p>{{userData.mail}}</p>         
-				</a>
-				
-			
+          <img data-ng-src="{{userData.photo}}">
+          <h2>{{userData.name}}</h2>       
+          <p>{{userData.mail}}</p>         
+        </a>
+        
+      
          <div class="item item-divider itemDividerforitem">Status Académico</div>
          
-				 <div class="item item-icon-left item-button-right">
+         <div class="item item-icon-left item-button-right">
            <i class="icon ri-user-follow-fill"></i> Número de Alumnos
-					<button class="button button-balanced" style=" margin-top: 10px;">
-						{{userData.total}}
-					</button>
+          <button class="button button-balanced" style=" margin-top: 10px;">
+            {{userData.total}}
+          </button>
           <p style="font-size: 10px;">El contador indica a cuantos alumnos impartes este mes</p> 
-				</div>
+        </div>
 
-	        <div class="item item-icon-left item-button-right">
+          <div class="item item-icon-left item-button-right">
            <i class="icon ri-group-2-fill"></i> Número de Grupos
-					<button class="button button-calm" style=" margin-top: 10px;">
-						{{userData.groups}}
-					</button>
+          <button class="button button-calm" style=" margin-top: 10px;">
+            {{userData.groups}}
+          </button>
           <p style="font-size: 10px;">El número de grupos activos</p> 
-				</div>
+        </div>
          
          <div class="item item-icon-left">
            <i class="icon ri-calendar-schedule-fill"></i> Próximo corte de pago
-	 <span class="item-note"  style=" margin-top: 14px; color: black; font-size: 12px; ">{{userData.payday}}</span>
+   <span class="item-note"  style=" margin-top: 14px; color: black; font-size: 12px; ">{{userData.payday}}</span>
          <p style="font-size: 10px;">Tu próxima fecha de pago</p>  
-				</div>
+        </div>
          
             <div class="item item-icon-left">
            <i class="icon ri-bank-card-2-fill"></i> Total acumulado
-		  <span class="item-note"  style=" margin-top: 7px; color: #28a745; font-size: 22px; font-weight: 500">$ {{userData.payment}}</span>
+      <span class="item-note"  style=" margin-top: 7px; color: #28a745; font-size: 22px; font-weight: 500">$ {{userData.payment}}</span>
          <p style="font-size: 10px;">Suma total que generas por todas tus clases</p>  
-				</div>
+        </div>
           
          
          </div>
@@ -703,7 +703,7 @@ body {
 
 
 
-	   <script id="reel.html" type="text/ng-template">
+     <script id="reel.html" type="text/ng-template">
     <ion-view >
 
        <ion-nav-bar class="bar-light" >      
@@ -745,7 +745,7 @@ body {
       </ion-content>
     </ion-view>
   </script>
-	  
+    
 
     
    <script id="library.html" type="text/ng-template">
@@ -792,18 +792,18 @@ body {
   
       <div class="item item-divider itemDividerforitem">Partituras</div>
        <a class="item item-icon-left item-button-right" href="#/menu/manuals">
-           <i class="icon ri-book-2-fill"></i> Manuales
-          <p style="font-size: 10px;">Recopilación de los manuales que has completado</p> 
+           <i class="icon ri-book-2-fill"></i> Documentos
+          <p style="font-size: 10px;">Manuales y Piezas</p> 
         </a>
      
      <a class="item item-icon-left item-button-right" href="#/menu/repertoire">
-           <i class="icon ri-folder-music-fill"></i> Repertorio
-         <p style="font-size: 10px;">Recopilación de las piezas que has completado</p>  
+           <i class="icon ri-folder-open-fill"></i> Editor de partituras
+         <p style="font-size: 10px;">Herramienta didáctica</p>  
         </a>
 
         <a class="item item-icon-left item-button-right" href="#/menu/books">
-           <i class="icon ri-aed-fill"></i> Entrenamiento
-         <p style="font-size: 10px;">Ejercicios complementarios para reforzar la lectura</p>  
+           <i class="icon ri-share-circle-fill"></i> Circulo de quintas
+         <p style="font-size: 10px;">Herramienta didáctica</p>  
         </a>
      
      
@@ -823,51 +823,7 @@ body {
 
           <ion-back-button></ion-back-button>
 
-<div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-  <div class="alert alert-info" style="text-align: center; width: 250px; ">
-	   <div class="ionic-spinner"> </div>
-   Cargando...
-  </div>
-</div>
- 
-        <div class="documents">
-      <div class="document" ng-repeat="manual in manuals" ng-click="showModal($index)" ng-if="lvl > manual.lvl || (manual.lvl == lvl && manual.blq <= blq)">
-        <div class="document__img" ng-style="{'background-image': 'url(' + manual.background + ')'}"></div>
-          <div class="document__title">{{manual.title}}</div>
-         </div>
-     </div>
-  
-
-    <div id="modalPDF" class="modal-container">
-        <div class="modal-background" ng-click="hideModal()">
-            <div class="modalDoc">
-        
-                      <a 
-         href="" 
-         class="close-modal" 
-        >
-         <!-- X close video icon -->
-          <svg 
-            version="1.1" 
-            xmlns="http://www.w3.org/2000/svg" 
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            x="0"
-            y="0"
-            viewBox="0 0 32 32" 
-            style="enable-background:new 0 0 32 32;" 
-            xml:space="preserve" 
-            width="24" 
-            height="24" 
-          >
-                <path fill="#ffffff" d="M30.3448276,31.4576271 C29.9059965,31.4572473 29.4852797,31.2855701 29.1751724,30.980339 L0.485517241,2.77694915 C-0.122171278,2.13584324 -0.104240278,1.13679247 0.52607603,0.517159487 C1.15639234,-0.102473494 2.17266813,-0.120100579 2.82482759,0.477288136 L31.5144828,28.680678 C31.9872448,29.1460053 32.1285698,29.8453523 31.8726333,30.4529866 C31.6166968,31.0606209 31.0138299,31.4570487 30.3448276,31.4576271 Z" id="Shape"></path>
-                <path fill="#ffffff" d="M1.65517241,31.4576271 C0.986170142,31.4570487 0.383303157,31.0606209 0.127366673,30.4529866 C-0.12856981,29.8453523 0.0127551942,29.1460053 0.485517241,28.680678 L29.1751724,0.477288136 C29.8273319,-0.120100579 30.8436077,-0.102473494 31.473924,0.517159487 C32.1042403,1.13679247 32.1221713,2.13584324 31.5144828,2.77694915 L2.82482759,30.980339 C2.51472031,31.2855701 2.09400353,31.4572473 1.65517241,31.4576271 Z" id="Shape"></path>
-          </svg>
-        </a>
-       
-                <iframe class="drive" ng-src="{{trustAsResourceUrl(selectedManualUrl)}}" frameborder="0"></iframe>
-            </div>
-        </div>
-    </div>
+   <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/fifthscircle" frameborder="0" allowfullscreen ></iframe></div> 
        
       </ion-content>
     </ion-view>
@@ -878,31 +834,12 @@ body {
     
     
      <script id="repertoire.html" type="text/ng-template">   
-       <ion-view title="Repertorio">
+        <ion-view>
       <ion-content >
 
           <ion-back-button></ion-back-button>
-	     
-       <div class="list">
-  
-	      <a class="item item-icon-right" href="#/menu/repertoire/basic">
-      Básico   <i class="icon ri-walk-fill"></i>
-          <p style="font-size: 10px;">Piezas de Grado Preparatorio</p> 
-        </a>
-	    
-        <a class="item item-icon-right" href="#/menu/repertoire/beginner">
-      Principiante   <i class="icon ri-run-fill"></i>
-          <p style="font-size: 10px;">Piezas de Grado 1 y 2</p> 
-        </a>
-       <a class="item item-icon-right" href="#/menu/repertoire/intermediate">
-      Intermedio <i class="icon ri-riding-fill"></i>
-          <p style="font-size: 10px;">Piezas de Grado 3, 4 y 5</p> 
-        </a>
-       <a class="item item-icon-right" href="#/menu/repertoire/advanced">
-    Avanzado   <i class="icon ri-flight-takeoff-fill"></i>
-          <p style="font-size: 10px;">Piezas de Grado 6, 7 y 8</p> 
-        </a>
-    </div>  
+
+   <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/sheetEditor" frameborder="0" allowfullscreen ></iframe></div> 
        
       </ion-content>
     </ion-view>
@@ -910,7 +847,7 @@ body {
 
 
 
-	     <script id="basic.html" type="text/ng-template">   
+       <script id="basic.html" type="text/ng-template">   
        <ion-view title="Repertorio básico">
       <ion-content >
 
@@ -918,7 +855,7 @@ body {
 
 <div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
   <div class="alert alert-info" style="text-align: center; width: 250px; ">
-	   <div class="ionic-spinner"> </div>
+     <div class="ionic-spinner"> </div>
    Cargando...
   </div>
 </div>
@@ -967,8 +904,8 @@ body {
   </script>
 
 
-	  
-	     <script id="beginner.html" type="text/ng-template">   
+    
+       <script id="beginner.html" type="text/ng-template">   
        <ion-view title="Repertorio principiante">
       <ion-content >
 
@@ -976,7 +913,7 @@ body {
 
 <div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
   <div class="alert alert-info" style="text-align: center; width: 250px; ">
-	   <div class="ionic-spinner"> </div>
+     <div class="ionic-spinner"> </div>
    Cargando...
   </div>
 </div>
@@ -1027,8 +964,8 @@ body {
 
 
 
-	  
-	     <script id="intermediate.html" type="text/ng-template">   
+    
+       <script id="intermediate.html" type="text/ng-template">   
        <ion-view title="Repertorio intermedio">
       <ion-content >
 
@@ -1036,7 +973,7 @@ body {
 
 <div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
   <div class="alert alert-info" style="text-align: center; width: 250px; ">
-	   <div class="ionic-spinner"> </div>
+     <div class="ionic-spinner"> </div>
    Cargando...
   </div>
 </div>
@@ -1086,8 +1023,8 @@ body {
 
 
 
-	  
-	     <script id="advanced.html" type="text/ng-template">   
+    
+       <script id="advanced.html" type="text/ng-template">   
        <ion-view title="Repertorio avanzado">
       <ion-content >
 
@@ -1095,7 +1032,7 @@ body {
 
 <div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
   <div class="alert alert-info" style="text-align: center; width: 250px; ">
-	   <div class="ionic-spinner"> </div>
+     <div class="ionic-spinner"> </div>
    Cargando...
   </div>
 </div>
@@ -1151,11 +1088,11 @@ body {
 
  <div class="list">
    <div class="item item-divider itemDividerforitem">Métodos</div>
-	      <a class="item item-icon-left" href="#/menu/books/solfiege">
+        <a class="item item-icon-left" href="#/menu/books/solfiege">
       Solfeo   <i class="icon ri-voiceprint-line"></i>
           <p style="font-size: 10px;">Entrenamiento para identificar notas</p> 
         </a>
-	    
+      
         <a class="item item-icon-left" href="#/menu/books/scales">
       Escalas y Arpegios  <i class="icon ri-arrow-up-down-fill"></i>
           <p style="font-size: 10px;">Ejercicios técnicos para mejorar la destreza.</p> 
@@ -1166,7 +1103,7 @@ body {
         </a>
 
 
-	    
+      
     </div>  
 
        
@@ -1176,7 +1113,7 @@ body {
 
 
 
-	       <script id="solfiege.html" type="text/ng-template">   
+         <script id="solfiege.html" type="text/ng-template">   
        <ion-view title="Solfeo">
       <ion-content >
 
@@ -1184,7 +1121,7 @@ body {
 
 <div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
   <div class="alert alert-info" style="text-align: center; width: 250px; ">
-	   <div class="ionic-spinner"> </div>
+     <div class="ionic-spinner"> </div>
    Cargando...
   </div>
 </div>
@@ -1233,7 +1170,7 @@ body {
   </script>
 
 
-	       <script id="scales.html" type="text/ng-template">   
+         <script id="scales.html" type="text/ng-template">   
        <ion-view title="Escalas y Arpegios">
       <ion-content >
 
@@ -1241,7 +1178,7 @@ body {
 
 <div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
   <div class="alert alert-info" style="text-align: center; width: 250px; ">
-	   <div class="ionic-spinner"> </div>
+     <div class="ionic-spinner"> </div>
    Cargando...
   </div>
 </div>
@@ -1290,7 +1227,7 @@ body {
   </script>
 
 
-	       <script id="sightread.html" type="text/ng-template">   
+         <script id="sightread.html" type="text/ng-template">   
        <ion-view title="Lectura a primer vista">
       <ion-content >
 
@@ -1298,7 +1235,7 @@ body {
 
 <div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
   <div class="alert alert-info" style="text-align: center; width: 250px; ">
-	   <div class="ionic-spinner"> </div>
+     <div class="ionic-spinner"> </div>
    Cargando...
   </div>
 </div>
@@ -1349,7 +1286,7 @@ body {
 
 
 
-	  
+    
  <script id="statistics.html" type="text/ng-template">
 <ion-view>
      <ion-content>
@@ -1360,7 +1297,7 @@ body {
     Sin elementos para mostrar aún
   </div>
 </div>
-	 
+   
       </ion-content>
     </ion-view>
   </script>  
@@ -1419,7 +1356,7 @@ body {
 
   </section>
 
-	 <section class="preloader" style="display: none;">
+   <section class="preloader" style="display: none;">
     <div id="loading">&nbsp;</div>
     <div id="loading-text">Cargando</div>
   </section> 
@@ -1432,7 +1369,7 @@ body {
 
   var app = angular.module('ionicApp', ['ionic']);
 app
-	.service('loadingService', function() {
+  .service('loadingService', function() {
   var hasLoaded = false;
   this.getHasLoaded = function() {
     return hasLoaded;
@@ -1457,7 +1394,7 @@ app
 
     $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
       .then(function(response) {
-        deferred.resolve({	
+        deferred.resolve({  
           data: response.data
         });
       }, function(error) {
@@ -1488,11 +1425,11 @@ app
           controller: 'StatusCtrl',
            resolve: {
             userData: function($http, $ionicLoading, loadingService) {
-	     if (!loadingService.getHasLoaded()) {
-	        $ionicLoading.show({
-	          template: 'Cargando...'
-	        });
-	      }
+       if (!loadingService.getHasLoaded()) {
+          $ionicLoading.show({
+            template: 'Cargando...'
+          });
+        }
               var requestData = {
                 action: "getAdminData",
                 token: localStorage.getItem('ADtoken')
@@ -1591,38 +1528,38 @@ app
       views: {
         'menuContent@menu': {
           templateUrl: "basic.html",
-	  controller: "repCtrl1"	
+    controller: "repCtrl1"  
         }
       }
     })
-	    .state('menu.repertoire.beginner', {
+      .state('menu.repertoire.beginner', {
       url: "/beginner",
       views: {
         'menuContent@menu': {
           templateUrl: "beginner.html",
-	  controller: "repCtrl2"	
+    controller: "repCtrl2"  
         }
       }
     })
-	    .state('menu.repertoire.intermediate', {
+      .state('menu.repertoire.intermediate', {
       url: "/intermediate",
       views: {
         'menuContent@menu': {
           templateUrl: "intermediate.html",
-	  controller: "repCtrl3"	
+    controller: "repCtrl3"  
         }
       }
     })
-	    .state('menu.repertoire.advanced', {
+      .state('menu.repertoire.advanced', {
       url: "/advanced",
       views: {
         'menuContent@menu': {
           templateUrl: "advanced.html",
-	  controller: "repCtrl4"	
+    controller: "repCtrl4"  
         }
       }
     })
-	
+  
 
      .state('menu.books', {
       url: "/books",
@@ -1637,25 +1574,25 @@ app
       views: {
         'menuContent@menu': {
           templateUrl: "solfiege.html",
-	  controller: "booksCtrl1"	
+    controller: "booksCtrl1"  
         }
       }
     })
-	          .state('menu.books.scales', {
+            .state('menu.books.scales', {
       url: "/scales",
       views: {
         'menuContent@menu': {
           templateUrl: "scales.html",
-	  controller: "booksCtrl2"	
+    controller: "booksCtrl2"  
         }
       }
     })
-	          .state('menu.books.sightread', {
+            .state('menu.books.sightread', {
       url: "/sightread",
       views: {
         'menuContent@menu': {
           templateUrl: "sightread.html",
-	  controller: "booksCtrl3"	
+    controller: "booksCtrl3"  
         }
       }
     })
@@ -1697,11 +1634,11 @@ app
        $scope.userData = data.data;
   })
 
-	  $scope.isDropdownVisible = false;
+    $scope.isDropdownVisible = false;
     $scope.toggleDropdown = function() {
       $scope.isDropdownVisible = !$scope.isDropdownVisible;
     };
-	
+  
    $scope.goToProfile = function() {
   window.location.href = '#/menu/profile';
 };  
@@ -1711,10 +1648,10 @@ app
      $scope.goToStatus = function() {
   window.location.href = '#/menu/status';
 };
-	
+  
 
 
-	$scope.isModalVisible = false;
+  $scope.isModalVisible = false;
 let deferredPrompt;
 const isAndroid = /Android/i.test(navigator.userAgent);
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -1770,7 +1707,7 @@ $scope.closeModal = function () {
   .controller('StatusCtrl', ['$http', '$scope', '$ionicModal', 'userData', function($http, $scope, $ionicModal, userData){
      $scope.userData = userData;
   
-	/*   $ionicModal.fromTemplateUrl('modal.html', {
+  /*   $ionicModal.fromTemplateUrl('modal.html', {
   scope: $scope,
   animation: 'slide-in-up'  
 }).then(function(modal) {
@@ -1813,7 +1750,7 @@ $scope.closeModal = function () {
 
  
 }])
-	 .controller('repCtrl1', ['$http', '$scope', '$sce', function($http, $scope, $sce){
+   .controller('repCtrl1', ['$http', '$scope', '$sce', function($http, $scope, $sce){
     $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
@@ -1835,7 +1772,7 @@ $scope.closeModal = function () {
 
    $scope.lvl = 3;
     $scope.blq = 3;
-	    
+      
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
       {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
@@ -1869,7 +1806,7 @@ $scope.manuals = [
 
    $scope.lvl = 3;
     $scope.blq = 3;
-	    
+      
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
       {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
@@ -1881,7 +1818,7 @@ $scope.manuals = [
     ];
     
 }])
-	   .controller('repCtrl3', ['$http', '$scope', '$sce', function($http, $scope, $sce){
+     .controller('repCtrl3', ['$http', '$scope', '$sce', function($http, $scope, $sce){
     $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
@@ -1903,7 +1840,7 @@ $scope.manuals = [
 
    $scope.lvl = 3;
     $scope.blq = 3;
-	    
+      
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
       {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
@@ -1915,8 +1852,8 @@ $scope.manuals = [
     ];
     
 }])
-	
-	   .controller('repCtrl4', ['$http', '$scope', '$sce', function($http, $scope, $sce){
+  
+     .controller('repCtrl4', ['$http', '$scope', '$sce', function($http, $scope, $sce){
     $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
@@ -1938,7 +1875,7 @@ $scope.manuals = [
 
     $scope.lvl = 3;
     $scope.blq = 3;
-	    
+      
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
       {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
@@ -1951,7 +1888,7 @@ $scope.manuals = [
     
 }])
 
-	   .controller('booksCtrl1', ['$http', '$scope', '$sce', function($http, $scope, $sce){
+     .controller('booksCtrl1', ['$http', '$scope', '$sce', function($http, $scope, $sce){
     $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
@@ -1973,7 +1910,7 @@ $scope.manuals = [
 
     $scope.lvl = 3;
     $scope.blq = 3;
-	    
+      
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
       {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
@@ -1985,7 +1922,7 @@ $scope.manuals = [
     ];
     
 }])
-	   .controller('booksCtrl2', ['$http', '$scope', '$sce', 'SharedState', function($http, $scope, $sce, SharedState){
+     .controller('booksCtrl2', ['$http', '$scope', '$sce', 'SharedState', function($http, $scope, $sce, SharedState){
     $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
@@ -2007,7 +1944,7 @@ $scope.manuals = [
 
     $scope.lvl = 3;
     $scope.blq = 3;
-	    
+      
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
       {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
@@ -2019,7 +1956,7 @@ $scope.manuals = [
     ];
     
 }])
-	   .controller('booksCtrl3', ['$http', '$scope', '$sce', function($http, $scope, $sce){
+     .controller('booksCtrl3', ['$http', '$scope', '$sce', function($http, $scope, $sce){
     $scope.trustAsResourceUrl = function(url) {
         return $sce.trustAsResourceUrl(url);
     };
@@ -2042,7 +1979,7 @@ $scope.manuals = [
     $scope.lvl = 3;
     $scope.blq = 3;
 
-	    
+      
 $scope.manuals = [ 
       {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
       {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
