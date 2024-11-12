@@ -791,17 +791,17 @@ body {
     <div class="list">
   
       <div class="item item-divider itemDividerforitem">Partituras</div>
-       <a class="item item-icon-left item-button-right" href="#/menu/manuals">
-           <i class="icon ri-book-2-fill"></i> Documentos
+       <a class="item item-icon-left item-button-right" href="#/menu/books">
+           <i class="icon ri-folder-open-fill"></i> Documentos
           <p style="font-size: 10px;">Manuales y Piezas</p> 
         </a>
      
      <a class="item item-icon-left item-button-right" href="#/menu/repertoire">
-           <i class="icon ri-folder-open-fill"></i> Editor de partituras
+           <i class="icon ri-music-2-fill"></i> Editor de partituras
          <p style="font-size: 10px;">Herramienta didáctica</p>  
         </a>
 
-        <a class="item item-icon-left item-button-right" href="#/menu/books">
+        <a class="item item-icon-left item-button-right" href="#/menu/manuals">
            <i class="icon ri-share-circle-fill"></i> Circulo de quintas
          <p style="font-size: 10px;">Herramienta didáctica</p>  
         </a>
@@ -845,267 +845,15 @@ body {
     </ion-view>
   </script>
 
-
-
-       <script id="basic.html" type="text/ng-template">   
-       <ion-view title="Repertorio básico">
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-<div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-  <div class="alert alert-info" style="text-align: center; width: 250px; ">
-     <div class="ionic-spinner"> </div>
-   Cargando...
-  </div>
-</div>
  
-        <div class="documents">
-      <div class="document" ng-repeat="manual in manuals" ng-click="showModal($index)" ng-if="lvl > manual.lvl || (manual.lvl == lvl && manual.blq <= blq)">
-        <div class="document__img" ng-style="{'background-image': 'url(' + manual.background + ')'}"></div>
-          <div class="document__title">{{manual.title}}</div>
-         </div>
-     </div>
-  
-
-    <div id="modalBasic" class="modal-container">
-        <div class="modal-background" ng-click="hideModal()">
-            <div class="modalDoc">
-        
-                      <a 
-         href="" 
-         class="close-modal" 
-        >
-         <!-- X close video icon -->
-          <svg 
-            version="1.1" 
-            xmlns="http://www.w3.org/2000/svg" 
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            x="0"
-            y="0"
-            viewBox="0 0 32 32" 
-            style="enable-background:new 0 0 32 32;" 
-            xml:space="preserve" 
-            width="24" 
-            height="24" 
-          >
-                <path fill="#ffffff" d="M30.3448276,31.4576271 C29.9059965,31.4572473 29.4852797,31.2855701 29.1751724,30.980339 L0.485517241,2.77694915 C-0.122171278,2.13584324 -0.104240278,1.13679247 0.52607603,0.517159487 C1.15639234,-0.102473494 2.17266813,-0.120100579 2.82482759,0.477288136 L31.5144828,28.680678 C31.9872448,29.1460053 32.1285698,29.8453523 31.8726333,30.4529866 C31.6166968,31.0606209 31.0138299,31.4570487 30.3448276,31.4576271 Z" id="Shape"></path>
-                <path fill="#ffffff" d="M1.65517241,31.4576271 C0.986170142,31.4570487 0.383303157,31.0606209 0.127366673,30.4529866 C-0.12856981,29.8453523 0.0127551942,29.1460053 0.485517241,28.680678 L29.1751724,0.477288136 C29.8273319,-0.120100579 30.8436077,-0.102473494 31.473924,0.517159487 C32.1042403,1.13679247 32.1221713,2.13584324 31.5144828,2.77694915 L2.82482759,30.980339 C2.51472031,31.2855701 2.09400353,31.4572473 1.65517241,31.4576271 Z" id="Shape"></path>
-          </svg>
-        </a>
-       
-                <iframe class="drive" ng-src="{{trustAsResourceUrl(selectedManualUrl)}}" frameborder="0"></iframe>
-            </div>
-        </div>
-    </div>
-       
-      </ion-content>
-    </ion-view>
-  </script>
-
-
-    
-       <script id="beginner.html" type="text/ng-template">   
-       <ion-view title="Repertorio principiante">
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-<div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-  <div class="alert alert-info" style="text-align: center; width: 250px; ">
-     <div class="ionic-spinner"> </div>
-   Cargando...
-  </div>
-</div>
- 
-        <div class="documents">
-      <div class="document" ng-repeat="manual in manuals" ng-click="showModal($index)" ng-if="lvl > manual.lvl || (manual.lvl == lvl && manual.blq <= blq)">
-        <div class="document__img" ng-style="{'background-image': 'url(' + manual.background + ')'}"></div>
-          <div class="document__title">{{manual.title}}</div>
-         </div>
-     </div>
-  
-
-    <div id="modalBeginner" class="modal-container">
-        <div class="modal-background" ng-click="hideModal()">
-            <div class="modalDoc">
-        
-                      <a 
-         href="" 
-         class="close-modal" 
-        >
-         <!-- X close video icon -->
-          <svg 
-            version="1.1" 
-            xmlns="http://www.w3.org/2000/svg" 
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            x="0"
-            y="0"
-            viewBox="0 0 32 32" 
-            style="enable-background:new 0 0 32 32;" 
-            xml:space="preserve" 
-            width="24" 
-            height="24" 
-          >
-                <path fill="#ffffff" d="M30.3448276,31.4576271 C29.9059965,31.4572473 29.4852797,31.2855701 29.1751724,30.980339 L0.485517241,2.77694915 C-0.122171278,2.13584324 -0.104240278,1.13679247 0.52607603,0.517159487 C1.15639234,-0.102473494 2.17266813,-0.120100579 2.82482759,0.477288136 L31.5144828,28.680678 C31.9872448,29.1460053 32.1285698,29.8453523 31.8726333,30.4529866 C31.6166968,31.0606209 31.0138299,31.4570487 30.3448276,31.4576271 Z" id="Shape"></path>
-                <path fill="#ffffff" d="M1.65517241,31.4576271 C0.986170142,31.4570487 0.383303157,31.0606209 0.127366673,30.4529866 C-0.12856981,29.8453523 0.0127551942,29.1460053 0.485517241,28.680678 L29.1751724,0.477288136 C29.8273319,-0.120100579 30.8436077,-0.102473494 31.473924,0.517159487 C32.1042403,1.13679247 32.1221713,2.13584324 31.5144828,2.77694915 L2.82482759,30.980339 C2.51472031,31.2855701 2.09400353,31.4572473 1.65517241,31.4576271 Z" id="Shape"></path>
-          </svg>
-        </a>
-       
-                <iframe class="drive" ng-src="{{trustAsResourceUrl(selectedManualUrl)}}" frameborder="0"></iframe>
-            </div>
-        </div>
-    </div>
-       
-      </ion-content>
-    </ion-view>
-  </script>
-
-
-
-
-    
-       <script id="intermediate.html" type="text/ng-template">   
-       <ion-view title="Repertorio intermedio">
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-<div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-  <div class="alert alert-info" style="text-align: center; width: 250px; ">
-     <div class="ionic-spinner"> </div>
-   Cargando...
-  </div>
-</div>
- 
-        <div class="documents">
-      <div class="document" ng-repeat="manual in manuals" ng-click="showModal($index)" ng-if="lvl > manual.lvl || (manual.lvl == lvl && manual.blq <= blq)">
-        <div class="document__img" ng-style="{'background-image': 'url(' + manual.background + ')'}"></div>
-          <div class="document__title">{{manual.title}}</div>
-         </div>
-     </div>
-  
-
-    <div id="modalIntermediate" class="modal-container">
-        <div class="modal-background" ng-click="hideModal()">
-            <div class="modalDoc">
-        
-                      <a 
-         href="" 
-         class="close-modal" 
-        >
-         <!-- X close video icon -->
-          <svg 
-            version="1.1" 
-            xmlns="http://www.w3.org/2000/svg" 
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            x="0"
-            y="0"
-            viewBox="0 0 32 32" 
-            style="enable-background:new 0 0 32 32;" 
-            xml:space="preserve" 
-            width="24" 
-            height="24" 
-          >
-                <path fill="#ffffff" d="M30.3448276,31.4576271 C29.9059965,31.4572473 29.4852797,31.2855701 29.1751724,30.980339 L0.485517241,2.77694915 C-0.122171278,2.13584324 -0.104240278,1.13679247 0.52607603,0.517159487 C1.15639234,-0.102473494 2.17266813,-0.120100579 2.82482759,0.477288136 L31.5144828,28.680678 C31.9872448,29.1460053 32.1285698,29.8453523 31.8726333,30.4529866 C31.6166968,31.0606209 31.0138299,31.4570487 30.3448276,31.4576271 Z" id="Shape"></path>
-                <path fill="#ffffff" d="M1.65517241,31.4576271 C0.986170142,31.4570487 0.383303157,31.0606209 0.127366673,30.4529866 C-0.12856981,29.8453523 0.0127551942,29.1460053 0.485517241,28.680678 L29.1751724,0.477288136 C29.8273319,-0.120100579 30.8436077,-0.102473494 31.473924,0.517159487 C32.1042403,1.13679247 32.1221713,2.13584324 31.5144828,2.77694915 L2.82482759,30.980339 C2.51472031,31.2855701 2.09400353,31.4572473 1.65517241,31.4576271 Z" id="Shape"></path>
-          </svg>
-        </a>
-       
-                <iframe class="drive" ng-src="{{trustAsResourceUrl(selectedManualUrl)}}" frameborder="0"></iframe>
-            </div>
-        </div>
-    </div>
-       
-      </ion-content>
-    </ion-view>
-  </script>
-
-
-
-    
-       <script id="advanced.html" type="text/ng-template">   
-       <ion-view title="Repertorio avanzado">
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-<div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-  <div class="alert alert-info" style="text-align: center; width: 250px; ">
-     <div class="ionic-spinner"> </div>
-   Cargando...
-  </div>
-</div>
- 
-        <div class="documents">
-      <div class="document" ng-repeat="manual in manuals" ng-click="showModal($index)" ng-if="lvl > manual.lvl || (manual.lvl == lvl && manual.blq <= blq)">
-        <div class="document__img" ng-style="{'background-image': 'url(' + manual.background + ')'}"></div>
-          <div class="document__title">{{manual.title}}</div>
-         </div>
-     </div>
-  
-
-    <div id="modalAdvanced" class="modal-container">
-        <div class="modal-background" ng-click="hideModal()">
-            <div class="modalDoc">
-        
-                      <a 
-         href="" 
-         class="close-modal" 
-        >
-         <!-- X close video icon -->
-          <svg 
-            version="1.1" 
-            xmlns="http://www.w3.org/2000/svg" 
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            x="0"
-            y="0"
-            viewBox="0 0 32 32" 
-            style="enable-background:new 0 0 32 32;" 
-            xml:space="preserve" 
-            width="24" 
-            height="24" 
-          >
-                <path fill="#ffffff" d="M30.3448276,31.4576271 C29.9059965,31.4572473 29.4852797,31.2855701 29.1751724,30.980339 L0.485517241,2.77694915 C-0.122171278,2.13584324 -0.104240278,1.13679247 0.52607603,0.517159487 C1.15639234,-0.102473494 2.17266813,-0.120100579 2.82482759,0.477288136 L31.5144828,28.680678 C31.9872448,29.1460053 32.1285698,29.8453523 31.8726333,30.4529866 C31.6166968,31.0606209 31.0138299,31.4570487 30.3448276,31.4576271 Z" id="Shape"></path>
-                <path fill="#ffffff" d="M1.65517241,31.4576271 C0.986170142,31.4570487 0.383303157,31.0606209 0.127366673,30.4529866 C-0.12856981,29.8453523 0.0127551942,29.1460053 0.485517241,28.680678 L29.1751724,0.477288136 C29.8273319,-0.120100579 30.8436077,-0.102473494 31.473924,0.517159487 C32.1042403,1.13679247 32.1221713,2.13584324 31.5144828,2.77694915 L2.82482759,30.980339 C2.51472031,31.2855701 2.09400353,31.4572473 1.65517241,31.4576271 Z" id="Shape"></path>
-          </svg>
-        </a>
-       
-                <iframe class="drive" ng-src="{{trustAsResourceUrl(selectedManualUrl)}}" frameborder="0"></iframe>
-            </div>
-        </div>
-    </div>
-       
-      </ion-content>
-    </ion-view>
-  </script>
 
     <script id="books.html" type="text/ng-template">   
-       <ion-view>
+         <ion-view>
       <ion-content >
 
           <ion-back-button></ion-back-button>
 
- <div class="list">
-   <div class="item item-divider itemDividerforitem">Métodos</div>
-        <a class="item item-icon-left" href="#/menu/books/solfiege">
-      Solfeo   <i class="icon ri-voiceprint-line"></i>
-          <p style="font-size: 10px;">Entrenamiento para identificar notas</p> 
-        </a>
-      
-        <a class="item item-icon-left" href="#/menu/books/scales">
-      Escalas y Arpegios  <i class="icon ri-arrow-up-down-fill"></i>
-          <p style="font-size: 10px;">Ejercicios técnicos para mejorar la destreza.</p> 
-        </a>
-       <a class="item item-icon-left" href="#/menu/books/sightread">
-      Lectura a primer vista   <i class="icon ri-book-open-line"></i>
-          <p style="font-size: 10px;"> Habilidad para interpretar música al instante.</p> 
-        </a>
-
-
-      
-    </div>  
-
+   <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/books" frameborder="0" allowfullscreen ></iframe></div> 
        
       </ion-content>
     </ion-view>
