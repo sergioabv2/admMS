@@ -805,7 +805,10 @@ body {
            <i class="icon ri-share-circle-fill"></i> Circulo de quintas
          <p style="font-size: 10px;">Herramienta didáctica</p>  
         </a>
-     
+     <a class="item item-icon-left item-button-right" href="#/menu/metronome">
+           <i class="icon ri-timer-fill"></i> Metrónomo
+         <p style="font-size: 10px;">Herramienta didáctica</p>  
+        </a>
      
       </ion-content>
       
@@ -861,176 +864,6 @@ body {
 
 
 
-         <script id="solfiege.html" type="text/ng-template">   
-       <ion-view title="Solfeo">
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-<div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-  <div class="alert alert-info" style="text-align: center; width: 250px; ">
-     <div class="ionic-spinner"> </div>
-   Cargando...
-  </div>
-</div>
- 
-        <div class="documents">
-      <div class="document" ng-repeat="manual in manuals" ng-click="showModal($index)" ng-if="lvl > manual.lvl || (manual.lvl == lvl && manual.blq <= blq)">
-        <div class="document__img" ng-style="{'background-image': 'url(' + manual.background + ')'}"></div>
-          <div class="document__title">{{manual.title}}</div>
-         </div>
-     </div>
-  
-
-    <div id="modalSofiege" class="modal-container">
-        <div class="modal-background" ng-click="hideModal()">
-            <div class="modalDoc">
-        
-                      <a 
-         href="" 
-         class="close-modal" 
-        >
-         <!-- X close video icon -->
-          <svg 
-            version="1.1" 
-            xmlns="http://www.w3.org/2000/svg" 
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            x="0"
-            y="0"
-            viewBox="0 0 32 32" 
-            style="enable-background:new 0 0 32 32;" 
-            xml:space="preserve" 
-            width="24" 
-            height="24" 
-          >
-                <path fill="#ffffff" d="M30.3448276,31.4576271 C29.9059965,31.4572473 29.4852797,31.2855701 29.1751724,30.980339 L0.485517241,2.77694915 C-0.122171278,2.13584324 -0.104240278,1.13679247 0.52607603,0.517159487 C1.15639234,-0.102473494 2.17266813,-0.120100579 2.82482759,0.477288136 L31.5144828,28.680678 C31.9872448,29.1460053 32.1285698,29.8453523 31.8726333,30.4529866 C31.6166968,31.0606209 31.0138299,31.4570487 30.3448276,31.4576271 Z" id="Shape"></path>
-                <path fill="#ffffff" d="M1.65517241,31.4576271 C0.986170142,31.4570487 0.383303157,31.0606209 0.127366673,30.4529866 C-0.12856981,29.8453523 0.0127551942,29.1460053 0.485517241,28.680678 L29.1751724,0.477288136 C29.8273319,-0.120100579 30.8436077,-0.102473494 31.473924,0.517159487 C32.1042403,1.13679247 32.1221713,2.13584324 31.5144828,2.77694915 L2.82482759,30.980339 C2.51472031,31.2855701 2.09400353,31.4572473 1.65517241,31.4576271 Z" id="Shape"></path>
-          </svg>
-        </a>
-       
-                <iframe class="drive" ng-src="{{trustAsResourceUrl(selectedManualUrl)}}" frameborder="0"></iframe>
-            </div>
-        </div>
-    </div>
-       
-      </ion-content>
-    </ion-view>
-  </script>
-
-
-         <script id="scales.html" type="text/ng-template">   
-       <ion-view title="Escalas y Arpegios">
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-<div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-  <div class="alert alert-info" style="text-align: center; width: 250px; ">
-     <div class="ionic-spinner"> </div>
-   Cargando...
-  </div>
-</div>
- 
-        <div class="documents">
-      <div class="document" ng-repeat="manual in manuals" ng-click="showModal($index)" ng-if="lvl > manual.lvl || (manual.lvl == lvl && manual.blq <= blq)">
-        <div class="document__img" ng-style="{'background-image': 'url(' + manual.background + ')'}"></div>
-          <div class="document__title">{{manual.title}}</div>
-         </div>
-     </div>
-  
-
-    <div id="modalScales" class="modal-container">
-        <div class="modal-background" ng-click="hideModal()">
-            <div class="modalDoc">
-        
-                      <a 
-         href="" 
-         class="close-modal" 
-        >
-         <!-- X close video icon -->
-          <svg 
-            version="1.1" 
-            xmlns="http://www.w3.org/2000/svg" 
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            x="0"
-            y="0"
-            viewBox="0 0 32 32" 
-            style="enable-background:new 0 0 32 32;" 
-            xml:space="preserve" 
-            width="24" 
-            height="24" 
-          >
-                <path fill="#ffffff" d="M30.3448276,31.4576271 C29.9059965,31.4572473 29.4852797,31.2855701 29.1751724,30.980339 L0.485517241,2.77694915 C-0.122171278,2.13584324 -0.104240278,1.13679247 0.52607603,0.517159487 C1.15639234,-0.102473494 2.17266813,-0.120100579 2.82482759,0.477288136 L31.5144828,28.680678 C31.9872448,29.1460053 32.1285698,29.8453523 31.8726333,30.4529866 C31.6166968,31.0606209 31.0138299,31.4570487 30.3448276,31.4576271 Z" id="Shape"></path>
-                <path fill="#ffffff" d="M1.65517241,31.4576271 C0.986170142,31.4570487 0.383303157,31.0606209 0.127366673,30.4529866 C-0.12856981,29.8453523 0.0127551942,29.1460053 0.485517241,28.680678 L29.1751724,0.477288136 C29.8273319,-0.120100579 30.8436077,-0.102473494 31.473924,0.517159487 C32.1042403,1.13679247 32.1221713,2.13584324 31.5144828,2.77694915 L2.82482759,30.980339 C2.51472031,31.2855701 2.09400353,31.4572473 1.65517241,31.4576271 Z" id="Shape"></path>
-          </svg>
-        </a>
-       
-                <iframe class="drive" ng-src="{{trustAsResourceUrl(selectedManualUrl)}}" frameborder="0"></iframe>
-            </div>
-        </div>
-    </div>
-       
-      </ion-content>
-    </ion-view>
-  </script>
-
-
-         <script id="sightread.html" type="text/ng-template">   
-       <ion-view title="Lectura a primer vista">
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-<div ng-if="isLoading" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-  <div class="alert alert-info" style="text-align: center; width: 250px; ">
-     <div class="ionic-spinner"> </div>
-   Cargando...
-  </div>
-</div>
- 
-        <div class="documents">
-      <div class="document" ng-repeat="manual in manuals" ng-click="showModal($index)" ng-if="lvl > manual.lvl || (manual.lvl == lvl && manual.blq <= blq)">
-        <div class="document__img" ng-style="{'background-image': 'url(' + manual.background + ')'}"></div>
-          <div class="document__title">{{manual.title}}</div>
-         </div>
-     </div>
-  
-
-    <div id="modalSightread" class="modal-container">
-        <div class="modal-background" ng-click="hideModal()">
-            <div class="modalDoc">
-        
-                      <a 
-         href="" 
-         class="close-modal" 
-        >
-         <!-- X close video icon -->
-          <svg 
-            version="1.1" 
-            xmlns="http://www.w3.org/2000/svg" 
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            x="0"
-            y="0"
-            viewBox="0 0 32 32" 
-            style="enable-background:new 0 0 32 32;" 
-            xml:space="preserve" 
-            width="24" 
-            height="24" 
-          >
-                <path fill="#ffffff" d="M30.3448276,31.4576271 C29.9059965,31.4572473 29.4852797,31.2855701 29.1751724,30.980339 L0.485517241,2.77694915 C-0.122171278,2.13584324 -0.104240278,1.13679247 0.52607603,0.517159487 C1.15639234,-0.102473494 2.17266813,-0.120100579 2.82482759,0.477288136 L31.5144828,28.680678 C31.9872448,29.1460053 32.1285698,29.8453523 31.8726333,30.4529866 C31.6166968,31.0606209 31.0138299,31.4570487 30.3448276,31.4576271 Z" id="Shape"></path>
-                <path fill="#ffffff" d="M1.65517241,31.4576271 C0.986170142,31.4570487 0.383303157,31.0606209 0.127366673,30.4529866 C-0.12856981,29.8453523 0.0127551942,29.1460053 0.485517241,28.680678 L29.1751724,0.477288136 C29.8273319,-0.120100579 30.8436077,-0.102473494 31.473924,0.517159487 C32.1042403,1.13679247 32.1221713,2.13584324 31.5144828,2.77694915 L2.82482759,30.980339 C2.51472031,31.2855701 2.09400353,31.4572473 1.65517241,31.4576271 Z" id="Shape"></path>
-          </svg>
-        </a>
-       
-                <iframe class="drive" ng-src="{{trustAsResourceUrl(selectedManualUrl)}}" frameborder="0"></iframe>
-            </div>
-        </div>
-    </div>
-       
-      </ion-content>
-    </ion-view>
-  </script>
-
 
 
 
@@ -1067,7 +900,17 @@ body {
   </script>
 
 
+    <script id="metronome.html" type="text/ng-template">   
+       <ion-view>
+      <ion-content >
 
+          <ion-back-button></ion-back-button>
+
+   <div class="iframe-container"><iframe src="https://embed.metronome.app/" frameborder="0" allowfullscreen></iframe></div>
+       
+      </ion-content>
+    </ion-view>
+  </script>
 
 
 
@@ -1244,6 +1087,14 @@ app
         }
       }
     })
+   .state('menu.metronome', {
+      url: "/metronome",
+      views: {
+        'menuContent': {
+          templateUrl: "metronome.html"
+        }
+      }
+    })    
    .state('menu.library', {
       url: "/library",
       views: {
@@ -1271,43 +1122,7 @@ app
         }
       }
     })
-  .state('menu.repertoire.basic', {
-      url: "/basic",
-      views: {
-        'menuContent@menu': {
-          templateUrl: "basic.html",
-    controller: "repCtrl1"  
-        }
-      }
-    })
-      .state('menu.repertoire.beginner', {
-      url: "/beginner",
-      views: {
-        'menuContent@menu': {
-          templateUrl: "beginner.html",
-    controller: "repCtrl2"  
-        }
-      }
-    })
-      .state('menu.repertoire.intermediate', {
-      url: "/intermediate",
-      views: {
-        'menuContent@menu': {
-          templateUrl: "intermediate.html",
-    controller: "repCtrl3"  
-        }
-      }
-    })
-      .state('menu.repertoire.advanced', {
-      url: "/advanced",
-      views: {
-        'menuContent@menu': {
-          templateUrl: "advanced.html",
-    controller: "repCtrl4"  
-        }
-      }
-    })
-  
+
 
      .state('menu.books', {
       url: "/books",
@@ -1317,33 +1132,7 @@ app
         }
       }
     })
-.state('menu.books.solfiege', {
-      url: "/solfiege",
-      views: {
-        'menuContent@menu': {
-          templateUrl: "solfiege.html",
-    controller: "booksCtrl1"  
-        }
-      }
-    })
-            .state('menu.books.scales', {
-      url: "/scales",
-      views: {
-        'menuContent@menu': {
-          templateUrl: "scales.html",
-    controller: "booksCtrl2"  
-        }
-      }
-    })
-            .state('menu.books.sightread', {
-      url: "/sightread",
-      views: {
-        'menuContent@menu': {
-          templateUrl: "sightread.html",
-    controller: "booksCtrl3"  
-        }
-      }
-    })
+
 
  .state('menu.statistics', {
       url: "/statistics",
@@ -1463,282 +1252,7 @@ $scope.closeModal = function () {
 });*/
  
     }])
-   .controller('manualsCtrl', ['$http', '$scope', '$sce', function($http, $scope, $sce){
-    $scope.trustAsResourceUrl = function(url) {
-        return $sce.trustAsResourceUrl(url);
-    };
-    
-     $scope.selectedManualUrl = '';
-
-    $scope.showModal = function(index) {
-      $scope.selectedManualUrl = 'https://drive.google.com/file/d/' + $scope.manuals[index].id + '/preview';
-        document.getElementById('modalPDF').classList.add('four');
-    };
-
-    $scope.hideModal = function(index) {
-        const modal = document.getElementById('modalPDF');
-        modal.classList.add('out');
-        setTimeout(() => {
-            modal.classList.remove('four', 'out');
-        }, 400);
-    };
-
-   $scope.lvl = 3;
-    $scope.blq = 3;
-
- $scope.manuals = [ 
-      {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
-      {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '10Q34O2uDPaj5ZG7bpYpx8BGHZ4Q18ZLB', 'lvl': 1, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1Kghxri_BvRE0Ho4c2vMfrdBGp8HTmrGJ', 'lvl': 1, 'blq': 1},
-      {'title': 'Bloque 3 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1vYZFwqvHFg6m097Ivk4uRGAY38-EUvEu', 'lvl': 0, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1nxK06XODrHt2J6lScQz4JjthmPoc16Ec', 'lvl': 0, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1bufcRACzv0QKKJDoc6RYhC1m7irb-UPa', 'lvl': 0, 'blq': 1 }
-    ];
-
- 
-}])
-   .controller('repCtrl1', ['$http', '$scope', '$sce', function($http, $scope, $sce){
-    $scope.trustAsResourceUrl = function(url) {
-        return $sce.trustAsResourceUrl(url);
-    };
-    
-     $scope.selectedManualUrl = '';
-
-    $scope.showModal = function(index) {
-      $scope.selectedManualUrl = 'https://drive.google.com/file/d/' + $scope.manuals[index].id + '/preview';
-        document.getElementById('modalBasic').classList.add('four');
-    };
-
-    $scope.hideModal = function(index) {
-        const modal = document.getElementById('modalBasic');
-        modal.classList.add('out');
-        setTimeout(() => {
-            modal.classList.remove('four', 'out');
-        }, 400);
-    };
-
-   $scope.lvl = 3;
-    $scope.blq = 3;
-      
-$scope.manuals = [ 
-      {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
-      {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '10Q34O2uDPaj5ZG7bpYpx8BGHZ4Q18ZLB', 'lvl': 1, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1Kghxri_BvRE0Ho4c2vMfrdBGp8HTmrGJ', 'lvl': 1, 'blq': 1},
-      {'title': 'Bloque 3 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1vYZFwqvHFg6m097Ivk4uRGAY38-EUvEu', 'lvl': 0, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1nxK06XODrHt2J6lScQz4JjthmPoc16Ec', 'lvl': 0, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1bufcRACzv0QKKJDoc6RYhC1m7irb-UPa', 'lvl': 0, 'blq': 1 }
-    ];
-    
-}])
-   .controller('repCtrl2', ['$http', '$scope', '$sce', function($http, $scope, $sce){
-    $scope.trustAsResourceUrl = function(url) {
-        return $sce.trustAsResourceUrl(url);
-    };
-    
-     $scope.selectedManualUrl = '';
-
-    $scope.showModal = function(index) {
-      $scope.selectedManualUrl = 'https://drive.google.com/file/d/' + $scope.manuals[index].id + '/preview';
-        document.getElementById('modalBeginner').classList.add('four');
-    };
-
-    $scope.hideModal = function(index) {
-        const modal = document.getElementById('modalBeginner');
-        modal.classList.add('out');
-        setTimeout(() => {
-            modal.classList.remove('four', 'out');
-        }, 400);
-    };
-
-   $scope.lvl = 3;
-    $scope.blq = 3;
-      
-$scope.manuals = [ 
-      {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
-      {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '10Q34O2uDPaj5ZG7bpYpx8BGHZ4Q18ZLB', 'lvl': 1, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1Kghxri_BvRE0Ho4c2vMfrdBGp8HTmrGJ', 'lvl': 1, 'blq': 1},
-      {'title': 'Bloque 3 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1vYZFwqvHFg6m097Ivk4uRGAY38-EUvEu', 'lvl': 0, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1nxK06XODrHt2J6lScQz4JjthmPoc16Ec', 'lvl': 0, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1bufcRACzv0QKKJDoc6RYhC1m7irb-UPa', 'lvl': 0, 'blq': 1 }
-    ];
-    
-}])
-     .controller('repCtrl3', ['$http', '$scope', '$sce', function($http, $scope, $sce){
-    $scope.trustAsResourceUrl = function(url) {
-        return $sce.trustAsResourceUrl(url);
-    };
-    
-     $scope.selectedManualUrl = '';
-
-    $scope.showModal = function(index) {
-      $scope.selectedManualUrl = 'https://drive.google.com/file/d/' + $scope.manuals[index].id + '/preview';
-        document.getElementById('modalIntermediate').classList.add('four');
-    };
-
-    $scope.hideModal = function(index) {
-        const modal = document.getElementById('modalIntermediate');
-        modal.classList.add('out');
-        setTimeout(() => {
-            modal.classList.remove('four', 'out');
-        }, 400);
-    };
-
-   $scope.lvl = 3;
-    $scope.blq = 3;
-      
-$scope.manuals = [ 
-      {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
-      {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '10Q34O2uDPaj5ZG7bpYpx8BGHZ4Q18ZLB', 'lvl': 1, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1Kghxri_BvRE0Ho4c2vMfrdBGp8HTmrGJ', 'lvl': 1, 'blq': 1},
-      {'title': 'Bloque 3 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1vYZFwqvHFg6m097Ivk4uRGAY38-EUvEu', 'lvl': 0, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1nxK06XODrHt2J6lScQz4JjthmPoc16Ec', 'lvl': 0, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1bufcRACzv0QKKJDoc6RYhC1m7irb-UPa', 'lvl': 0, 'blq': 1 }
-    ];
-    
-}])
   
-     .controller('repCtrl4', ['$http', '$scope', '$sce', function($http, $scope, $sce){
-    $scope.trustAsResourceUrl = function(url) {
-        return $sce.trustAsResourceUrl(url);
-    };
-    
-     $scope.selectedManualUrl = '';
-
-    $scope.showModal = function(index) {
-      $scope.selectedManualUrl = 'https://drive.google.com/file/d/' + $scope.manuals[index].id + '/preview';
-        document.getElementById('modalAdvanced').classList.add('four');
-    };
-
-    $scope.hideModal = function(index) {
-        const modal = document.getElementById('modalAdvanced');
-        modal.classList.add('out');
-        setTimeout(() => {
-            modal.classList.remove('four', 'out');
-        }, 400);
-    };
-
-    $scope.lvl = 3;
-    $scope.blq = 3;
-      
-$scope.manuals = [ 
-      {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
-      {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '10Q34O2uDPaj5ZG7bpYpx8BGHZ4Q18ZLB', 'lvl': 1, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1Kghxri_BvRE0Ho4c2vMfrdBGp8HTmrGJ', 'lvl': 1, 'blq': 1},
-      {'title': 'Bloque 3 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1vYZFwqvHFg6m097Ivk4uRGAY38-EUvEu', 'lvl': 0, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1nxK06XODrHt2J6lScQz4JjthmPoc16Ec', 'lvl': 0, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1bufcRACzv0QKKJDoc6RYhC1m7irb-UPa', 'lvl': 0, 'blq': 1 }
-    ];
-    
-}])
-
-     .controller('booksCtrl1', ['$http', '$scope', '$sce', function($http, $scope, $sce){
-    $scope.trustAsResourceUrl = function(url) {
-        return $sce.trustAsResourceUrl(url);
-    };
-    
-     $scope.selectedManualUrl = '';
-
-    $scope.showModal = function(index) {
-      $scope.selectedManualUrl = 'https://drive.google.com/file/d/' + $scope.manuals[index].id + '/preview';
-        document.getElementById('modalSolfiege').classList.add('four');
-    };
-
-    $scope.hideModal = function(index) {
-        const modal = document.getElementById('modalSolfiege');
-        modal.classList.add('out');
-        setTimeout(() => {
-            modal.classList.remove('four', 'out');
-        }, 400);
-    };
-
-    $scope.lvl = 3;
-    $scope.blq = 3;
-      
-$scope.manuals = [ 
-      {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
-      {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '10Q34O2uDPaj5ZG7bpYpx8BGHZ4Q18ZLB', 'lvl': 1, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1Kghxri_BvRE0Ho4c2vMfrdBGp8HTmrGJ', 'lvl': 1, 'blq': 1},
-      {'title': 'Bloque 3 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1vYZFwqvHFg6m097Ivk4uRGAY38-EUvEu', 'lvl': 0, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1nxK06XODrHt2J6lScQz4JjthmPoc16Ec', 'lvl': 0, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1bufcRACzv0QKKJDoc6RYhC1m7irb-UPa', 'lvl': 0, 'blq': 1 }
-    ];
-    
-}])
-     .controller('booksCtrl2', ['$http', '$scope', '$sce', 'SharedState', function($http, $scope, $sce, SharedState){
-    $scope.trustAsResourceUrl = function(url) {
-        return $sce.trustAsResourceUrl(url);
-    };
-    
-     $scope.selectedManualUrl = '';
-
-    $scope.showModal = function(index) {
-      $scope.selectedManualUrl = 'https://drive.google.com/file/d/' + $scope.manuals[index].id + '/preview';
-        document.getElementById('modalScales').classList.add('four');
-    };
-
-    $scope.hideModal = function(index) {
-        const modal = document.getElementById('modalScales');
-        modal.classList.add('out');
-        setTimeout(() => {
-            modal.classList.remove('four', 'out');
-        }, 400);
-    };
-
-    $scope.lvl = 3;
-    $scope.blq = 3;
-      
-$scope.manuals = [ 
-      {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
-      {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '10Q34O2uDPaj5ZG7bpYpx8BGHZ4Q18ZLB', 'lvl': 1, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1Kghxri_BvRE0Ho4c2vMfrdBGp8HTmrGJ', 'lvl': 1, 'blq': 1},
-      {'title': 'Bloque 3 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1vYZFwqvHFg6m097Ivk4uRGAY38-EUvEu', 'lvl': 0, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1nxK06XODrHt2J6lScQz4JjthmPoc16Ec', 'lvl': 0, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1bufcRACzv0QKKJDoc6RYhC1m7irb-UPa', 'lvl': 0, 'blq': 1 }
-    ];
-    
-}])
-     .controller('booksCtrl3', ['$http', '$scope', '$sce', function($http, $scope, $sce){
-    $scope.trustAsResourceUrl = function(url) {
-        return $sce.trustAsResourceUrl(url);
-    };
-    
-     $scope.selectedManualUrl = '';
-
-    $scope.showModal = function(index) {
-      $scope.selectedManualUrl = 'https://drive.google.com/file/d/' + $scope.manuals[index].id + '/preview';
-        document.getElementById('modalSightread').classList.add('four');
-    };
-
-    $scope.hideModal = function(index) {
-        const modal = document.getElementById('modalSightread');
-        modal.classList.add('out');
-        setTimeout(() => {
-            modal.classList.remove('four', 'out');
-        }, 400);
-    };
-
-    $scope.lvl = 3;
-    $scope.blq = 3;
-
-      
-$scope.manuals = [ 
-      {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1qsgmUvohMMn8LcQZLp-Zkk283MV2VmNy', 'id': '1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'lvl': 2, 'blq': 1},            
-      {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1VuxMiv3W89OBAzxXaz6kzBkEyRxonnJB', 'lvl': 1, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '10Q34O2uDPaj5ZG7bpYpx8BGHZ4Q18ZLB', 'lvl': 1, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1Kghxri_BvRE0Ho4c2vMfrdBGp8HTmrGJ', 'lvl': 1, 'blq': 1},
-      {'title': 'Bloque 3 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1vYZFwqvHFg6m097Ivk4uRGAY38-EUvEu', 'lvl': 0, 'blq': 3},
-      {'title': 'Bloque 2 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1nxK06XODrHt2J6lScQz4JjthmPoc16Ec', 'lvl': 0, 'blq': 2},
-      {'title': 'Bloque 1 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1bufcRACzv0QKKJDoc6RYhC1m7irb-UPa', 'lvl': 0, 'blq': 1 }
-    ];
-    
-}])
 
     </script>
 
