@@ -580,7 +580,7 @@ margin-left: -20px;
  
 <span ng-repeat="lsn in student.currentLsn" class="list-group-item-text"> {{lsn.name}} <i class="ri-check-fill" style="color: green; font-weight: 700; font-size: 19px; margin-top: -10px;" ng-if="lsn.status == 'Evaluada'"></i> <br></span>
           
-          <input id="msgInput{{$index}}"/> <button class="btn btn-info" ng-click="openModal5(student, $index)"><i class="ri-aed-fill"></i></button> <button class="btn btn-success" ng-click="sendMsg(student)">Enviar</button>
+          <input id="msgInput{{$index}}"/> <button class="btn btn-info" ng-click="openModal5(student, $index)"><i class="ri-aed-fill"></i></button> <button class="btn btn-success" ng-click="sendMsg(student, $index)">Enviar</button>
        
  <br>
     
@@ -1049,8 +1049,8 @@ $scope.updateResp = function() {
  }
   
   
- $scope.sendMsg = function(student){
-    var msg = document.getElementById('msgInput'+$scope.currentIndex).value
+ $scope.sendMsg = function(student, index){
+    var msg = document.getElementById('msgInput'+index).value
     if(msg != ''){
      
  var requestData = {
@@ -1068,7 +1068,7 @@ $scope.updateResp = function() {
      
 $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
     }
-    document.getElementById('msgInput'+$scope.currentIndex).value = ''
+   document.getElementById('msgInput' + index).value = '';
     $scope.currentIndex = ''
    $scope.msgResp = ''
  }
