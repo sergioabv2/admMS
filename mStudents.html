@@ -717,9 +717,10 @@ margin-left: -20px;
       <label class="custom-label">Mensaje rápido</label><br>
       <div class="form-row">
        <select class="custom-select" ng-model="msgType" ng-change="updateResp()">
+	       <option value="event"> Eventual </option>
+	        <option value="ready"> Secuencial </option>
          <option value="BPM"> BPM </option>
  <option value="BPM+"> BPM+ </option>
-          <option value="ready"> Reducción </option>
         </select> 
 <select class="custom-select" ng-model="msgResp" ng-options="option for option in options"></select> 
         <div class="button-group">
@@ -1028,11 +1029,13 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 $scope.options = []
 $scope.updateResp = function() {
   if ($scope.msgType === 'BPM') {
-    $scope.options = ['35', '40', '45', '50', '55', '60', '70'];
+    $scope.options = ['35', '40', '45', '50', '55', '60', '70', 'Final'];
   }else if ($scope.msgType === 'BPM+') {
-    $scope.options = ['+5', '-5', '+10', '-10', '+15', '-15'];
+    $scope.options = ['+5', '-5', '+10', '-10'];
   } else if ($scope.msgType === 'ready') {
-    $scope.options = ['1 renglon', '2 renglon', '3 renglon', '<-pagina', 'pagina->'];
+    $scope.options = ['Mano Derecha', 'Mano Izquierda', 'Ambas manos', 'Siguiente ejercicio', 'Cambio de pagina', 'Tema concluido'];
+  } else if ($scope.msgType === 'event') {
+    $scope.options = ['Presentación formal', 'Presentación informal', 'Descanso', 'Borrar'];
   }
 };
   
@@ -1041,8 +1044,51 @@ $scope.updateResp = function() {
     var opt = $scope.msgResp
     var text = ""
     if(opt == '+5'){
-      text = "Sube 5 bits más al metrónomo"
+      text = "Listo, sube 5 bits más al metrónomo"
+    }else if(opt == '-5'){
+	text = "Por favor, reduce 5 bits menos a la velocidad del metrónomo"
+    }else if(opt == '+10'){
+	text = "Perfecto, sube 10 bits más al metrónomo"
+    }else if(opt == '35'){
+	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 35 bits"
+    }else if(opt == '40'){
+	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 40 bits"
+    }else if(opt == '45'){
+	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 45 bits"
+    }else if(opt == '50'){
+	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 50 bits"
+    }else if(opt == '55'){
+	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 55 bits"
+    }else if(opt == '60'){
+	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 60 bits"
+    }else if(opt == '70'){
+	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 70 bits"
+    }else if(opt == 'Final'){
+	text = "Perfecto, vamos a ajustar la velocidad del metrónomo a la velocidad final que indica el ejercicio"
+    }else if(opt == 'Mano Derecha'){
+	text = "Vamos a comenzar a trabajar el primer ejercicio leyendo solo la mano derecha sin metrónomo"
+    }else if(opt == 'Mano Izquierda'){
+	text = "Bien, ahora vamos a trabajar solo la mano izquierda"
+    }else if(opt == 'Ambas manos'){
+	text = "Listo, vamos a leer con ambas manos"
+    }else if(opt == 'Siguiente ejercicio'){
+	text = "Excelente trabajo, vamos a pasar al siguiente ejercicio, de igual forma leyendo solo mano derecha"
+    }else if(opt == 'Cambio de pagina'){
+	text = "Perfecto, vamos a cambiar de página"
+    }else if(opt == 'Tema concluido'){
+	text = "Excelente trabajo, has concluido el tema"
+    }else if(opt == 'Presentación formal'){
+	text = "Buenas tardes, me presento, soy Alicia y seré tu asistente virtual, el profesor tiene oido de director de orquesta y está al tanto de varios instrumentos a la vez, pero lo asistiré cuando s encuentre ocupado "
+    }else if(opt == 'Presentación informal'){
+	text = ""
+    }else if(opt == 'Descanso'){
+	text = "Excelente trabajo, puedes tomar un breve descanso de 1 minuto para refrescar la mente y no saturarse de información"
+    }else if(opt == 'Borrar'){
+	text = ""
     }
+
+
+
      
     document.getElementById('msgInput'+$scope.currentIndex).value = text;
      $scope.currentUser.modalState.isModalOpen5 = false;
