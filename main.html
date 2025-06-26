@@ -1,8 +1,8 @@
 <head>
 
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1.0, user-scalable=no">
-<link rel="icon" href="https://lh3.googleusercontent.com/d/1k9LA88h-FVVn9EeryBRVBrtc5tPl92CK" type="image/x-icon">
-    <title>Mozart Studio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" href="https://lh3.googleusercontent.com/d/1h0PAuatp8mguH19cso6wh19mjMVa0K5V" type="image/x-icon">
+    <title>Mozart Academy</title>
   
 <link href="https://code.ionicframework.com/1.3.3/css/ionic.min.css" rel="stylesheet">
   <script src="https://code.ionicframework.com/1.3.3/js/ionic.bundle.min.js"></script>
@@ -10,7 +10,8 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
- <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-i18n/1.3.3/angular-locale_es-mx.js"></script>
+ <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet"/>
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
  <link rel="manifest" href="/manifest.json">
 </head>
@@ -100,13 +101,64 @@ body {
   text-align: center;
 }
 
-.menuSelectedColor {    
-  border-left: solid 7px #311B92 !important;
-    background-color: #E8E9EE !important;
-  color: #311B92 !important;
-  font-weight:bold;
+ #loadingProfile {
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  left: 50%;
+  background-image: url(https://raw.githubusercontent.com/niklausgerber/PreLoadMe/master/img/status.gif);
+  background-repeat: no-repeat;
+  background-position: center;
+  margin: -50px 0 0 -100px;
 }
 
+ion-side-menu {
+  background-color: #f8f9fc; /* Fondo claro */
+  color: #3a3b3c; /* Texto oscuro */
+  width: 300px;
+  border-right: 1px solid #e0e0e0;
+ 
+}
+
+
+
+ion-side-menu .list .item {
+  padding: 20px 40px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  color:  #374151;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 2px; /* Bordes redondeados */
+    border-top: 1px solid transparent !important; 
+    border-bottom: 1px solid transparent !important; 
+  
+}
+
+ion-side-menu .list .item i {
+  font-size: 22px;
+  color: #374151;
+  margin-right: 10px; /* Espaciado entre ícono y texto */
+}
+
+
+
+ion-side-menu .item:hover i {
+  transform: scale(1.1); /* Agrandar ligeramente el ícono */
+}
+
+
+ion-side-menu .list .item:hover {
+  background-color: #f5f6f6; /* Fondo hover */
+  color: #343a40; /* Texto más oscuro al pasar mouse */
+}
+
+.menuSelectedColor {    
+
+    background-color: #f0f2f5 !important; 
+  color: #1F2937 !important;
+  font-weight:bold;
+}
 
 .card{
   font-family: 'Nunito', sans-serif;
@@ -156,7 +208,7 @@ body {
 
         .iframe-container iframe {
           position: absolute;
-          top: 0;
+          top: 15px;
         left: 0;
             width: 100%;
             height: 100%;
@@ -167,45 +219,6 @@ body {
 
 
 
-
-     
-.documents {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  grid-auto-rows: 214px;
-  grid-gap: 12px;
-  height: auto;
-  background-color: #FFF;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: 12px;
-}
-
-.document {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 15px 0 0;
-  flex-direction: column;
-}
-.document__img {
-  width: 105px;
-  height: 136px;
-
-  background-size: cover;
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
-.document__img:hover {
-  transform: translateY(-4px);
-}
-.document__title {
-  margin: 8px 0 2px;
-  color: #777;
-}
-.document__date {
-  font-size: 10px;
-}
 
    .drive{
     height: 450px;
@@ -406,7 +419,7 @@ body {
 .dropdownContent {
   position: absolute;
   top: 50px;
-  left: 10px;
+  right: 10px;
   background: #fff;
   min-width: 250px;
   box-shadow: 0px 0px 15px 8px rgba(50, 50, 50, 0.2);
@@ -464,6 +477,400 @@ body {
 
    
 
+.tabs-icon-top .tab-item .icon {
+  position: relative;
+  top: 9px; 
+} 
+   .tabs-icon-top .tab-item {
+  text-decoration: none;
+}     
+.tabs-striped {
+    display: none;
+}
+.tabframe-container{
+      display: block;
+    }
+.bar-light{
+     box-shadow:  0 2px 4px 0px rgba(0,0,0,0.1);
+      height: 55px !important;
+   }
+/* Mostrar la barra de tabs solo en pantallas de hasta 768px */
+@media (max-width: 850px) {
+    .tabs-striped {
+        display: block;
+    }
+    .tabframe-container{
+      display: none;
+    }
+      .contentHide{
+     display: none !important;
+  }
+    
+  .content {
+  grid-template-columns: 100% 0 !important;
+  }
+   .content2 {
+  grid-template-columns: 0 100% !important;
+  }
+  .rWide{
+    width: 100% !important;
+  }
+
+     #chatFrame{
+   height: 84vh !important;
+}
+
+      .user-info {
+      display: none;
+    }
+}
+
+
+@media (min-width: 850px) {
+.menubtn{
+    display: none;
+  }
+ .hintMsg{
+        display: none;
+    }
+    .profilImg{
+    margin-top: -9px;
+      margin-left: 6px;
+  }
+     .user-info {
+      display: block;
+    }
+
+
+    /*
+     #chatFrame{
+  margin-top: -20px;
+}
+.left-content {
+  margin-top: 15px !important;
+}*/
+    
+ /* ion-side-menu .list .item {
+  font-size: 15px;
+  } */
+}
+     
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    color: red;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+}
+
+.pulseTab {
+  animation: pulse 1s ease-in-out 5;
+}
+
+.hintMsg {
+  position: fixed;
+  bottom: 100px; /* Just above the tab bar */
+  left: 50%;
+  transform: translateX(-50%);
+ /* background-color: rgba(0, 0, 0, 0.8);
+  color: white;*/
+    background-color: white;
+  color: black;
+  padding: 10px 15px; 
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 1000;
+  animation: fadeInOut 5s forwards;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+}
+     
+
+.profile-user-data {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+  margin-bottom: 10px;
+}
+.profile-user-data .circle {
+    flex-shrink: 0; /* Evita que el contenedor de la imagen se reduzca */
+    border-radius: 100% !important;
+    overflow: hidden; 
+    width: 55px;
+    height: 55px;
+    margin: 10px 2px 0 10px; /* Ajusta los márgenes */
+}
+.profile-user-data img { margin-right: 10px; max-width: 100%;}
+.profile-user-data .main-data {
+    flex-grow: 1; /* Permite que el contenedor de texto use el espacio restante */
+    padding: 10px 10px 20px;
+    margin-bottom: 5px;
+    overflow: hidden; /* Evita desbordamientos */
+}
+
+.main-data .planTag{
+  color: #77777a; 
+  font-size: 12px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+}
+.main-data .userLvl{
+  margin-top: 1px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+}
+.main-data h4 {
+    font-size: 17px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+margin-bottom: 1px;
+    overflow: hidden; 
+}
+.profile-user-data .main-data span {font-size: 12px;}
+
+
+.progress{
+ height: 12px;
+width: 155px;
+  margin-top: 5px;
+  margin-bottom: -10px;
+}
+     
+     
+   
+.slide-hint-left {
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: slideLeft 1.5s infinite;
+  font-size: 18px;
+  color: #666;
+}
+
+@keyframes slideLeft {
+  0%, 100% {
+    opacity: 0;
+    transform: translateX(0) translateY(-50%);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-10px) translateY(-50%);
+  }
+}
+
+
+.custom-select {
+  width: 100%; /* Ajusta para ocupar todo el ancho */
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 20px; /* Espacio entre select y botones */
+}
+   
+   .custom-select2 {
+  width: 100%; /* Ajusta para ocupar todo el ancho */
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+     margin-right: 5px;
+}
+   .item-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.item-input span {
+  margin-right: 10px;
+}
+
+.item-input input,
+.item-input select {
+  flex-grow: 1;
+  max-width: 200px; /* Puedes ajustar el tamaño máximo */
+  text-align: center;
+}
+   
+.alertIcon{
+  font-size: 18px;
+}
+
+ #chatFrame{
+     height: 90vh;
+}
+ 
+.content {
+  display: grid;
+  grid-template-columns: auto 300px; /* Deja que el lado izquierdo sea flexible */
+  height: 92.5vh;
+}   
+
+.content2 {
+  display: grid;
+  grid-template-columns: auto 300px; /* Deja que el lado izquierdo sea flexible */
+  height: 92.5vh;
+}   
+
+.left-content {
+  overflow-y: auto; /* Permite scroll si el contenido es más grande */
+  background-color: #f5f5f5; /* Fondo opcional */
+}
+
+.right-content {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e1e8ed;
+  height: 85vh;
+  overflow-y: auto;
+  position: fixed; 
+  right: 0;
+    top: 15px;
+  width: 300px; 
+}
+       
+
+
+  .barImage:before {
+    position: absolute;
+    content: "";
+    height: 50px;
+    width: 50px;
+    top: -3.4px;
+    right: -5.1px;
+    border-radius: 50%;
+    border: 1px solid gray;
+    animation: 1.5s linear 0s normal none infinite focuse;
+} 
+   
+   @keyframes focuse {
+  0% {
+    transform: scale(0.8);
+    opacity: 1; }
+  75% {
+    transform: scale(1.2);
+    opacity: 0; }
+  100% {
+    transform: scale(1.2);
+    opacity: 0; } }
+@keyframes slide {
+  from {
+    background-position: 0 0; }
+  to {
+    background-position: 40px 0; } }
+
+
+    .popup-custom .popup {
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    text-align: center;
+}
+
+.popup-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.popup-full-image {
+    max-width: 100%;
+    max-height: 60vh;
+    border-radius: 10px;
+}
+ 
+ 
+   .team-detail-background{
+     margin-bottom: 2px;
+   }
+.team-detail{
+  background: -webkit-radial-gradient(circle, #ccc, #000);
+   margin-top: 15px !important;
+}
+
+     .team-detail img{
+width: 200px; /* Ajusta según el tamaño deseado */
+  height: 200px; /* Igual que el ancho para mantener la proporción */
+  border-radius: 50%; /* Hace que la imagen sea redonda */
+  object-fit: cover; /* Asegura que la imagen rellene el círculo sin distorsión */
+  display: block;
+}
+     
+.team-detail h2+p{
+  background-color:transparent;
+  color:#fff
+}
+.team-detail h2{
+    margin-top: 20px !important;
+  background-color:transparent;
+  color:#fff
+}
+
+
+
+.tab-item.team-detail-tab-item{
+  font-size:0.8em;
+  
+}
+.team-detail-tab-item .tab-heading{
+  position:relative;
+  top:-5px;
+  font-weight:bold;
+  color:#000
+}
+.team-detail-tab-item .tab-sub{
+  position:relative;
+  top:-40px;
+  display:block;
+  font-size:0.9em;
+}
+.team-detail div.team-country-tag {
+  background-color: #c0c0c0;
+  width: 96px;
+  height: 20px;
+  font-size: 0.7em;
+  border: 1px solid;
+  border-radius: 15px;
+    margin-top: 7px;
+  /* padding-left: 5px; */
+  text-align: center;
+}   
+
+     .ion-scroll{
+  height: calc(100vh - 130px);
+}
+
+.ion-scroll::-webkit-scrollbar {
+  width: 0px; /* Cambia este valor para ajustar el grosor */
+}
+
 </style>
 
 <body>
@@ -481,39 +888,57 @@ body {
     </ion-nav-back-button>
   </ion-nav-bar>
 
-  <ion-nav-view animation="slide-right"></ion-nav-view>
+  <ion-nav-view animation="slide-left"></ion-nav-view>
 
     
  <script id="menu.html" type="text/ng-template">
     <ion-side-menus >
-      <ion-side-menu side="right" width='210'>
+      <ion-side-menu side="left" width='280'  expose-aside-when="large">
          
-    
-        <ion-header-bar class="bar-stable">
-          <h1 class="title">Menu</h1> 
-        </ion-header-bar>
-        <ion-content>
-          <ul class="list">
-          <!--     <a href="#/menu/status" class="item"  menu-toggle="right" ><i class="ri-user-fill"></i>&nbsp&nbspPerfil</a>  -->
-            <a href="#/menu/agenda" class="item" ng-class="(activeMenuClr=='agenda')?'menuSelectedColor':''" ng-click="activeMenuClr = 'agenda'" menu-toggle="right"><i class="ri-team-fill" ></i>&nbsp&nbspAlumnos</a> 
-          <a href="#/menu/profile" class="item" ng-class="(activeMenuClr=='profile')?'menuSelectedColor':''" ng-click="activeMenuClr = 'profile'" menu-toggle="right"><i class="ri-volume-up-fill" ></i>&nbsp&nbspAudios</a> 
-              
-           
-     
-       <a href="#/menu/reel" class="item" ng-class="(activeMenuClr=='reel')?'menuSelectedColor':''" ng-click="activeMenuClr = 'reel'" menu-toggle="right"><i class="ri-edit-2-fill" ></i>&nbsp&nbspCorrecciones</a>  
-       <a href="#/menu/library" class="item" ng-class="(activeMenuClr=='library')?'menuSelectedColor':''" ng-click="activeMenuClr = 'library'" menu-toggle="right"><i class="ri-tools-fill" ></i>&nbsp&nbspHerramientas</a> 
-       <a href="#/menu/mozart" class="item" ng-class="(activeMenuClr=='mozart')?'menuSelectedColor':''" ng-click="activeMenuClr = 'mozart'" menu-toggle="right"><i >🎹</i>&nbsp&nbspMozart Academy</a> 
-  <!--   <a href="#/menu/resources" class="item" ng-class="(activeMenuClr=='resources')?'menuSelectedColor':''" ng-click="activeMenuClr = 'resources'" menu-toggle="right"><i class="ri-dashboard-fill"></i>&nbsp&nbspRecursos</a>
-    <a href="#/menu/chat" class="item" ng-class="(activeMenuClr=='chat')?'menuSelectedColor':''" ng-click="activeMenuClr = 'chat'"  menu-toggle="right"><i class="ri-question-answer-fill"></i>&nbsp&nbspTutor</a>     
-             <a href="#/menu/about" class="item" ng-class="(activeMenuClr=='about')?'menuSelectedColor':''" ng-click="activeMenuClr = 'about'" menu-toggle="right"><i class="ri-file-paper-2-fill"></i>&nbsp&nbspLineamientos</a> -->
-          </ul>
-        </ion-content>
-    <ion-footer-bar>
- 
-  <button class="button pull-right" ng-click="logout()"><i class="icon ri-logout-box-r-line"></i>Salir</button>
-</ion-footer-bar>
-      </ion-side-menu>
+        <ion-content scroll="false">
 
+         <div class="profile-user-data clearfix">
+        <div id="loadingProfile" ng-if="loadingProfile" style="margin-top: 20px !important;"></div>
+          <div class="circle">
+              <img class="profile-pic" src="{{userData.photo}}">
+          </div>
+          <div class="main-data" style="margin-top: 12px;" ng-if="!loadingProfile">
+            <h4 >{{userData.name}}</h4>
+        <div class="pull-left planTag"  style="color: orange; text-shadow: 0 0 10px silver;"> PROFESOR
+            <i class="ri-verified-badge-fill" style="color: orange; text-shadow: 0 0 10px silver;"></i>  </div>
+    
+
+            <br>
+        <div class="userLvl">{{userData.mail}} </div>
+
+     
+          </div>  
+        </div>
+
+
+ <ul class="list">
+              
+            <a href="#/menu/lessons" class="item" ng-class="(activeMenuClr=='lessons')?'menuSelectedColor':''" ng-click="activeMenuClr = 'lessons'" menu-toggle="left"><i class="ri-team-line" ></i>&nbsp&nbspAlumnos</a>
+            <a href="#/menu/library" class="item" ng-class="(activeMenuClr=='library')?'menuSelectedColor':''" ng-click="activeMenuClr = 'library'" menu-toggle="left"><i class="ri-book-shelf-line" ></i>&nbsp&nbspBiblioteca</a>
+      <a href="#/menu/agenda" class="item" ng-class="(activeMenuClr=='agenda')?'menuSelectedColor':''" ng-click="activeMenuClr = 'agenda'" menu-toggle="left"><i class="ri-calendar-todo-fill"></i>&nbsp&nbspCalendario</a>   
+
+            <hr>
+
+                 <a href="#/menu/courses" class="item" ng-class="(activeMenuClr=='courses')?'menuSelectedColor':''" ng-click="activeMenuClr = 'courses'" menu-toggle="left"><i class="ri-chat-voice-line" ></i>&nbsp&nbspTareas</a>  
+
+          <a href="#/menu/statistics" class="item" ng-class="(activeMenuClr=='statistics')?'menuSelectedColor':''" ng-click="activeMenuClr = 'statistics'" menu-toggle="left"><i class="ri-edit-2-line"></i>&nbsp&nbspCorrecciones</a> 
+
+
+
+          </ul>
+  
+        </ion-content>
+ <ion-footer-bar style="z-index: 999 !important;">
+         <button class="button button-royal pull-left" ng-if="isMobile" ng-click="installApp()" ><i class="ri-download-cloud-2-line" ></i> Descargar</button>
+  <button class="button pull-right" ng-click=""><i class="icon ri-question-line"></i>Ayuda</button>
+</ion-footer-bar>
+
+      </ion-side-menu>
       <ion-side-menu-content >        
         <ion-nav-view name="menuContent"></ion-nav-view>
       </ion-side-menu-content>
@@ -525,47 +950,294 @@ body {
 
 
 
-  <script id="agenda.html" type="text/ng-template">
+
+ <script id="agenda.html" type="text/ng-template">
     <ion-view >
       
-  <ion-nav-bar class="bar-light" >      
-        <ion-nav-buttons side="left">
-  <!--  <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
-      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
-       Mozart Academy
-    </button> -->
-       <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
-      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
-      Taller de Piano
-  <div style="position: absolute; bottom: -5px; left: 25px; width: 15px; height: 15px; background-color: #d3d3d3; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
-        <i class="icon ion-chevron-down" style="font-size: 8px; color: black; transform: scale(0.27);"></i>
+ 
+<ion-nav-bar class="bar-light" >      
+        <ion-nav-buttons side="right">
+
+     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 18px;">
+<i class="ri-chat-4-line"></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
+        <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
     </div>
+</button> 
+          
+     <button class="button button-clear" ng-click="dropdownNotif()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 25px;">
+  <i class="ri-notification-3-line" ></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(alerts | filter:{seen: false}).length && alertCounter">
+        <div style="font-size: 13px; color: white;" > {{(alerts | filter:{seen: false}).length}}</div>
+    </div> 
+</button>
+
+      <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
+  <div style="display: flex; align-items: center;" >    
+   
+  <div class="user-info" style="margin-top: -2px;">
+   <div style="font-size: 13px; font-weight: 600; color: #333;">{{userData.name}}</div>
+  <div style="font-size: 12px; color: #777; margin-top: -15px;" ng-if="userData.lvl == 0">Preparatorio</div>
+          <div style="font-size: 11px; color: #777; margin-top: -15px;" ng-if="userData.lvl != 0">Nivel {{userData.lvl}}</div>
+   </div>
+
+    <div style="position: relative; " class="profilImg">
+    
+      <div style="position: relative; width: 36px; height: 36px; margin-top: 4px; margin-left: 5px;">
+  <!-- Anillo exterior -->
+  <div style="
+    width: 36px;
+    height: 36px;
+    border: 1px solid #3ac5f2; /* color del anillo */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px #1e2b47; /* sombra tipo segundo anillo */
+  ">
+    <!-- Imagen de perfil -->
+    <img src="{{userData.photo}}" width="30" height="30" style="border-radius: 50%; border: 0.5px solid black;" />
+  </div>
+
+  <!-- Punto de estado -->
+  <div style="
+    position: absolute;
+    bottom: -3px;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #5fff87; /* verde */
+    border: 2px solid #1e2b47; /* separador del fondo */
+    border-radius: 50%;
+  "></div>
+</div>
+
+
+   </div>
+   
+ </div>
     </button>
+
+
+    
   </ion-nav-buttons>
        
-        <ion-nav-buttons side="right">
-          <button class="button button-clear" ng-click="toggleRight()">menu<i class="button button-icon ion-navicon"></i></button>
-        </ion-nav-buttons>   
+        <ion-nav-buttons side="left">
+          <button class="button button-clear menubtn" ng-click="toggleRight()"><i class="button button-icon ion-navicon"></i>menu</button>
+        </ion-nav-buttons>  
+
+            
        
         <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
      <div id="bannerRow">
       <div class="profileImageContainer">
-        <img src="{{userData.photo}}"  />
+     <div id="loading" ng-if="loadingProfile" style="height: 60px;"></div>
+        <img src="{{userData.photo}}"  ng-if="!loadingProfile"/>
       </div>
       <p class="profileName">{{userData.name}}</p>
       <p class="profileEmail">{{userData.mail}}</p>
     </div>
-     <div class="dropdown-item" ng-click="goToStatus()">
+    <div class="dropdown-item" ng-click="goToAccount()">
       <i class="ion-ios-contact-outline"></i> Perfil
     </div>
-   <div class="dropdown-item" ng-click="installApp()">
-      <i class="ion-android-download" ></i> Instalar App
+      <div class="dropdown-item" ng-click="goToStatus()">
+      <i class="ri-settings-3-line"></i> Configuración
     </div>
+      <div class="dropdown-item" ng-click="logout()">
+      <i class="ri-logout-box-r-line"></i> Salir
+    </div>
+  </div>
 
-   <div id="myModal" class="modal" ng-show="isModalVisible">
+    <div class="dropdownContent" ng-show="dropdownChatVisible" ng-click="$event.stopPropagation()">
+  <div class="dropdown-item" 
+       ng-click="goToChat()" 
+       ng-if="(chats | filter:{read: false}).length > 0">
+    <i class="ri-feedback-line alertIcon"></i>
+    Tienes {{(chats | filter:{read: false}).length}} nuevos mensajes  
+  </div>
+  <span style="margin-left: 15px;" 
+        ng-if="(chats | filter:{read: false}).length == 0" ng-click="goToChat()"> 
+    No hay mensajes 
+  </span>
+</div>
+
+
+<div class="dropdownContent" ng-show="dropdownNotifVisible" ng-click="$event.stopPropagation()">
+   <div class="dropdown-item" ng-repeat="alert in alerts" style="color: {{alert.color}}">
+      <i class="{{alert.icon}} alertIcon" ></i> {{alert.subject}} 
+         <div style="font-size: 10px; position: absolute; margin-top: 40px;  color: gray;">Hace {{calculateDaysAgo(alert.date)}} días</div>
+    </div> 
+      <span style="margin-left: 15px;" ng-if="alerts.length == 0"> No hay alertas </span>
+  </div>  
+        
+    </ion-nav-bar>
+
+     <ion-content > 
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/agenda" frameborder="0" allowfullscreen></iframe></div>   
+      </ion-content>
+     
+    </ion-view>
+
+  </script>
+
+
+
+
+
+
+      
+    
+    <script id="profile.html" type="text/ng-template">
+    <ion-view >
+      
+     <ion-nav-bar class="bar-light" >     
+       <ion-nav-buttons side="left">
+    <button class="button button-clear" ng-click="goToMain()">
+      <i class="ri-arrow-left-s-line"></i> regresar
+    </button>
+  </ion-nav-buttons>  
+    </ion-nav-bar>
+      
+      <ion-content > 
+
+
+        <div class="iframe-container"><iframe id="profileFrame" src="https://admin.mozartacademy.mx/profile" frameborder="0" allowfullscreen></iframe></div>   
+      </ion-content>
+    </ion-view>
+  </script>
+
+
+     <script id="statistics.html" type="text/ng-template">
+    <ion-view >
+      
+   <ion-nav-bar class="bar-light" >      
+        <ion-nav-buttons side="right">
+
+     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 18px;">
+<i class="ri-chat-4-line"></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
+        <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
+    </div>
+</button> 
+          
+     <button class="button button-clear" ng-click="dropdownNotif()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 25px;">
+  <i class="ri-notification-3-line" ></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(alerts | filter:{seen: false}).length && alertCounter">
+        <div style="font-size: 13px; color: white;" > {{(alerts | filter:{seen: false}).length}}</div>
+    </div> 
+</button>
+
+      <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
+  <div style="display: flex; align-items: center;" >    
+   
+  <div class="user-info" style="margin-top: -2px;">
+   <div style="font-size: 13px; font-weight: 600; color: #333;">{{userData.name}}</div>
+  <div style="font-size: 12px; color: #777; margin-top: -15px;" ng-if="userData.lvl == 0">Preparatorio</div>
+          <div style="font-size: 11px; color: #777; margin-top: -15px;" ng-if="userData.lvl != 0">Nivel {{userData.lvl}}</div>
+   </div>
+
+    <div style="position: relative; " class="profilImg">
+    
+      <div style="position: relative; width: 36px; height: 36px; margin-top: 4px; margin-left: 5px;">
+  <!-- Anillo exterior -->
+  <div style="
+    width: 36px;
+    height: 36px;
+    border: 1px solid #3ac5f2; /* color del anillo */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px #1e2b47; /* sombra tipo segundo anillo */
+  ">
+    <!-- Imagen de perfil -->
+    <img src="{{userData.photo}}" width="30" height="30" style="border-radius: 50%; border: 0.5px solid black;" />
+  </div>
+
+  <!-- Punto de estado -->
+  <div style="
+    position: absolute;
+    bottom: -3px;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #5fff87; /* verde */
+    border: 2px solid #1e2b47; /* separador del fondo */
+    border-radius: 50%;
+  "></div>
+</div>
+
+
+   </div>
+   
+ </div>
+    </button>
+
+
+    
+  </ion-nav-buttons>
+       
+        <ion-nav-buttons side="left">
+          <button class="button button-clear menubtn" ng-click="toggleRight()"><i class="button button-icon ion-navicon"></i>menu</button>
+        </ion-nav-buttons>  
+
+            
+       
+        <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
+     <div id="bannerRow">
+      <div class="profileImageContainer">
+     <div id="loading" ng-if="loadingProfile" style="height: 60px;"></div>
+        <img src="{{userData.photo}}"  ng-if="!loadingProfile"/>
+      </div>
+      <p class="profileName">{{userData.name}}</p>
+      <p class="profileEmail">{{userData.mail}}</p>
+    </div>
+    <div class="dropdown-item" ng-click="goToAccount()">
+      <i class="ion-ios-contact-outline"></i> Perfil
+    </div>
+       
+           
+      <div class="dropdown-item" ng-click="goToStatus()">
+      <i class="ri-settings-3-line"></i> Configuración
+    </div>
+      <div class="dropdown-item" ng-click="logout()">
+      <i class="ri-logout-box-r-line"></i> Salir
+    </div>
+  </div>
+
+    <div class="dropdownContent" ng-show="dropdownChatVisible" ng-click="$event.stopPropagation()">
+  <div class="dropdown-item" 
+       ng-click="goToChat()" 
+       ng-if="(chats | filter:{read: false}).length > 0">
+    <i class="ri-feedback-line alertIcon"></i>
+    Tienes {{(chats | filter:{read: false}).length}} nuevos mensajes  
+  </div>
+  <span style="margin-left: 15px;" 
+        ng-if="(chats | filter:{read: false}).length == 0" ng-click="goToChat()"> 
+    No hay mensajes 
+  </span>
+</div>
+
+
+<div class="dropdownContent" ng-show="dropdownNotifVisible" ng-click="$event.stopPropagation()">
+   <div class="dropdown-item" ng-repeat="alert in alerts" style="color: {{alert.color}}">
+      <i class="{{alert.icon}} alertIcon" ></i> {{alert.subject}} 
+         <div style="font-size: 10px; position: absolute; margin-top: 40px;  color: gray;">Hace {{calculateDaysAgo(alert.date)}} días</div>
+    </div> 
+      <span style="margin-left: 15px;" ng-if="alerts.length == 0"> No hay alertas </span>
+  </div>  
+        
+    </ion-nav-bar>
+      
+      <ion-content > 
+
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/statistics" frameborder="0" allowfullscreen></iframe></div>   
+      </ion-content>
+
+       <div id="myModal" class="modal" ng-show="isModalVisible">
     <div class="modal-content">
       <span class="close" ng-click="closeModal()" style="color: black">&times;</span>
-       <img src="https://lh3.googleusercontent.com/d/14h1sox3jQT6akLOHzvt_RK2y6cEsT_Di" alt="Agregar a inicio" style="max-width: 100%;" />
+       <img src="https://lh3.googleusercontent.com/d/1bJZN2UX0fspMxGdHpyinsx29oj6dyG5X" style="max-width: 100%;" />
     <p style="text-align: center; font-weight: bold;">
       <br> Agrega a inicio:   </p> 
         <p style="text-align: center;" >
@@ -574,343 +1246,1170 @@ body {
        3. Agregar
        </p>
     </div>
-  </div>
-    
-  </div>
-        
-    </ion-nav-bar>
-    
-      <ion-content>
+  </div>  
 
-       <div class="iframe-container"><iframe id="agendaFrame" src="https://admin.mozartacademy.mx/students" frameborder="0" allowfullscreen></iframe></div>
-    
-      </ion-content>
     </ion-view>
   </script>
 
 
-    
-    <script id="profile.html" type="text/ng-template">
-    <ion-view >
-          <ion-nav-bar class="bar-light" >      
-        <ion-nav-buttons side="left">
-  <!--  <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
-      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
-       Mozart Academy
-    </button> -->
-       <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
-      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
-      Taller de Piano
-  <div style="position: absolute; bottom: -5px; left: 25px; width: 15px; height: 15px; background-color: #d3d3d3; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
-        <i class="icon ion-chevron-down" style="font-size: 8px; color: black; transform: scale(0.27);"></i>
-    </div>
+
+  <script id="status.html" type="text/ng-template">
+    <ion-view>
+           <ion-nav-bar class="bar-light" >     
+       <ion-nav-buttons side="left">
+    <button class="button button-clear" ng-click="goBack()">
+      <i class="ri-arrow-left-s-line"></i> regresar
     </button>
-  </ion-nav-buttons>
-       
-        <ion-nav-buttons side="right">
-          <button class="button button-clear" ng-click="toggleRight()">menu<i class="button button-icon ion-navicon"></i></button>
-        </ion-nav-buttons>   
-       
-        <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
-     <div id="bannerRow">
-      <div class="profileImageContainer">
-        <img src="{{userData.photo}}"  />
-      </div>
-      <p class="profileName">{{userData.name}}</p>
-      <p class="profileEmail">{{userData.mail}}</p>
-    </div>
-     <div class="dropdown-item" ng-click="goToStatus()">
-      <i class="ion-ios-contact-outline"></i> Perfil
-    </div>
-  </div>
-        
+  </ion-nav-buttons>  
     </ion-nav-bar>
-      
-      <ion-content > 
-
-
-        <div class="iframe-container"><iframe id="profileFrame" src="https://admin.mozartacademy.mx/audios" frameborder="0" allowfullscreen></iframe></div>   
-      </ion-content>
-    </ion-view>
-  </script>
-
-
-   
-       <script id="status.html" type="text/ng-template">
-    <ion-view >
-                <ion-back-button></ion-back-button>
       <ion-content >
        <div class="list">
-        <a class="item item-avatar" href="" >
-          
-          <img data-ng-src="{{userData.photo}}">
-          <h2>{{userData.name}}</h2>       
-          <p>{{userData.mail}}</p>         
-        </a>
+        <ion-list>
+      <ion-item class="item-avatar">
+        <img data-ng-src="{{userData.photo}}">    
+           <h2>{{userData.name}}</h2>       
+          <p>{{userData.mail}}</p>    
+          </ion-item>
+     </ion-list>    
+          <ion-list>
+      <ion-item class="item-divider itemDividerforitem" >
+    Mi plan
+        </ion-item>
+      <ion-item class="item-icon-left">
+            <span class="item-note"  style="  margin-top: 5px; color: green" ng-if="userData.status == 'ACTIVO'">ACTIVO</span>
+           <span class="item-note"  style=" color: red" ng-if="userData.status != 'ACTIVO'">Pago pendiente</span>
+         <i class="icon ri-currency-fill" ></i>
+       Plan de pago
+         <p style="color: orange; text-shadow: 0 0 10px orange;" ng-if="userPlan == 'Premium' && userData.status == 'ACTIVO'"><i class="ri-vip-crown-fill" style="color: orange; text-shadow: 0 0 10px orange;"></i> Premium </p>   
+        <p style="color: #20a2f1; text-shadow: 0 0 1px #20a2f1;" ng-if="userPlan == 'Pro' && userData.status == 'ACTIVO'"><i class="ri-verified-badge-fill" style="color: #20a2f1; text-shadow: none;" ></i> PRO </p>   
+         <p ng-if="userPlan == 'Estudiante' && userData.status == 'ACTIVO'">><i class="ri-graduation-cap-fill'" ></i> Estudiante </p>  
+          <p style="color: brown;" ng-if="userPlan == 'Standard' && userData.status == 'ACTIVO'"> Standard </p> 
+          </ion-item>
+          <ion-item class="item-icon-left" ng-if="userData.status == 'ACTIVO'">
+<i class="icon ri-presentation-fill" ></i> Formato
+         <p>{{userData.format}} </p>   
+                </ion-item>
+                 <ion-item class="item-icon-left item-icon-right" >
+<i class="icon ri-calendar-schedule-fill" ></i> Próximo pago
+         <p ng-style="{'color': userData.status !== 'ACTIVO' ? 'red' : 'green'}">{{userData.nextpay}} </p>  
+          <i class="icon ri-arrow-left-double-fill slide-hint-left" style="margin-top: 35px;" ng-if="userData.status != 'ACTIVO'"></i>
+            <ion-option-button class="button-balanced" ng-if="userData.status != 'ACTIVO'" onclick="window.top.location.href='https://admin.mozartacademy.mx/main#/menu/payment';">Pagar</ion-option-button>
+                </ion-item>
+           
+    </ion-list>    
         
-      
-         <div class="item item-divider itemDividerforitem">Status Académico</div>
-         
-         <div class="item item-icon-left item-button-right">
-           <i class="icon ri-user-follow-fill"></i> Número de Alumnos
-          <button class="button button-balanced" style=" margin-top: 10px;">
-            {{userData.total}}
-          </button>
-          <p style="font-size: 10px;">El contador indica a cuantos alumnos impartes este mes</p> 
-        </div>
-
-          <div class="item item-icon-left item-button-right">
-           <i class="icon ri-group-2-fill"></i> Número de Grupos
-          <button class="button button-calm" style=" margin-top: 10px;">
-            {{userData.groups}}
-          </button>
-          <p style="font-size: 10px;">El número de grupos activos</p> 
-        </div>
-         
-         <div class="item item-icon-left">
-           <i class="icon ri-calendar-schedule-fill"></i> Próximo corte de pago
-   <span class="item-note"  style=" margin-top: 14px; color: black; font-size: 12px; ">{{userData.payday}}</span>
-         <p style="font-size: 10px;">Tu próxima fecha de pago</p>  
-        </div>
-         
-            <div class="item item-icon-left">
-           <i class="icon ri-bank-card-2-fill"></i> Total acumulado
-      <span class="item-note"  style=" margin-top: 7px; color: #28a745; font-size: 22px; font-weight: 500">$ {{userData.payment}}</span>
-         <p style="font-size: 10px;">Suma total que generas por todas tus clases</p>  
-        </div>
           
-         
          </div>
       </ion-content>
     </ion-view>
   </script>
+
+
+
     
+      <script id="account.html" type="text/ng-template">
+    <ion-view>
+           <ion-nav-bar class="bar-light" >     
+       <ion-nav-buttons side="left">
+    <button class="button button-clear" ng-click="goBack()">
+      <i class="ri-arrow-left-s-line"></i> regresar
+    </button>
+  </ion-nav-buttons>  
+    </ion-nav-bar>
+      <ion-content >
+       
+          <div class="list team-detail-background" >
+
+  <div class="item item-thumbnail-left team-detail">
+    <img src="{{userData.photo}}">
+    <h2>{{userData.name}}</h2>
+    <div class="team-country-tag"> Nivel {{userData.lvl}} </div>
+  </div>
+
+  <div class="item tabs tabs-secondary">
+    <div class="tab-item team-detail-tab-item">      
+      <span class="tab-heading">11</span> 
+      <span class="tab-sub">Repertorio<span>
+    </div>
+    <div class="tab-item team-detail-tab-item" >
+      <span class="tab-heading" style="color: green"> +400 Pts</span>
+      <span class="tab-sub">Score</span>
+    </div>
+
+  </div>
+  
+</div>
+    
+
+
+
+      <ion-item class="item-icon-left item-icon-right">
+         <i class="icon ri-user-fill" style="font-size: 25px"></i>
+       Nombre
+          <p style="color: brown;" > {{userData.name}} </p> 
+            <ion-option-button class="button-calm" ng-click="">Editar</ion-option-button>
+          </ion-item>
+
+           <ion-item class="item-icon-left">
+         <i class="icon ri-mail-fill" style="font-size: 25px"></i>
+       Correo
+          <p style="color: brown;" > {{userData.mail}} </p> 
+          </ion-item>
+
+
+          <ion-item class="item-icon-left " href="#/menu/profileImages">
+         <i class="icon ri-camera-fill" style="font-size: 25px"></i>
+       Foto
+   
+          </ion-item>
 
  
-
-
-
-   <script id="mozart.html" type="text/ng-template">
-    <ion-view >
-
-     <ion-back-button></ion-back-button>
-    
-      <ion-content>
-        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/mStudents" frameborder="0" allowfullscreen ></iframe></div> 
+        
       </ion-content>
     </ion-view>
   </script>
 
 
 
-     <script id="reel.html" type="text/ng-template">
+
+
+      <script id="profileImages.html" type="text/ng-template">
+    <ion-view>
+           <ion-nav-bar class="bar-light" >     
+       <ion-nav-buttons side="left">
+    <button class="button button-clear" ng-click="goBack()">
+      <i class="ri-arrow-left-s-line"></i> regresar
+    </button>
+  </ion-nav-buttons>  
+    </ion-nav-bar>
+      <ion-content >
+<div class="list" style="margin-top: 10px;">
+
+           <a class="item item-avatar item-icon-right" ng-repeat="image in images" ng-click="showImg(image)">
+        <img src="{{image.img}}">
+           <h2> {{image.name}}</h2>
+
+      <i class="icon ri-lock-2-fill" style="font-size: 27px margin-right: 10px"></i>
+          </a>
+
+
+  </div>        
+      </ion-content>
+    </ion-view>
+  </script>
+
+
+
+
+      
+      
+
+        <script id="courses.html" type="text/ng-template">
     <ion-view >
 
-       <ion-nav-bar class="bar-light" >      
-        <ion-nav-buttons side="left">
-  <!--  <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
-      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
-       Mozart Academy
-    </button> -->
-       <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
-      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
-      Taller de Piano
-  <div style="position: absolute; bottom: -5px; left: 25px; width: 15px; height: 15px; background-color: #d3d3d3; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
-        <i class="icon ion-chevron-down" style="font-size: 8px; color: black; transform: scale(0.27);"></i>
+      <ion-nav-bar class="bar-light" >      
+        <ion-nav-buttons side="right">
+
+     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 18px;">
+<i class="ri-chat-4-line"></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
+        <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
     </div>
+</button> 
+          
+     <button class="button button-clear" ng-click="dropdownNotif()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 25px;">
+  <i class="ri-notification-3-line" ></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(alerts | filter:{seen: false}).length && alertCounter">
+        <div style="font-size: 13px; color: white;" > {{(alerts | filter:{seen: false}).length}}</div>
+    </div> 
+</button>
+
+      <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
+  <div style="display: flex; align-items: center;" >    
+   
+  <div class="user-info" style="margin-top: -2px;">
+   <div style="font-size: 13px; font-weight: 600; color: #333;">{{userData.name}}</div>
+  <div style="font-size: 12px; color: #777; margin-top: -15px;" ng-if="userData.lvl == 0">Preparatorio</div>
+          <div style="font-size: 11px; color: #777; margin-top: -15px;" ng-if="userData.lvl != 0">Nivel {{userData.lvl}}</div>
+   </div>
+
+    <div style="position: relative; " class="profilImg">
+    
+      <div style="position: relative; width: 36px; height: 36px; margin-top: 4px; margin-left: 5px;">
+  <!-- Anillo exterior -->
+  <div style="
+    width: 36px;
+    height: 36px;
+    border: 1px solid #3ac5f2; /* color del anillo */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px #1e2b47; /* sombra tipo segundo anillo */
+  ">
+    <!-- Imagen de perfil -->
+    <img src="{{userData.photo}}" width="30" height="30" style="border-radius: 50%; border: 0.5px solid black;" />
+  </div>
+
+  <!-- Punto de estado -->
+  <div style="
+    position: absolute;
+    bottom: -3px;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #5fff87; /* verde */
+    border: 2px solid #1e2b47; /* separador del fondo */
+    border-radius: 50%;
+  "></div>
+</div>
+
+
+   </div>
+   
+ </div>
     </button>
+
+
+    
   </ion-nav-buttons>
        
-        <ion-nav-buttons side="right">
-          <button class="button button-clear" ng-click="toggleRight()">menu<i class="button button-icon ion-navicon"></i></button>
-        </ion-nav-buttons>   
+        <ion-nav-buttons side="left">
+          <button class="button button-clear menubtn" ng-click="toggleRight()"><i class="button button-icon ion-navicon"></i>menu</button>
+        </ion-nav-buttons>  
+
+            
        
         <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
      <div id="bannerRow">
       <div class="profileImageContainer">
-        <img src="{{userData.photo}}"  />
+     <div id="loading" ng-if="loadingProfile" style="height: 60px;"></div>
+        <img src="{{userData.photo}}"  ng-if="!loadingProfile"/>
       </div>
       <p class="profileName">{{userData.name}}</p>
       <p class="profileEmail">{{userData.mail}}</p>
     </div>
-     <div class="dropdown-item" ng-click="goToStatus()">
+    <div class="dropdown-item" ng-click="goToAccount()">
       <i class="ion-ios-contact-outline"></i> Perfil
     </div>
+      <div class="dropdown-item" ng-click="goToStatus()">
+      <i class="ri-settings-3-line"></i> Configuración
+    </div>
+      <div class="dropdown-item" ng-click="logout()">
+      <i class="ri-logout-box-r-line"></i> Salir
+    </div>
   </div>
+
+    <div class="dropdownContent" ng-show="dropdownChatVisible" ng-click="$event.stopPropagation()">
+  <div class="dropdown-item" 
+       ng-click="goToChat()" 
+       ng-if="(chats | filter:{read: false}).length > 0">
+    <i class="ri-feedback-line alertIcon"></i>
+    Tienes {{(chats | filter:{read: false}).length}} nuevos mensajes  
+  </div>
+  <span style="margin-left: 15px;" 
+        ng-if="(chats | filter:{read: false}).length == 0" ng-click="goToChat()"> 
+    No hay mensajes 
+  </span>
+</div>
+
+
+<div class="dropdownContent" ng-show="dropdownNotifVisible" ng-click="$event.stopPropagation()">
+   <div class="dropdown-item" ng-repeat="alert in alerts" style="color: {{alert.color}}">
+      <i class="{{alert.icon}} alertIcon" ></i> {{alert.subject}} 
+         <div style="font-size: 10px; position: absolute; margin-top: 40px;  color: gray;">Hace {{calculateDaysAgo(alert.date)}} días</div>
+    </div> 
+      <span style="margin-left: 15px;" ng-if="alerts.length == 0"> No hay alertas </span>
+  </div>  
+        
+    </ion-nav-bar>
+
+     <ion-content>
+   <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/courses" frameborder="0" allowfullscreen></iframe></div>
+      </ion-content>
+
+  <div id="myModal" class="modal" ng-show="isModalVisible">
+    <div class="modal-content">
+      <span class="close" ng-click="closeModal()" style="color: black">&times;</span>
+       <img src="https://lh3.googleusercontent.com/d/1bJZN2UX0fspMxGdHpyinsx29oj6dyG5X" style="max-width: 100%;" />
+    <p style="text-align: center; font-weight: bold;">
+      <br> Agrega a inicio:   </p> 
+        <p style="text-align: center;" >
+       1. <i class="ri-share-2-fill"></i> Icono de compartir  <br>
+       2. <i class="ri-add-box-line"></i> Agregar a inicio <br>
+       3. Agregar
+       </p>
+    </div>
+  </div>           
+
+    </ion-view>
+  </script>   
+
+    
+    
+ 
+        
+<script id="lessons.html" type="text/ng-template">
+  <ion-view>
+        <ion-nav-bar class="bar-light" >      
+        <ion-nav-buttons side="right">
+
+     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 18px;">
+<i class="ri-chat-4-line"></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
+        <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
+    </div>
+</button> 
+          
+     <button class="button button-clear" ng-click="dropdownNotif()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 25px;">
+  <i class="ri-notification-3-line" ></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(alerts | filter:{seen: false}).length && alertCounter">
+        <div style="font-size: 13px; color: white;" > {{(alerts | filter:{seen: false}).length}}</div>
+    </div> 
+</button>
+
+    <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
+  <div style="display: flex; align-items: center;" >    
+   
+  <div class="user-info" style="margin-top: -2px;">
+   <div style="font-size: 13px; font-weight: 600; color: #333;">{{userData.name}}</div>
+  <div style="font-size: 12px; color: #777; margin-top: -15px;" ng-if="userData.lvl == 0">Preparatorio</div>
+          <div style="font-size: 11px; color: #777; margin-top: -15px;" ng-if="userData.lvl != 0">Nivel {{userData.lvl}}</div>
+   </div>
+
+    <div style="position: relative; " class="profilImg">
+    
+      <div style="position: relative; width: 36px; height: 36px; margin-top: 4px; margin-left: 5px;">
+  <!-- Anillo exterior -->
+  <div style="
+    width: 36px;
+    height: 36px;
+    border: 1px solid #3ac5f2; /* color del anillo */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px #1e2b47; /* sombra tipo segundo anillo */
+  ">
+    <!-- Imagen de perfil -->
+    <img src="{{userData.photo}}" width="30" height="30" style="border-radius: 50%; border: 0.5px solid black;" />
+  </div>
+
+  <!-- Punto de estado -->
+  <div style="
+    position: absolute;
+    bottom: -3px;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #5fff87; /* verde */
+    border: 2px solid #1e2b47; /* separador del fondo */
+    border-radius: 50%;
+  "></div>
+</div>
+
+
+   </div>
+   
+ </div>
+    </button>
+  </ion-nav-buttons>
+       
+        <ion-nav-buttons side="left">
+          <button class="button button-clear menubtn" ng-click="toggleRight()"><i class="button button-icon ion-navicon"></i>menu</button>
+        </ion-nav-buttons>  
+
+            
+       
+        <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
+     <div id="bannerRow">
+      <div class="profileImageContainer">
+     <div id="loading" ng-if="loadingProfile" style="height: 60px;"></div>
+        <img src="{{userData.photo}}"  ng-if="!loadingProfile"/>
+      </div>
+      <p class="profileName">{{userData.name}}</p>
+      <p class="profileEmail">{{userData.mail}}</p>
+    </div>
+    <div class="dropdown-item" ng-click="goToAccount()">
+      <i class="ion-ios-contact-outline"></i> Perfil
+    </div>   
+      <div class="dropdown-item" ng-click="goToStatus()">
+      <i class="ri-settings-3-line"></i> Configuración
+    </div>
+      <div class="dropdown-item" ng-click="logout()">
+      <i class="ri-logout-box-r-line"></i> Salir
+    </div>
+  </div>
+
+    <div class="dropdownContent" ng-show="dropdownChatVisible" ng-click="$event.stopPropagation()">
+  <div class="dropdown-item" 
+       ng-click="goToChat()" 
+       ng-if="(chats | filter:{read: false}).length > 0">
+    <i class="ri-feedback-line alertIcon"></i>
+    Tienes {{(chats | filter:{read: false}).length}} nuevos mensajes  
+  </div>
+  <span style="margin-left: 15px;" 
+        ng-if="(chats | filter:{read: false}).length == 0" ng-click="goToChat()"> 
+    No hay mensajes 
+  </span>
+</div>
+
+
+<div class="dropdownContent" ng-show="dropdownNotifVisible" ng-click="$event.stopPropagation()">
+   <div class="dropdown-item" ng-repeat="alert in alerts" style="color: {{alert.color}}">
+      <i class="{{alert.icon}} alertIcon" ></i> {{alert.subject}} 
+         <div style="font-size: 10px; position: absolute; margin-top: 40px;  color: gray;">Hace {{calculateDaysAgo(alert.date)}} días</div>
+    </div> 
+      <span style="margin-left: 15px;" ng-if="alerts.length == 0"> No hay alertas </span>
+  </div>  
+        
+    </ion-nav-bar>
+
+
+    <ion-content class="padding"> 
+      <!-- achievements -->
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/profile" frameborder="0" allowfullscreen ></iframe></div> 
+    </ion-content> 
+
+     <div id="myModal" class="modal" ng-show="isModalVisible">
+    <div class="modal-content">
+      <span class="close" ng-click="closeModal()" style="color: black">&times;</span>
+       <img src="https://lh3.googleusercontent.com/d/1bJZN2UX0fspMxGdHpyinsx29oj6dyG5X" style="max-width: 100%;" />
+    <p style="text-align: center; font-weight: bold;">
+      <br> Agrega a inicio:   </p> 
+        <p style="text-align: center;" >
+       1. <i class="ri-share-2-fill"></i> Icono de compartir  <br>
+       2. <i class="ri-add-box-line"></i> Agregar a inicio <br>
+       3. Agregar
+       </p>
+    </div>
+  </div>  
+
+  </ion-view>
+</script>
+
+
+
+
+        
+        
+<script id="reel.html" type="text/ng-template">
+  <ion-view>
+        <ion-nav-bar class="bar-light" >      
+        <ion-nav-buttons side="right">
+
+     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 18px;">
+<i class="ri-chat-4-line"></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
+        <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
+    </div>
+</button> 
+          
+     <button class="button button-clear" ng-click="dropdownNotif()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 25px;">
+  <i class="ri-notification-3-line" ></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(alerts | filter:{seen: false}).length && alertCounter">
+        <div style="font-size: 13px; color: white;" > {{(alerts | filter:{seen: false}).length}}</div>
+    </div> 
+</button>
+
+    <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
+  <div style="display: flex; align-items: center;" >    
+   
+  <div class="user-info" style="margin-top: -2px;">
+   <div style="font-size: 13px; font-weight: 600; color: #333;">{{userData.name}}</div>
+  <div style="font-size: 12px; color: #777; margin-top: -15px;" ng-if="userData.lvl == 0">Preparatorio</div>
+          <div style="font-size: 11px; color: #777; margin-top: -15px;" ng-if="userData.lvl != 0">Nivel {{userData.lvl}}</div>
+   </div>
+
+    <div style="position: relative; " class="profilImg">
+    
+      <div style="position: relative; width: 36px; height: 36px; margin-top: 4px; margin-left: 5px;">
+  <!-- Anillo exterior -->
+  <div style="
+    width: 36px;
+    height: 36px;
+    border: 1px solid #3ac5f2; /* color del anillo */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px #1e2b47; /* sombra tipo segundo anillo */
+  ">
+    <!-- Imagen de perfil -->
+    <img src="{{userData.photo}}" width="30" height="30" style="border-radius: 50%; border: 0.5px solid black;" />
+  </div>
+
+  <!-- Punto de estado -->
+  <div style="
+    position: absolute;
+    bottom: -3px;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #5fff87; /* verde */
+    border: 2px solid #1e2b47; /* separador del fondo */
+    border-radius: 50%;
+  "></div>
+</div>
+
+
+   </div>
+   
+ </div>
+    </button>
+  </ion-nav-buttons>
+       
+        <ion-nav-buttons side="left">
+          <button class="button button-clear menubtn" ng-click="toggleRight()"><i class="button button-icon ion-navicon"></i>menu</button>
+        </ion-nav-buttons>  
+
+            
+       
+        <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
+     <div id="bannerRow">
+      <div class="profileImageContainer">
+     <div id="loading" ng-if="loadingProfile" style="height: 60px;"></div>
+        <img src="{{userData.photo}}"  ng-if="!loadingProfile"/>
+      </div>
+      <p class="profileName">{{userData.name}}</p>
+      <p class="profileEmail">{{userData.mail}}</p>
+    </div>
+    <div class="dropdown-item" ng-click="goToAccount()">
+      <i class="ion-ios-contact-outline"></i> Perfil
+    </div>   
+      <div class="dropdown-item" ng-click="goToStatus()">
+      <i class="ri-settings-3-line"></i> Configuración
+    </div>
+      <div class="dropdown-item" ng-click="logout()">
+      <i class="ri-logout-box-r-line"></i> Salir
+    </div>
+  </div>
+
+    <div class="dropdownContent" ng-show="dropdownChatVisible" ng-click="$event.stopPropagation()">
+  <div class="dropdown-item" 
+       ng-click="goToChat()" 
+       ng-if="(chats | filter:{read: false}).length > 0">
+    <i class="ri-feedback-line alertIcon"></i>
+    Tienes {{(chats | filter:{read: false}).length}} nuevos mensajes  
+  </div>
+  <span style="margin-left: 15px;" 
+        ng-if="(chats | filter:{read: false}).length == 0" ng-click="goToChat()"> 
+    No hay mensajes 
+  </span>
+</div>
+
+
+<div class="dropdownContent" ng-show="dropdownNotifVisible" ng-click="$event.stopPropagation()">
+   <div class="dropdown-item" ng-repeat="alert in alerts" style="color: {{alert.color}}">
+      <i class="{{alert.icon}} alertIcon" ></i> {{alert.subject}} 
+         <div style="font-size: 10px; position: absolute; margin-top: 40px;  color: gray;">Hace {{calculateDaysAgo(alert.date)}} días</div>
+    </div> 
+      <span style="margin-left: 15px;" ng-if="alerts.length == 0"> No hay alertas </span>
+  </div>  
+        
+    </ion-nav-bar>
+
+
+    <ion-content class="padding"> 
+      <!-- achievements -->
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/comunity" frameborder="0" allowfullscreen ></iframe></div> 
+    </ion-content> 
+
+     <div id="myModal" class="modal" ng-show="isModalVisible">
+    <div class="modal-content">
+      <span class="close" ng-click="closeModal()" style="color: black">&times;</span>
+       <img src="https://lh3.googleusercontent.com/d/1bJZN2UX0fspMxGdHpyinsx29oj6dyG5X" style="max-width: 100%;" />
+    <p style="text-align: center; font-weight: bold;">
+      <br> Agrega a inicio:   </p> 
+        <p style="text-align: center;" >
+       1. <i class="ri-share-2-fill"></i> Icono de compartir  <br>
+       2. <i class="ri-add-box-line"></i> Agregar a inicio <br>
+       3. Agregar
+       </p>
+    </div>
+  </div>  
+
+  </ion-view>
+</script>
+
+
+
+
+
+
+
+<script id="store.html" type="text/ng-template">
+  <ion-view>
+        <ion-nav-bar class="bar-light" >      
+        <ion-nav-buttons side="right">
+
+
+      <button class="button button-clear" ng-click="goToAgenda()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 18px;">
+  <i class="ri-calendar-todo-fill" ></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(alerts | filter:{seen: false}).length && alertCounter">
+        <div style="font-size: 13px; color: white;" > {{(alerts | filter:{seen: false}).length}}</div>
+    </div> 
+</button>
+
+     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 18px;">
+<i class="ri-chat-4-line"></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
+        <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
+    </div>
+</button> 
+          
+     <button class="button button-clear" ng-click="dropdownNotif()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 25px;">
+  <i class="ri-notification-3-line" ></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(alerts | filter:{seen: false}).length && alertCounter">
+        <div style="font-size: 13px; color: white;" > {{(alerts | filter:{seen: false}).length}}</div>
+    </div> 
+</button>
+
+    <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
+  <div style="display: flex; align-items: center;" >    
+   
+  <div class="user-info" style="margin-top: -2px;">
+   <div style="font-size: 13px; font-weight: 600; color: #333;">{{userData.name}}</div>
+  <div style="font-size: 12px; color: #777; margin-top: -15px;" ng-if="userData.lvl == 0">Preparatorio</div>
+          <div style="font-size: 11px; color: #777; margin-top: -15px;" ng-if="userData.lvl != 0">Nivel {{userData.lvl}}</div>
+   </div>
+
+    <div style="position: relative; " class="profilImg">
+    
+      <div style="position: relative; width: 36px; height: 36px; margin-top: 4px; margin-left: 5px;">
+  <!-- Anillo exterior -->
+  <div style="
+    width: 36px;
+    height: 36px;
+    border: 1px solid #3ac5f2; /* color del anillo */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px #1e2b47; /* sombra tipo segundo anillo */
+  ">
+    <!-- Imagen de perfil -->
+    <img src="{{userData.photo}}" width="30" height="30" style="border-radius: 50%; border: 0.5px solid black;" />
+  </div>
+
+  <!-- Punto de estado -->
+  <div style="
+    position: absolute;
+    bottom: -3px;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #5fff87; /* verde */
+    border: 2px solid #1e2b47; /* separador del fondo */
+    border-radius: 50%;
+  "></div>
+</div>
+
+
+   </div>
+   
+ </div>
+    </button>
+  </ion-nav-buttons>
+       
+        <ion-nav-buttons side="left">
+          <button class="button button-clear menubtn" ng-click="toggleRight()"><i class="button button-icon ion-navicon"></i>menu</button>
+        </ion-nav-buttons>  
+
+            
+       
+        <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
+     <div id="bannerRow">
+      <div class="profileImageContainer">
+     <div id="loading" ng-if="loadingProfile" style="height: 60px;"></div>
+        <img src="{{userData.photo}}"  ng-if="!loadingProfile"/>
+      </div>
+      <p class="profileName">{{userData.name}}</p>
+      <p class="profileEmail">{{userData.mail}}</p>
+    </div>
+    <div class="dropdown-item" ng-click="goToAccount()">
+      <i class="ion-ios-contact-outline"></i> Perfil
+    </div>
+      <div class="dropdown-item" ng-click="goToStatus()">
+      <i class="ri-settings-3-line"></i> Configuración
+    </div>
+      <div class="dropdown-item" ng-click="logout()">
+      <i class="ri-logout-box-r-line"></i> Salir
+    </div>
+  </div>
+
+    <div class="dropdownContent" ng-show="dropdownChatVisible" ng-click="$event.stopPropagation()">
+  <div class="dropdown-item" 
+       ng-click="goToChat()" 
+       ng-if="(chats | filter:{read: false}).length > 0">
+    <i class="ri-feedback-line alertIcon"></i>
+    Tienes {{(chats | filter:{read: false}).length}} nuevos mensajes  
+  </div>
+  <span style="margin-left: 15px;" 
+        ng-if="(chats | filter:{read: false}).length == 0" ng-click="goToChat()"> 
+    No hay mensajes 
+  </span>
+</div>
+
+
+<div class="dropdownContent" ng-show="dropdownNotifVisible" ng-click="$event.stopPropagation()">
+   <div class="dropdown-item" ng-repeat="alert in alerts" style="color: {{alert.color}}">
+      <i class="{{alert.icon}} alertIcon" ></i> {{alert.subject}} 
+         <div style="font-size: 10px; position: absolute; margin-top: 40px;  color: gray;">Hace {{calculateDaysAgo(alert.date)}} días</div>
+    </div> 
+      <span style="margin-left: 15px;" ng-if="alerts.length == 0"> No hay alertas </span>
+  </div>  
+        
+    </ion-nav-bar>
+
+
+    <ion-content class="padding"> 
+      <!-- achievements -->
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/store" frameborder="0" allowfullscreen ></iframe></div> 
+    </ion-content> 
+
+  </ion-view>
+</script>
+
+
+
+
+
+
+
+  <script id="manuals.html" type="text/ng-template">
+    <ion-view>
+     <ion-nav-bar class="bar-light">
+      <ion-nav-buttons side="left">
+        <button class="button button-clear" ng-click="goBack()">
+          <i class="ri-arrow-left-s-line"></i> regresar
+        </button>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+      <ion-content>
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/manuals" frameborder="0" allowfullscreen ></iframe></div> 
+      </ion-content>
+    </ion-view>
+  </script>
+
+        <script id="repertoire.html" type="text/ng-template">
+    <ion-view>
+     <ion-nav-bar class="bar-light">
+      <ion-nav-buttons side="left">
+        <button class="button button-clear" ng-click="goBack()">
+          <i class="ri-arrow-left-s-line"></i> regresar
+        </button>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+      <ion-content>
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/repertoire" frameborder="0" allowfullscreen ></iframe></div> 
+      </ion-content>
+    </ion-view>
+  </script>
+
+
+    <script id="pieces.html" type="text/ng-template">
+    <ion-view>
+     <ion-nav-bar class="bar-light">
+      <ion-nav-buttons side="left">
+        <button class="button button-clear" ng-click="goBack()">
+          <i class="ri-arrow-left-s-line"></i> regresar
+        </button>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+      <ion-content>
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/pieces" frameborder="0" allowfullscreen ></iframe></div> 
+      </ion-content>
+    </ion-view>
+  </script>
+
+  
+
+       <script id="scales.html" type="text/ng-template">
+    <ion-view>
+     <ion-nav-bar class="bar-light">
+      <ion-nav-buttons side="left">
+        <button class="button button-clear" ng-click="goBack()">
+          <i class="ri-arrow-left-s-line"></i> regresar
+        </button>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+      <ion-content>
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/scales" frameborder="0" allowfullscreen ></iframe></div> 
+      </ion-content>
+    </ion-view>
+  </script>
+
+      
+        <script id="sightread.html" type="text/ng-template">
+    <ion-view>
+     <ion-nav-bar class="bar-light">
+      <ion-nav-buttons side="left">
+        <button class="button button-clear" ng-click="goBack()">
+          <i class="ri-arrow-left-s-line"></i> regresar
+        </button>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+      <ion-content>
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/sightread" frameborder="0" allowfullscreen ></iframe></div> 
+      </ion-content>
+    </ion-view>
+  </script>
+
+    
+
+        <script id="aural.html" type="text/ng-template">
+    <ion-view>
+     <ion-nav-bar class="bar-light">
+      <ion-nav-buttons side="left">
+        <button class="button button-clear" ng-click="goBack()">
+          <i class="ri-arrow-left-s-line"></i> regresar
+        </button>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+      <ion-content>
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/aural" frameborder="0" allowfullscreen ></iframe></div> 
+      </ion-content>
+    </ion-view>
+  </script>
+
+
+    <script id="theorytest.html" type="text/ng-template">
+    <ion-view>
+     <ion-nav-bar class="bar-light">
+      <ion-nav-buttons side="left">
+        <button class="button button-clear" ng-click="goBack()">
+          <i class="ri-arrow-left-s-line"></i> regresar
+        </button>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+      <ion-content>
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/theory" frameborder="0" allowfullscreen ></iframe></div> 
+      </ion-content>
+    </ion-view>
+  </script>
+
+ 
+    
+        <script id="chat.html" type="text/ng-template">
+    <ion-view >
+
+    <ion-nav-bar class="bar-light" >      
+        <ion-nav-buttons side="right">
+
+     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 18px;">
+<i class="ri-chat-4-line"></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
+        <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
+    </div>
+</button> 
+          
+     <button class="button button-clear" ng-click="dropdownNotif()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 25px;">
+  <i class="ri-notification-3-line" ></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(alerts | filter:{seen: false}).length && alertCounter">
+        <div style="font-size: 13px; color: white;" > {{(alerts | filter:{seen: false}).length}}</div>
+    </div> 
+</button>
+
+      <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
+  <div style="display: flex; align-items: center;" >    
+   
+  <div class="user-info" style="margin-top: -2px;">
+   <div style="font-size: 13px; font-weight: 600; color: #333;">{{userData.name}}</div>
+  <div style="font-size: 12px; color: #777; margin-top: -15px;" ng-if="userData.lvl == 0">Preparatorio</div>
+          <div style="font-size: 11px; color: #777; margin-top: -15px;" ng-if="userData.lvl != 0">Nivel {{userData.lvl}}</div>
+   </div>
+
+    <div style="position: relative; " class="profilImg">
+    
+      <div style="position: relative; width: 36px; height: 36px; margin-top: 4px; margin-left: 5px;">
+  <!-- Anillo exterior -->
+  <div style="
+    width: 36px;
+    height: 36px;
+    border: 1px solid #3ac5f2; /* color del anillo */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px #1e2b47; /* sombra tipo segundo anillo */
+  ">
+    <!-- Imagen de perfil -->
+    <img src="{{userData.photo}}" width="30" height="30" style="border-radius: 50%; border: 0.5px solid black;" />
+  </div>
+
+  <!-- Punto de estado -->
+  <div style="
+    position: absolute;
+    bottom: -3px;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #5fff87; /* verde */
+    border: 2px solid #1e2b47; /* separador del fondo */
+    border-radius: 50%;
+  "></div>
+</div>
+
+
+   </div>
+   
+ </div>
+    </button>
+
+
+    
+  </ion-nav-buttons>
+       
+        <ion-nav-buttons side="left">
+          <button class="button button-clear menubtn" ng-click="toggleRight()"><i class="button button-icon ion-navicon"></i>menu</button>
+        </ion-nav-buttons>  
+
+            
+       
+        <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
+     <div id="bannerRow">
+      <div class="profileImageContainer">
+     <div id="loading" ng-if="loadingProfile" style="height: 60px;"></div>
+        <img src="{{userData.photo}}"  ng-if="!loadingProfile"/>
+      </div>
+      <p class="profileName">{{userData.name}}</p>
+      <p class="profileEmail">{{userData.mail}}</p>
+    </div>
+    <div class="dropdown-item" ng-click="goToAccount()">
+      <i class="ion-ios-contact-outline"></i> Perfil
+    </div>
+      <div class="dropdown-item" ng-click="goToStatus()">
+      <i class="ri-settings-3-line"></i> Configuración
+    </div>
+      <div class="dropdown-item" ng-click="logout()">
+      <i class="ri-logout-box-r-line"></i> Salir
+    </div>
+  </div>
+
+    <div class="dropdownContent" ng-show="dropdownChatVisible" ng-click="$event.stopPropagation()">
+  <div class="dropdown-item" 
+       ng-click="goToChat()" 
+       ng-if="(chats | filter:{read: false}).length > 0">
+    <i class="ri-feedback-line alertIcon"></i>
+    Tienes {{(chats | filter:{read: false}).length}} nuevos mensajes  
+  </div>
+  <span style="margin-left: 15px;" 
+        ng-if="(chats | filter:{read: false}).length == 0" ng-click="goToChat()"> 
+    No hay mensajes 
+  </span>
+</div>
+
+
+<div class="dropdownContent" ng-show="dropdownNotifVisible" ng-click="$event.stopPropagation()">
+   <div class="dropdown-item" ng-repeat="alert in alerts" style="color: {{alert.color}}">
+      <i class="{{alert.icon}} alertIcon" ></i> {{alert.subject}} 
+         <div style="font-size: 10px; position: absolute; margin-top: 40px;  color: gray;">Hace {{calculateDaysAgo(alert.date)}} días</div>
+    </div> 
+      <span style="margin-left: 15px;" ng-if="alerts.length == 0"> No hay alertas </span>
+  </div>  
         
     </ion-nav-bar>
     
       <ion-content>
-        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/corrections" frameborder="0" allowfullscreen ></iframe></div> 
+
+
+  
+<div class="iframe-container"><iframe id="chatFrame" src="https://admin.mozartacademy.mx/chat2" frameborder="0" allowfullscreen></iframe></div>
+        </div> 
+           
+
+
+      </ion-content>
+
+       <div id="myModal" class="modal" ng-show="isModalVisible">
+    <div class="modal-content">
+      <span class="close" ng-click="closeModal()" style="color: black">&times;</span>
+       <img src="https://lh3.googleusercontent.com/d/1bJZN2UX0fspMxGdHpyinsx29oj6dyG5X" style="max-width: 100%;" />
+    <p style="text-align: center; font-weight: bold;">
+      <br> Agrega a inicio:   </p> 
+        <p style="text-align: center;" >
+       1. <i class="ri-share-2-fill"></i> Icono de compartir  <br>
+       2. <i class="ri-add-box-line"></i> Agregar a inicio <br>
+       3. Agregar
+       </p>
+    </div>
+  </div>  
+
+    </ion-view>
+  </script>
+
+
+
+
+
+         <script id="payment.html" type="text/ng-template">
+    <ion-view >
+
+     <ion-nav-bar class="bar-light">
+      <ion-nav-buttons side="left">
+        <button class="button button-clear" ng-click="goBack()">
+          <i class="ri-arrow-left-s-line"></i> regresar
+        </button>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+    
+      <ion-content>
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/payment2" frameborder="0" allowfullscreen ></iframe></div> 
       </ion-content>
     </ion-view>
   </script>
-    
+
+
 
     
    <script id="library.html" type="text/ng-template">
     <ion-view >
 
       <ion-nav-bar class="bar-light" >      
-        <ion-nav-buttons side="left">
-  <!--  <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
-      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
-       Mozart Academy
-    </button> -->
-       <button class="button button-clear" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif">
-      <img src="https://lh3.googleusercontent.com/d/1EP2I0BOMo_8mXsR9qqAv08PxjztZFaQ8" width="35" height="35" style="border-radius: 50%;" />
-      Taller de Piano
-  <div style="position: absolute; bottom: -5px; left: 25px; width: 15px; height: 15px; background-color: #d3d3d3; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
-        <i class="icon ion-chevron-down" style="font-size: 8px; color: black; transform: scale(0.27);"></i>
+        <ion-nav-buttons side="right">
+
+     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 18px;">
+<i class="ri-chat-4-line"></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
+        <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
     </div>
+</button> 
+          
+     <button class="button button-clear" ng-click="dropdownNotif()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 25px;">
+  <i class="ri-notification-3-line" ></i>
+            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(alerts | filter:{seen: false}).length && alertCounter">
+        <div style="font-size: 13px; color: white;" > {{(alerts | filter:{seen: false}).length}}</div>
+    </div> 
+</button>
+
+     <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
+  <div style="display: flex; align-items: center;" >    
+   
+  <div class="user-info" style="margin-top: -2px;">
+   <div style="font-size: 13px; font-weight: 600; color: #333;">{{userData.name}}</div>
+  <div style="font-size: 12px; color: #777; margin-top: -15px;" ng-if="userData.lvl == 0">Preparatorio</div>
+          <div style="font-size: 11px; color: #777; margin-top: -15px;" ng-if="userData.lvl != 0">Nivel {{userData.lvl}}</div>
+   </div>
+
+    <div style="position: relative; " class="profilImg">
+    
+      <div style="position: relative; width: 36px; height: 36px; margin-top: 4px; margin-left: 5px;">
+  <!-- Anillo exterior -->
+  <div style="
+    width: 36px;
+    height: 36px;
+    border: 1px solid #3ac5f2; /* color del anillo */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px #1e2b47; /* sombra tipo segundo anillo */
+  ">
+    <!-- Imagen de perfil -->
+    <img src="{{userData.photo}}" width="30" height="30" style="border-radius: 50%; border: 0.5px solid black;" />
+  </div>
+
+  <!-- Punto de estado -->
+  <div style="
+    position: absolute;
+    bottom: -3px;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #5fff87; /* verde */
+    border: 2px solid #1e2b47; /* separador del fondo */
+    border-radius: 50%;
+  "></div>
+</div>
+
+
+   </div>
+   
+ </div>
     </button>
   </ion-nav-buttons>
        
-        <ion-nav-buttons side="right">
-          <button class="button button-clear" ng-click="toggleRight()">menu<i class="button button-icon ion-navicon"></i></button>
-        </ion-nav-buttons>   
+        <ion-nav-buttons side="left">
+          <button class="button button-clear menubtn" ng-click="toggleRight()"><i class="button button-icon ion-navicon"></i>menu</button>
+        </ion-nav-buttons>  
+
+            
        
         <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
      <div id="bannerRow">
       <div class="profileImageContainer">
-        <img src="{{userData.photo}}"  />
+     <div id="loading" ng-if="loadingProfile" style="height: 60px;"></div>
+        <img src="{{userData.photo}}"  ng-if="!loadingProfile"/>
       </div>
       <p class="profileName">{{userData.name}}</p>
       <p class="profileEmail">{{userData.mail}}</p>
     </div>
-     <div class="dropdown-item" ng-click="goToStatus()">
+    <div class="dropdown-item" ng-click="goToAccount()">
       <i class="ion-ios-contact-outline"></i> Perfil
+    </div>  
+      <div class="dropdown-item" ng-click="goToStatus()">
+      <i class="ri-settings-3-line"></i> Configuración
+    </div>
+      <div class="dropdown-item" ng-click="logout()">
+      <i class="ri-logout-box-r-line"></i> Salir
     </div>
   </div>
+
+    <div class="dropdownContent" ng-show="dropdownChatVisible" ng-click="$event.stopPropagation()">
+  <div class="dropdown-item" 
+       ng-click="goToChat()" 
+       ng-if="(chats | filter:{read: false}).length > 0">
+    <i class="ri-feedback-line alertIcon"></i>
+    Tienes {{(chats | filter:{read: false}).length}} nuevos mensajes  
+  </div>
+  <span style="margin-left: 15px;" 
+        ng-if="(chats | filter:{read: false}).length == 0" ng-click="goToChat()"> 
+    No hay mensajes 
+  </span>
+</div>
+
+
+<div class="dropdownContent" ng-show="dropdownNotifVisible" ng-click="$event.stopPropagation()">
+   <div class="dropdown-item" ng-repeat="alert in alerts" style="color: {{alert.color}}">
+      <i class="{{alert.icon}} alertIcon" ></i> {{alert.subject}} 
+         <div style="font-size: 10px; position: absolute; margin-top: 40px;  color: gray;">Hace {{calculateDaysAgo(alert.date)}} días</div>
+    </div> 
+      <span style="margin-left: 15px;" ng-if="alerts.length == 0"> No hay alertas </span>
+  </div>  
         
     </ion-nav-bar>
 
 
      <ion-content>
-       
-    <div class="list">
-  
-      <div class="item item-divider itemDividerforitem">Partituras</div>
-       <a class="item item-icon-left item-button-right" href="#/menu/books">
-           <i class="icon ri-folder-open-fill"></i> Documentos
-          <p style="font-size: 10px;">Manuales y Piezas</p> 
-        </a>
-     
-     <a class="item item-icon-left item-button-right" href="#/menu/repertoire">
-           <i class="icon ri-music-2-fill"></i> Editor de partituras
-         <p style="font-size: 10px;">Herramienta didáctica</p>  
-        </a>
-
-        <a class="item item-icon-left item-button-right" href="#/menu/manuals">
-           <i class="icon ri-share-circle-fill"></i> Circulo de quintas
-         <p style="font-size: 10px;">Herramienta didáctica</p>  
-        </a>
-     <a class="item item-icon-left item-button-right" href="#/menu/metronome">
-           <i class="icon ri-timer-fill"></i> Metrónomo
-         <p style="font-size: 10px;">Herramienta didáctica</p>  
-        </a>
-     
+  <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/books2" frameborder="0" allowfullscreen ></iframe></div> 
       </ion-content>
       
+       <div id="myModal" class="modal" ng-show="isModalVisible">
+    <div class="modal-content">
+      <span class="close" ng-click="closeModal()" style="color: black">&times;</span>
+       <img src="https://lh3.googleusercontent.com/d/1bJZN2UX0fspMxGdHpyinsx29oj6dyG5X" style="max-width: 100%;" />
+    <p style="text-align: center; font-weight: bold;">
+      <br> Agrega a inicio:   </p> 
+        <p style="text-align: center;" >
+       1. <i class="ri-share-2-fill"></i> Icono de compartir  <br>
+       2. <i class="ri-add-box-line"></i> Agregar a inicio <br>
+       3. Agregar
+       </p>
+    </div>
+  </div>  
+
      
     </ion-view>
   </script>   
 
 
-  
-
-    
-   <script id="manuals.html" type="text/ng-template">   
-       <ion-view>
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-   <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/fifthscircle" frameborder="0" allowfullscreen ></iframe></div> 
-       
-      </ion-content>
-    </ion-view>
-  </script>
-
-
-  
-    
-    
-     <script id="repertoire.html" type="text/ng-template">   
-        <ion-view>
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-   <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/sheetEditor" frameborder="0" allowfullscreen ></iframe></div> 
-       
-      </ion-content>
-    </ion-view>
-  </script>
-
- 
-
-    <script id="books.html" type="text/ng-template">   
-         <ion-view>
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-   <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/books" frameborder="0" allowfullscreen ></iframe></div> 
-       
-      </ion-content>
-    </ion-view>
-  </script>
 
 
 
 
 
 
-    
- <script id="statistics.html" type="text/ng-template">
-<ion-view>
-     <ion-content>
-         <ion-back-button></ion-back-button>
-
-<div style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-  <div class="alert alert-danger" style="text-align: center; width: 250px; padding: 15px;">
-    Sin elementos para mostrar aún
-  </div>
-</div>
-   
-      </ion-content>
-    </ion-view>
-  </script>  
-
-
-
-
-
-     <script id="circlefifths.html" type="text/ng-template">   
-       <ion-view>
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-   <div class="iframe-container"><iframe src="https://app.mozartacademy.mx/circleoffifths" frameborder="0" allowfullscreen></iframe></div>
-       
-      </ion-content>
-    </ion-view>
-  </script>
-
-
-    <script id="metronome.html" type="text/ng-template">   
-       <ion-view>
-      <ion-content >
-
-          <ion-back-button></ion-back-button>
-
-   <div class="iframe-container"><iframe src="https://embed.metronome.app/" frameborder="0" allowfullscreen></iframe></div>
-       
-      </ion-content>
-    </ion-view>
-  </script>
 
 
 
@@ -960,20 +2459,12 @@ body {
 
   var app = angular.module('ionicApp', ['ionic']);
 app
-  .service('loadingService', function() {
-  var hasLoaded = false;
-  this.getHasLoaded = function() {
-    return hasLoaded;
-  };
-  this.setHasLoaded = function(value) {
-    hasLoaded = value;
-  };
-})
 .factory('SharedState', function($http, $q) {
   var requestData = {
-                action: "getAdminData",
-                token: localStorage.getItem('ADtoken')
-              };
+    action: "getProfileData",
+    token: localStorage.getItem('MStoken')
+  };
+
   var config = {
     headers: {
       "Content-Type": "text/plain;charset=utf-8"
@@ -985,7 +2476,10 @@ app
 
     $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
       .then(function(response) {
-        deferred.resolve({  
+        deferred.resolve({
+          lvl: response.data.lvl,
+          blq: response.data.blq,
+    lsn: response.data.lsn, 
           data: response.data
         });
       }, function(error) {
@@ -1013,37 +2507,29 @@ app
       views: {
         'menuContent': {
           templateUrl: "status.html",
-          controller: 'StatusCtrl',
-           resolve: {
-            userData: function($http, $ionicLoading, loadingService) {
-       if (!loadingService.getHasLoaded()) {
-          $ionicLoading.show({
-            template: 'Cargando...'
-          });
-        }
-              var requestData = {
-                action: "getAdminData",
-                token: localStorage.getItem('ADtoken')
-              };
-
-              var config = {
-                headers: {
-                  "Content-Type": "text/plain;charset=utf-8"
-                },
-                followRedirects: true
-              };
- 
-              return $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
-                .then(function(response) {
-                loadingService.setHasLoaded(true);
-                $ionicLoading.hide();
-                  return response.data;
-                });
-            }
-          }
+          controller: 'StatusCtrl'
         }
       }
     })
+  .state('menu.account', {
+      url: "/account",
+      views: {
+        'menuContent': {
+          templateUrl: "account.html",
+          controller: 'accountCtrl'
+        }
+      }
+    })   
+    .state('menu.profileImages', {
+      url: "/profileImages",
+      views: {
+        'menuContent': {
+          templateUrl: "profileImages.html",
+          controller: 'profileImagesCtrl'
+        }
+      }
+    })
+
     .state('menu.agenda', {
       url: "/agenda",
       views: {
@@ -1052,6 +2538,7 @@ app
         }
       }
     })
+     
   .state('menu.profile', {
       url: "/profile",
       views: {
@@ -1060,41 +2547,124 @@ app
         }
       }
     })
-
- .state('menu.mozart', {
-      url: "/mozart",
+  .state('menu.statistics', {
+      url: "/statistics",
       views: {
         'menuContent': {
-          templateUrl: "mozart.html"
+          templateUrl: "statistics.html"
         }
       }
     })
-
-  .state('menu.reel', {
-      url: "/reel",
+    .state('menu.lessons', {
+      url: "/lessons",
       views: {
         'menuContent': {
+          templateUrl: "lessons.html"
+        }
+      }
+    }) 
+     
+ .state('menu.reel', {
+      url: "/reel",
+      views: {
+        'menuContent' :{
           templateUrl: "reel.html"
         }
       }
     })
-
-  .state('menu.circlefifths', {
-      url: "/circlefifths",
+  .state('menu.store', {
+      url: "/store",
       views: {
-        'menuContent': {
-          templateUrl: "circlefifths.html"
+        'menuContent' :{
+          templateUrl: "store.html"
         }
       }
     })
-   .state('menu.metronome', {
-      url: "/metronome",
+
+      .state('menu.courses', {
+      url: "/courses",
       views: {
         'menuContent': {
-          templateUrl: "metronome.html"
+          templateUrl: "courses.html"
         }
       }
-    })    
+    }) 
+      .state('menu.manuals', {
+      url: "/manuals",
+      views: {
+        'menuContent': {
+          templateUrl: "manuals.html"
+        }
+      }
+    })
+ 
+          .state('menu.repertoire', {
+      url: "/repertoire",
+      views: {
+        'menuContent': {
+          templateUrl: "repertoire.html"
+        }
+      }
+    })
+            .state('menu.pieces', {
+      url: "/pieces",
+      views: {
+        'menuContent': {
+          templateUrl: "pieces.html"
+        }
+      }
+    })
+        .state('menu.scales', {
+      url: "/scales",
+      views: {
+        'menuContent': {
+          templateUrl: "scales.html"
+        }
+      }
+    })
+        .state('menu.sightread', {
+      url: "/sightread",
+      views: {
+        'menuContent': {
+          templateUrl: "sightread.html"
+        }
+      }
+    })
+        .state('menu.aural', {
+      url: "/aural",
+      views: {
+        'menuContent': {
+          templateUrl: "aural.html"
+        }
+      }
+    })
+        .state('menu.theorytest', {
+      url: "/theorytest",
+      views: {
+        'menuContent': {
+          templateUrl: "theorytest.html"
+        }
+      }
+    }) 
+ .state('menu.chat', {
+      url: "/chat",
+      views: {
+        'menuContent': {
+          templateUrl: "chat.html"
+        }
+      }
+    })
+
+  
+ .state('menu.payment', {
+      url: "/payment",
+      views: {
+        'menuContent': {
+          templateUrl: "payment.html"
+        }
+      }
+    })
+
    .state('menu.library', {
       url: "/library",
       views: {
@@ -1104,26 +2674,7 @@ app
       }
     })
  
-   .state('menu.manuals', {
-      url: "/manuals",
-      views: {
-        'menuContent': {
-          templateUrl: "manuals.html",
-          controller: "manualsCtrl"
-        }
-      }
-    })
-
-   .state('menu.repertoire', {
-      url: "/repertoire",
-      views: {
-        'menuContent': {
-          templateUrl: "repertoire.html"
-        }
-      }
-    })
-
-
+   
      .state('menu.books', {
       url: "/books",
       views: {
@@ -1133,20 +2684,13 @@ app
       }
     })
 
+   
 
- .state('menu.statistics', {
-      url: "/statistics",
-      views: {
-        'menuContent': {
-          templateUrl: "statistics.html"
-        }
-      }
-    })
 
 
     ; 
 
-  $urlRouterProvider.otherwise("menu/agenda");
+  $urlRouterProvider.otherwise("menu/lessons");
   $ionicConfigProvider.tabs.position('bottom'); 
 })
 
@@ -1155,7 +2699,7 @@ app
   });
  })       
 
-.controller('MenuCtrl', ['$http', '$scope', '$ionicSideMenuDelegate', '$ionicModal', 'SharedState', function($http, $scope, $ionicSideMenuDelegate, $ionicModal, SharedState) {
+.controller('MenuCtrl', ['$http', '$scope', '$ionicSideMenuDelegate', '$ionicModal', '$ionicHistory', 'SharedState', function($http, $scope, $ionicSideMenuDelegate, $ionicModal, $ionicHistory, SharedState) {
   $scope.toggleRight = function() {
     $('.item').removeClass('anim');
     setTimeout(function() {
@@ -1163,30 +2707,91 @@ app
             $(this).addClass('anim').css('animation-delay', (index * 0.1) + 's');
         });
     }, 10);
-    
-    $ionicSideMenuDelegate.toggleRight();
+
+ 
+      
+    $ionicSideMenuDelegate.toggleLeft();
+      $scope.dropdownNotifVisible = false;
+      $scope.isDropdownVisible = false;
+      $scope.dropdownChatVisible = false;
 };
-  
+
+    $scope.loadingProfile = true;
   SharedState.getNum().then(function(data) {
        $scope.userData = data.data;
-  })
+       $scope.userPlan = data.data.plan.split(" ")[0];
+      $scope.chats = JSON.parse(data.data.messages);
+    $scope.alerts = JSON.parse(data.data.alerts);
+      $scope.loadingProfile = false;
+  }) 
 
-    $scope.isDropdownVisible = false;
+     $scope.isDropdownVisible = false;
+    $scope.btnBar = true;
     $scope.toggleDropdown = function() {
       $scope.isDropdownVisible = !$scope.isDropdownVisible;
+      $scope.dropdownChatVisible = false;
+      $scope.dropdownNotifVisible = false;
+        $scope.btnBar = false;
+    };
+    
+ $scope.chatCounter = true;
+ $scope.alertCounter = true;
+    
+    $scope.dropdownChatVisible = false;
+    $scope.dropdownChat = function() {
+      $scope.dropdownChatVisible = !$scope.dropdownChatVisible;
+      $scope.isDropdownVisible = false;
+      $scope.dropdownNotifVisible = false;
+      $scope.chatCounter = false;  
+    };
+
+    $scope.dropdownNotifVisible = false;
+    $scope.dropdownNotif = function() {
+      $scope.dropdownNotifVisible = !$scope.dropdownNotifVisible;
+      $scope.isDropdownVisible = false;
+      $scope.dropdownChatVisible = false;
+      $scope.alertCounter = false;  
     };
   
+ $scope.calculateDaysAgo = function(alertDate) {
+  const alertDateObj = new Date(alertDate); 
+  const today = new Date(); 
+  const timeDiff = Math.abs(today - alertDateObj); 
+  const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); 
+  return daysDiff;
+};
+
    $scope.goToProfile = function() {
   window.location.href = '#/menu/profile';
 };  
-     $scope.goToAgenda = function() {
-  window.location.href = '#/menu/agenda';
-};  
+     $scope.goToChat = function() {
+  window.location.href = '#/menu/chat';
+}; 
+  $scope.goToAccount = function() {
+  window.location.href = '#/menu/account';
+}; 
      $scope.goToStatus = function() {
   window.location.href = '#/menu/status';
 };
-  
+  $scope.goToStats = function() {
+  window.location.href = '#/menu/statistics';
+};
+      $scope.goToAgenda = function() {
+  window.location.href = '#/menu/agenda';
+};
+    $scope.goToMain = function() {
+   window.location.href = '#/main';
+};
+$scope.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
+  .test(navigator.userAgent);
 
+$scope.goBack = function() {
+     if ($ionicHistory.backView()) {
+        $ionicHistory.goBack();
+      } else {
+        window.location.href = '#/main';
+      }
+    };
 
   $scope.isModalVisible = false;
 let deferredPrompt;
@@ -1200,6 +2805,16 @@ if ('serviceWorker' in navigator) {
   }, function (err) {
     console.log('ServiceWorker registration failed: ', err);
   });
+}
+
+if ('setAppBadge' in navigator) {
+  navigator.setAppBadge(5).catch((err) => {
+    console.error('Error al establecer la insignia:', err);
+  });
+} 
+
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+  $scope.isMobile = false; 
 }
 
 // Manejar el evento 'beforeinstallprompt'
@@ -1225,6 +2840,7 @@ $scope.installApp = function () {
   } else if (isIOS) {
     // Mostrar modal con la animación GIF para iOS
     $scope.isModalVisible = true;
+      $ionicSideMenuDelegate.toggleLeft();
   }
 };
 
@@ -1233,28 +2849,123 @@ $scope.closeModal = function () {
   $scope.isModalVisible = false;
 };
 
-  $scope.logout = function() {
-   localStorage.removeItem('ADtoken');
-   window.location.href = 'https://admin.mozartacademy.mx/';
-  }
 
+
+  $scope.logout = function() {
+    $('.preloader').fadeIn('slow');
+
+          localStorage.removeItem('ADtoken');
+          $('.preloader').css({ 'display': 'none' });
+          window.location.href = 'https://admin.mozartacademy.mx/';
+  };
 
  }])
 
-  .controller('StatusCtrl', ['$http', '$scope', '$ionicModal', 'userData', function($http, $scope, $ionicModal, userData){
-     $scope.userData = userData;
-  
-  /*   $ionicModal.fromTemplateUrl('modal.html', {
-  scope: $scope,
-  animation: 'slide-in-up'  
-}).then(function(modal) {
-  $scope.modal = modal;
-});*/
+      .controller('StatusCtrl', ['$scope', 'SharedState', function($scope, SharedState){
+  SharedState.getNum().then(function(data) {
+       $scope.userData = data.data;
+      $scope.userPlan = data.data.plan.split(" ")[0]
+  })
  
+      $scope.goToPayment = function() {
+  window.location.href = '#/menu/payment';
+};
     }])
   
+  .controller('accountCtrl', ['$scope', 'SharedState', function($scope, SharedState){
+  SharedState.getNum().then(function(data) {
+       $scope.userData = data.data;
+      $scope.userPlan = data.data.plan.split(" ")[0]
+  })
+ 
+      $scope.goToPayment = function() {
+  window.location.href = '#/menu/payment';
+}; 
+    }])
+
+   .controller('profileImagesCtrl', ['$scope', '$ionicPopup', 'SharedState', function($scope, $ionicPopup, SharedState){
+  SharedState.getNum().then(function(data) {
+       $scope.userData = data.data;
+  })
+  
+
+  $scope.images = [
+{"name": "Mexicano", "img": "https://lh3.googleusercontent.com/d/1OU-iMgH5Zq5ci3WwOydCxuYFkGqLJW2U", "lvl": 0},
+{"name": "Francés", "img": "https://lh3.googleusercontent.com/d/135fMCURNJql4oAys1TtpZO5Vrp-0bRrs", "lvl": 0},
+{"name": "Lentes", "img": "https://lh3.googleusercontent.com/d/1wvudBoQiNTJABssMb8lcLWBFK_dXGUMN", "lvl": 0},
+{"name": "Estudiante", "img": "https://lh3.googleusercontent.com/d/1_sm6uH3FZOiuLDVrh_i99_tMjT2m9kP5", "lvl": 0},
+{"name": "Nórdico 1", "img": "https://lh3.googleusercontent.com/d/1idGA9aTgukmD8XnsTZ0iRQH_NQ4k2T7F", "lvl": 0},
+{"name": "Nórdico 2", "img": "https://lh3.googleusercontent.com/d/1_YNrCYx1nR87cQ9GN6a58eavu0yOLErk", "lvl": 0},
+{"name": "Elegante", "img": "https://lh3.googleusercontent.com/d/1XKP3aQuE4jCWD32Q2t0zF-v7xJNbQvA3", "lvl": 0},
+{"name": "Ranchero", "img": "https://lh3.googleusercontent.com/d/1d8oziGqG_irj0TpG2ybv9MoLeEYQvZaG", "lvl": 0},
+{"name": "Sport", "img": "https://lh3.googleusercontent.com/d/12XcMuRouZZqwwlHlbaq8bVVpPRSg5T5B", "lvl": 0},
+{"name": "Médico", "img": "https://lh3.googleusercontent.com/d/196Fzf-rC_xS6jtiSld0wqRfuBYU3Q-E2", "lvl": 0},
+{"name": "A mimir", "img": "https://lh3.googleusercontent.com/d/1v72a86Pz_l0zFyopogj8f1W64XtYIGuM", "lvl": 0},
+{"name": "Tech", "img": "https://lh3.googleusercontent.com/d/1Ga2QuGYIe-gn8UMqsN_mBDBYJeAD6jr5", "lvl": 0},
+{"name": "Químico", "img": "https://lh3.googleusercontent.com/d/1B1bVy14H0dSMf-iOhY-Nk9h1e2VMmVUg", "lvl": 0},
+{"name": "Ingeniero", "img": "https://lh3.googleusercontent.com/d/1lGsjIu3OyK82NOl8kNjXZUpxne8aBsBI", "lvl": 0},
+{"name": "Biólogo", "img": "https://lh3.googleusercontent.com/d/1aTuTvF-Gh99AoZVKeWScvir_xK5SJwKh", "lvl": 0},
+{"name": "Chef", "img": "https://lh3.googleusercontent.com/d/1nmyGfxvW1A_pBQjwyzkxJTeGskj6qESD", "lvl": 0},
+{"name": "Poker", "img": "https://lh3.googleusercontent.com/d/1-cPk4doMpcl3hmH3Kz8USKDcl_69AfGg", "lvl": 0},
+{"name": "Inversionista", "img": "https://lh3.googleusercontent.com/d/1uhlREB8cKTUS6HgWg9MYmOlGPEXo5bOV", "lvl": 0},
+{"name": "Trader", "img": "https://lh3.googleusercontent.com/d/1V9pQd8dtUyovYN4vrjKfUtpLrGHGPvQA", "lvl": 0},
+{"name": "Comandante", "img": "https://lh3.googleusercontent.com/d/1qXpcScJJCKLH33hmMOTbXLu42GCJEJOZ", "lvl": 0},
+{"name": "Inversionista", "img": "https://lh3.googleusercontent.com/d/1uhlREB8cKTUS6HgWg9MYmOlGPEXo5bOV", "lvl": 0},
+{"name": "Aviador", "img": "https://lh3.googleusercontent.com/d/1ImLqo-j8C03b-zAStVSs4zvyO5XP_zN8", "lvl": 0},
+{"name": "Conejo 1", "img": "https://lh3.googleusercontent.com/d/1aZfwi2IvESEOlcVrJG09hiZQ5MqPJ1Qz", "lvl": 0},
+{"name": "Conejo 2", "img": "https://lh3.googleusercontent.com/d/13PH1mvMf6Rfl3tYd_5zTO5U7ObnnMGw3", "lvl": 0},
+{"name": "Fiesta", "img": "https://lh3.googleusercontent.com/d/1kpioyQDHlo0CHNvilUU4UVBA3Nh1fJPw", "lvl": 0},
+{"name": "Coquette", "img": "https://lh3.googleusercontent.com/d/1N0fcNsBu91yvPr2RVjy7fIFAwNrDmbWh", "lvl": 0},
+{"name": "Cute", "img": "https://lh3.googleusercontent.com/d/1GLqRR-0TEAG1rUMBE-B5-L9xDtS7L0ZR", "lvl": 0},
+{"name": "Tierno", "img": "https://lh3.googleusercontent.com/d/1Fd6pJtHqEEgSYjOS2X3OBv1_U3yryIsj", "lvl": 0},
+{"name": "Rey", "img": "https://lh3.googleusercontent.com/d/1DqHvSyZEUVm3zgAxCLHkx23dDEvTY39I", "lvl": 0},
+{"name": "Reina", "img": "https://lh3.googleusercontent.com/d/1BHSU81FVrMBlX_8qxDsNJynxhWX43FdN", "lvl": 0},
+{"name": "Robin Hood", "img": "https://lh3.googleusercontent.com/d/1jaNlxUVfgCIvLqZ_JkvH2rGi4ssPh_IS", "lvl": 0},
+{"name": "Mago", "img": "https://lh3.googleusercontent.com/d/1YbREdCmoR4Yx9x3oYNkAD_axtj5otEIJ", "lvl": 0},
+{"name": "Adivino", "img": "https://lh3.googleusercontent.com/d/1GP0GLotqyuABoX4jOH2Wl1OeGqtGviY1", "lvl": 0},
+{"name": "Detective", "img": "https://lh3.googleusercontent.com/d/1P07Wfydk8btiCuAzdwqnxN47yEEdObJk", "lvl": 0},
+{"name": "Pirata", "img": "https://lh3.googleusercontent.com/d/1Oglhd-RZH5ACyveCZPbDYvmAl_Ei5XgK", "lvl": 0},
+{"name": "Disney", "img": "https://lh3.googleusercontent.com/d/1maVLgDTBqhaZHxL_YfoJXLHEbMRLqNI8", "lvl": 0},
+{"name": "De la suerte", "img": "https://lh3.googleusercontent.com/d/1VSKvobqu6y7P2QjDAgTL27PRIQpdZISE", "lvl": 0},
+{"name": "Starbucks", "img": "https://lh3.googleusercontent.com/d/1f-BmVUT-nTOZiJby6Kxkv1UR19tNjRWm", "lvl": 0},
+{"name": "Gordito", "img": "https://lh3.googleusercontent.com/d/121Cgo6d-QNRSOGLFYKosUta2K76PZPMZ", "lvl": 0},
+{"name": "Salt Bae", "img": "https://lh3.googleusercontent.com/d/1n_DFnV60r7BkvmolHFvrfCPB0Bbf2SkX", "lvl": 0},
+{"name": "Cumpleaños", "img": "https://lh3.googleusercontent.com/d/1bd1xR2PtYwaee2WwsOW7qDLqbq4AL8ON", "lvl": 0},
+{"name": "Vino", "img": "https://lh3.googleusercontent.com/d/1Ctrlnq9JXcCTtR-hoOrY6r4-gDjxH0Io", "lvl": 0},
+{"name": "Champagne", "img": "https://lh3.googleusercontent.com/d/1z-0HAdwRezkfmtXyMzYyMv70ADdmK_yH", "lvl": 0},
+]
+
+  $scope.showImg = function(image) {
+        var myPopup = $ionicPopup.show({
+            template: `
+                <div class="popup-image-container">
+                    <img src="${image.img}" class="popup-full-image">
+                </div>
+            `,
+            title: image.name, // Nombre del avatar como título
+            cssClass: 'popup-custom',
+            buttons: [
+                { 
+                    text: 'Cerrar',
+                    type: 'button-positive'
+                }
+            ]
+        });
+    };
+
+
+    }])
+
+
+
+
+
 
     </script>
+
+
+
+
 
 
 
