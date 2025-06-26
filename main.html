@@ -904,8 +904,8 @@ width: 200px; /* Ajusta según el tamaño deseado */
           </div>
           <div class="main-data" style="margin-top: 12px;" ng-if="!loadingProfile">
             <h4 >{{userData.name}}</h4>
-        <div class="pull-left planTag"  style="color: orange; text-shadow: 0 0 10px silver;"> PROFESOR
-            <i class="ri-verified-badge-fill" style="color: orange; text-shadow: 0 0 10px silver;"></i>  </div>
+        <div class="pull-left planTag"  style="color: silver; text-shadow: 0 0 10px silver;"> PROFESOR
+            <i class="ri-verified-badge-fill" style="color: silver; text-shadow: 0 0 10px silver;"></i>  </div>
     
 
             <br>
@@ -925,9 +925,11 @@ width: 200px; /* Ajusta según el tamaño deseado */
             <hr>
 
                  <a href="#/menu/courses" class="item" ng-class="(activeMenuClr=='courses')?'menuSelectedColor':''" ng-click="activeMenuClr = 'courses'" menu-toggle="left"><i class="ri-chat-voice-line" ></i>&nbsp&nbspTareas</a>  
-
           <a href="#/menu/statistics" class="item" ng-class="(activeMenuClr=='statistics')?'menuSelectedColor':''" ng-click="activeMenuClr = 'statistics'" menu-toggle="left"><i class="ri-edit-2-line"></i>&nbsp&nbspCorrecciones</a> 
 
+   <hr>
+
+ <a href="#/menu/reel" class="item" ng-class="(activeMenuClr=='reel')?'menuSelectedColor':''" ng-click="activeMenuClr = 'reel'" menu-toggle="left"><i class="ri-building-line"></i>&nbsp&nbspPresencial</a> 
 
 
           </ul>
@@ -1231,7 +1233,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
       
       <ion-content > 
 
-        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/statistics" frameborder="0" allowfullscreen></iframe></div>   
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/corrections" frameborder="0" allowfullscreen></iframe></div>   
       </ion-content>
 
        <div id="myModal" class="modal" ng-show="isModalVisible">
@@ -1525,7 +1527,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
     </ion-nav-bar>
 
      <ion-content>
-   <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/courses" frameborder="0" allowfullscreen></iframe></div>
+   <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/audios" frameborder="0" allowfullscreen></iframe></div>
       </ion-content>
 
   <div id="myModal" class="modal" ng-show="isModalVisible">
@@ -1668,7 +1670,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
 
     <ion-content class="padding"> 
       <!-- achievements -->
-        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/profile" frameborder="0" allowfullscreen ></iframe></div> 
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/students" frameborder="0" allowfullscreen ></iframe></div> 
     </ion-content> 
 
      <div id="myModal" class="modal" ng-show="isModalVisible">
@@ -1812,7 +1814,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
 
     <ion-content class="padding"> 
       <!-- achievements -->
-        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/comunity" frameborder="0" allowfullscreen ></iframe></div> 
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/mStudents" frameborder="0" allowfullscreen ></iframe></div> 
     </ion-content> 
 
      <div id="myModal" class="modal" ng-show="isModalVisible">
@@ -1834,142 +1836,6 @@ width: 200px; /* Ajusta según el tamaño deseado */
 
 
 
-
-
-
-
-<script id="store.html" type="text/ng-template">
-  <ion-view>
-        <ion-nav-bar class="bar-light" >      
-        <ion-nav-buttons side="right">
-
-
-      <button class="button button-clear" ng-click="goToAgenda()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 18px;">
-  <i class="ri-calendar-todo-fill" ></i>
-            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(alerts | filter:{seen: false}).length && alertCounter">
-        <div style="font-size: 13px; color: white;" > {{(alerts | filter:{seen: false}).length}}</div>
-    </div> 
-</button>
-
-     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 18px;">
-<i class="ri-chat-4-line"></i>
-            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
-        <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
-    </div>
-</button> 
-          
-     <button class="button button-clear" ng-click="dropdownNotif()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 25px;">
-  <i class="ri-notification-3-line" ></i>
-            <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(alerts | filter:{seen: false}).length && alertCounter">
-        <div style="font-size: 13px; color: white;" > {{(alerts | filter:{seen: false}).length}}</div>
-    </div> 
-</button>
-
-    <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
-  <div style="display: flex; align-items: center;" >    
-   
-  <div class="user-info" style="margin-top: -2px;">
-   <div style="font-size: 13px; font-weight: 600; color: #333;">{{userData.name}}</div>
-  <div style="font-size: 12px; color: #777; margin-top: -15px;" ng-if="userData.lvl == 0">Preparatorio</div>
-          <div style="font-size: 11px; color: #777; margin-top: -15px;" ng-if="userData.lvl != 0">Nivel {{userData.lvl}}</div>
-   </div>
-
-    <div style="position: relative; " class="profilImg">
-    
-      <div style="position: relative; width: 36px; height: 36px; margin-top: 4px; margin-left: 5px;">
-  <!-- Anillo exterior -->
-  <div style="
-    width: 36px;
-    height: 36px;
-    border: 1px solid #3ac5f2; /* color del anillo */
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 0 2px #1e2b47; /* sombra tipo segundo anillo */
-  ">
-    <!-- Imagen de perfil -->
-    <img src="{{userData.photo}}" width="30" height="30" style="border-radius: 50%; border: 0.5px solid black;" />
-  </div>
-
-  <!-- Punto de estado -->
-  <div style="
-    position: absolute;
-    bottom: -3px;
-    right: 0;
-    width: 10px;
-    height: 10px;
-    background-color: #5fff87; /* verde */
-    border: 2px solid #1e2b47; /* separador del fondo */
-    border-radius: 50%;
-  "></div>
-</div>
-
-
-   </div>
-   
- </div>
-    </button>
-  </ion-nav-buttons>
-       
-        <ion-nav-buttons side="left">
-          <button class="button button-clear menubtn" ng-click="toggleRight()"><i class="button button-icon ion-navicon"></i>menu</button>
-        </ion-nav-buttons>  
-
-            
-       
-        <div class="dropdownContent" ng-show="isDropdownVisible" ng-click="$event.stopPropagation()">
-     <div id="bannerRow">
-      <div class="profileImageContainer">
-     <div id="loading" ng-if="loadingProfile" style="height: 60px;"></div>
-        <img src="{{userData.photo}}"  ng-if="!loadingProfile"/>
-      </div>
-      <p class="profileName">{{userData.name}}</p>
-      <p class="profileEmail">{{userData.mail}}</p>
-    </div>
-    <div class="dropdown-item" ng-click="goToAccount()">
-      <i class="ion-ios-contact-outline"></i> Perfil
-    </div>
-      <div class="dropdown-item" ng-click="goToStatus()">
-      <i class="ri-settings-3-line"></i> Configuración
-    </div>
-      <div class="dropdown-item" ng-click="logout()">
-      <i class="ri-logout-box-r-line"></i> Salir
-    </div>
-  </div>
-
-    <div class="dropdownContent" ng-show="dropdownChatVisible" ng-click="$event.stopPropagation()">
-  <div class="dropdown-item" 
-       ng-click="goToChat()" 
-       ng-if="(chats | filter:{read: false}).length > 0">
-    <i class="ri-feedback-line alertIcon"></i>
-    Tienes {{(chats | filter:{read: false}).length}} nuevos mensajes  
-  </div>
-  <span style="margin-left: 15px;" 
-        ng-if="(chats | filter:{read: false}).length == 0" ng-click="goToChat()"> 
-    No hay mensajes 
-  </span>
-</div>
-
-
-<div class="dropdownContent" ng-show="dropdownNotifVisible" ng-click="$event.stopPropagation()">
-   <div class="dropdown-item" ng-repeat="alert in alerts" style="color: {{alert.color}}">
-      <i class="{{alert.icon}} alertIcon" ></i> {{alert.subject}} 
-         <div style="font-size: 10px; position: absolute; margin-top: 40px;  color: gray;">Hace {{calculateDaysAgo(alert.date)}} días</div>
-    </div> 
-      <span style="margin-left: 15px;" ng-if="alerts.length == 0"> No hay alertas </span>
-  </div>  
-        
-    </ion-nav-bar>
-
-
-    <ion-content class="padding"> 
-      <!-- achievements -->
-        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/store" frameborder="0" allowfullscreen ></iframe></div> 
-    </ion-content> 
-
-  </ion-view>
-</script>
 
 
 
@@ -2382,7 +2248,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
 
 
      <ion-content>
-  <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/books2" frameborder="0" allowfullscreen ></iframe></div> 
+  <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/books" frameborder="0" allowfullscreen ></iframe></div> 
       </ion-content>
       
        <div id="myModal" class="modal" ng-show="isModalVisible">
@@ -2566,14 +2432,6 @@ app
       views: {
         'menuContent' :{
           templateUrl: "reel.html"
-        }
-      }
-    })
-  .state('menu.store', {
-      url: "/store",
-      views: {
-        'menuContent' :{
-          templateUrl: "store.html"
         }
       }
     })
