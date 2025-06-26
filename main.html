@@ -2461,8 +2461,8 @@ width: 200px; /* Ajusta según el tamaño deseado */
 app
 .factory('SharedState', function($http, $q) {
   var requestData = {
-    action: "getProfileData",
-    token: localStorage.getItem('MStoken')
+   action: "getAdminData",
+                token: localStorage.getItem('ADtoken')
   };
 
   var config = {
@@ -2477,9 +2477,6 @@ app
     $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
       .then(function(response) {
         deferred.resolve({
-          lvl: response.data.lvl,
-          blq: response.data.blq,
-    lsn: response.data.lsn, 
           data: response.data
         });
       }, function(error) {
