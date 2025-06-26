@@ -2716,10 +2716,11 @@ app
     $scope.loadingProfile = true;
   SharedState.getNum().then(function(data) {
        $scope.userData = data.data;
-       $scope.userPlan = data.data.plan.split(" ")[0];
+         $scope.loadingProfile = false;
+
       $scope.chats = JSON.parse(data.data.messages);
     $scope.alerts = JSON.parse(data.data.alerts);
-      $scope.loadingProfile = false;
+    
   }) 
 
      $scope.isDropdownVisible = false;
