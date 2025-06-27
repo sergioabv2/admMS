@@ -122,7 +122,7 @@ a.list-group-item:before {
           <a class="list-group-item" href="#" ng-repeat="company in companies | filter:searchQuery" ng-click="showCompany(company.id, $event)">
             <div class="row">
               <div class="col-sm-1">
-                <img ng-src="{{company.logo}}">
+                <img ng-src="{{company.photo}}">
               </div>
               <div class="col-sm-5">
                 <h4 class="list-group-item-heading">{{company.name}}</h4>
