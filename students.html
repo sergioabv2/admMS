@@ -119,18 +119,18 @@ a.list-group-item:before {
           </form>
         </div>
         <div class="list-group">
-          <a class="list-group-item" href="#" ng-repeat="company in companies | filter:searchQuery" ng-click="showCompany(company.id, $event)">
+          <a class="list-group-item" href="#" ng-repeat="company in companies | filter:searchQuery" ng-click="showCompany(company.name, $event)">
             <div class="row">
               <div class="col-sm-1">
-                <img ng-src="{{company.photo}}">
+                <img style="border-radius: 50%;" ng-src="{{company.photo}}">
               </div>
               <div class="col-sm-5">
                 <h4 class="list-group-item-heading">{{company.name}}</h4>
-                <p class="list-group-item-text">{{company.headquarters}}</p>
+                <p class="list-group-item-text">{{company.status}}</p>
               </div>
               <div class="col-sm-6">
-                <p class="list-group-item-text">{{company.industry}}</p>
-                <p class="list-group-item-text">{{company.revenue}}</p>
+                <p class="list-group-item-text">{{company.level}}</p>
+                <p class="list-group-item-text">{{company.classtime}}</p>
               </div>
             </div>
           </a>
@@ -142,9 +142,9 @@ a.list-group-item:before {
         <i class="fa fa-arrow-left"></i> Back to List
       </button>
       
-      <div class="panel panel-default company-detail" ng-repeat="company in companies" ng-if="selectedCompany == company.id">
+      <div class="panel panel-default company-detail" ng-repeat="company in companies" ng-if="selectedCompany == company.name">
         <div class="panel-heading clearfix">
-          <img ng-src="{{company.logo}}">
+          <img class="pull-left" style="border-radius: 50%; width: 35px; height: 35px; margin-top: 4px; margin-right: 10px;" ng-src="{{company.photo}}">
           <h3 class="panel-title pull-left">{{company.name}}</h3>
           <a class="btn btn-primary pull-right" href="#">
             <i class="fa fa-pencil"></i> Edit
@@ -153,18 +153,18 @@ a.list-group-item:before {
         <div class="list-group">
           <div class="list-group-item">
             <p class="list-group-item-text">Industry</p>
-            <h4 class="list-group-item-heading">{{company.industry}}</h4>
+            <h4 class="list-group-item-heading">{{company.status}}</h4>
           </div>
           <div class="list-group-item">
             <p class="list-group-item-text">Headquarters</p>
-            <h4 class="list-group-item-heading">{{company.headquarters}}</h4>
+            <h4 class="list-group-item-heading">{{company.level}}</h4>
           </div>
           <div class="list-group-item">
-            <p class="list-group-item-text">{{company.description}}</p>
+            <p class="list-group-item-text">{{company.classtime}}</p>
           </div>
           <div class="list-group-item">
             <p class="list-group-item-text">Revenue</p>
-            <h4 class="list-group-item-heading">{{company.revenue}}</h4>
+            <h4 class="list-group-item-heading">{{company.level}}</h4>
           </div>
         </div>
         <div class="panel-footer">
@@ -177,14 +177,15 @@ a.list-group-item:before {
 
 <script>
 angular.module('companyApp', [])
-  .controller('companyController', function($scope) {
+  .controller('companyController', ['$http', '$scope', function($http, $scope) {
 
     $scope.companies = [];
 //  $scope.orderList = 'name';
 
    var requestData = {
                 action: "getAdminData",
-                token: localStorage.getItem('ADtoken')
+                token: "U2FsdGVkX18LC0oGisKqGLC5uGXpU9h3zw8tJYi5QZDfYwdF32/rwVQsfq3hqkBE"
+     //localStorage.getItem('ADtoken')
               };
 
               var config = {
@@ -241,5 +242,5 @@ angular.module('companyApp', [])
         document.querySelector('.companies-panel').style.display = 'none';
       }
     };
-  });
+  }]);
 </script>
