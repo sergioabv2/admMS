@@ -210,7 +210,7 @@ a.list-group-item:before {
         
         <div class="list-group">
            <div class="list-group-item">
-
+            
                <img class="pull-left" style="border-radius: 50%; width: 65px; height: 65px; margin-top: 4px; margin-right: 10px;" ng-src="{{company.photo}}">
             <h4 class="list-group-item-heading">
 					   {{company.name}}
@@ -238,25 +238,46 @@ a.list-group-item:before {
        </div>
           
           
-          <div class="list-group-item" id="Agenda" ng-show="activeTab === 'Agenda'">  
-  <div class="list-group-item" >
-              <button class="btn btn-default pull-right" style="color: black" ng-click="">Asistencia</button>
-            <p class="list-group-item-text" style="margin-top: -7px;">{{company.agenda[3].title}}</p>
-        <h5 class="list-group-item-heading" style="margin-bottom: 7px;" >  
-         {{returnDateFormat(company.agenda[3].start)}} </h5>
+   <div class="list-group-item" id="Agenda" ng-show="activeTab === 'Agenda'">
+  <div class="panel panel-default">
+   
+    <div class="panel-body" style="height: 260px; overflow-y: auto;">
+      <!-- Lista de mensajes -->
+      <div ng-repeat="event in company.agenda" class="message-container" >
+        
+        <!-- Cabecera del mensaje -->
+        <div class="media">
+          <div class="media-left">
+             <span ng-if="event.attendance == 1" class="text-success">
+              <i class="fa fa-check-circle fa-2x"></i>
+            </span>
+            <span ng-if="event.attendance == 0" class="text-danger">
+              <i class="fa fa-times-circle fa-2x"></i>
+            </span>
           </div>
-         
-          <div class="list-group-item">
-            <p class="list-group-item-text">Evaluación</p>
-           <h5 class="list-group-item-heading" ng-repeat="date in company.agenda">  
-              <button class="btn btn-default" ng-if="lsn.status != 'Evaluada'"> Evaluar </button>
-  <button class="btn btn-default" ng-if="lsn.status == 'Evaluada'" disabled> Evaluado </button>
-            <a style="font-size: 15px; cursor: pointer;" ng-click="abrirNuevaPestana(lsn.pdf);$event.preventDefault();$event.stopPropagation()"> {{date.title}} </a></h5>
+          <div class="media-body">
+            <h5 class="media-heading">{{event.title}}
+              <small class="text-muted pull-right">{{returnDateFormat(event.start)}}</small>
+            </h5>
+            <p >{{event.title}}</p>
           </div>
+        </div>
+       
+        
+        <hr ng-if="!$last">
+      </div>
+    </div>
+ <div class="panel-footer">
+      <button class="btn btn-primary btn-block">
+        <i class="fa fa-plus"></i> Nuevo evento
+      </button>
+    </div>
+  </div>
 </div>
+          
 
 <div class="list-group-item" id="Messages" ng-show="activeTab === 'Messages'">
-  <div >
+  <div class="panel panel-default">
    
     <div class="panel-body" style="height: 260px; overflow-y: auto;">
       <!-- Lista de mensajes -->
@@ -265,7 +286,7 @@ a.list-group-item:before {
         <!-- Cabecera del mensaje -->
         <div class="media">
           <div class="media-left">
-            <img ng-src="https://via.placeholder.com/50" class="img-circle" alt="{{message.name}}">
+            <img ng-src="https://lh3.googleusercontent.com/d/1gA-HKzQXWksHNg8jCbUveFUXoE3jfip_" class="img-circle" >
           </div>
           <div class="media-body">
             <h5 class="media-heading">{{message.name}} 
@@ -398,7 +419,7 @@ angular.module('companyApp', [])
     "type": "text",
     "content": "Hola, soy tu asistente y estaré para apoyarte",
     "timestamp": "15 may - 10:32",
-    "read": true
+    "read": false
   },
       {
     "sender": "admin",
