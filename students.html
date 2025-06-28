@@ -121,21 +121,38 @@ a.list-group-item:before {
     <div class="bootcards-list col-sm-6 list-panel">
       <div class="panel panel-default">
         <div class="panel-body">
-          <form>
-            <div class="row">
-              <div class="col-xs-9">
-                <div class="form-group">
-                  <input type="text" class="form-control" placeholder="Search Companies" ng-model="searchQuery">
-                  <i class="fa fa-search"></i>
-                </div>
-              </div>
-              <div class="col-xs-3">
-                <a class="btn btn-primary btn-block" id="search" href="#">
-                  Search
-                </a>
-              </div>
-            </div>
-          </form>
+      <form>
+  <!-- Fila 1: Input + botón de búsqueda -->
+  <div class="row">
+    <div class="col-xs-8">
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="Search student" ng-model="searchQuery">
+        <i class="fa fa-search"></i>
+      </div>
+    </div>
+    <div class="col-xs-4">
+          <div class="form-group">
+      <select class="form-control" >
+        <option>Ahora</option>
+        <option>Hoy</option>
+        <option>Todos</option>
+        <option>Inactivos</option>
+      </select>
+    </div>
+    </div>
+  </div>
+
+  <!-- Fila 2: Botones de ordenamiento -->
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-xs-12" >
+      <button class="btn btn-default" style="color: black" ng-click="filterByHour()">Presencial</button>
+      <button class="btn btn-default" style="color: black" ng-click="filterByDay()">Online</button>
+      <button class="btn btn-default" style="color: black" ng-click="showAllStudents()">Plataforma</button>
+    </div>
+  </div>
+</form>
+
+
         </div>
         <div class="list-group">
           <a class="list-group-item" href="#" ng-repeat="company in companies | filter:searchQuery" ng-click="showCompany(company.name, $event)">
@@ -171,6 +188,7 @@ a.list-group-item:before {
         </div>
         <div class="list-group">
            <div class="list-group-item">
+               <button class="btn btn-default pull-right" style="color: black" ng-click="">Evaluar</button>
                <img class="pull-left" style="border-radius: 50%; width: 65px; height: 65px; margin-top: 4px; margin-right: 10px;" ng-src="{{company.photo}}">
             <h4 class="list-group-item-heading">
 					   {{company.name}}
@@ -180,23 +198,27 @@ a.list-group-item:before {
              <br ng-if="company.classtime == ''">
           </div>
           <div class="list-group-item">
+              <button class="btn btn-default pull-right" style="color: black" ng-click="">Evaluar</button>
             <p class="list-group-item-text">Headquarters</p>
             <h4 class="list-group-item-heading">{{company.level}}</h4>
           </div>
+         
           <div class="list-group-item">
-            <p class="list-group-item-text">{{company.classtime}}</p>
-          </div>
-          <div class="list-group-item">
+           
             <p class="list-group-item-text">Revenue</p>
             <h4 class="list-group-item-heading">{{company.level}}</h4>
+              <h4 class="list-group-item-heading">{{company.level}}</h4>
+          </div>
+           <div class="list-group-item">
+            <p class="list-group-item-text">{{company.classtime}}</p>
           </div>
         </div>
          <div class="panel-footer">
           <div class="btn-group btn-group-justified">
             <div class="btn-group">
               <button class="btn btn-default">
-					      <i class="fa fa-arrow-down"></i>
-					      Download
+					      <i class="fa fa-clipboard"></i>
+					      Evaluar
 					    </button>
             </div>
             <div class="btn-group">
@@ -207,7 +229,7 @@ a.list-group-item:before {
             </div>
             <div class="btn-group">
               <button class="btn btn-default">
-					      <i class="fa fa-envelope"></i>
+					      <i class="fa fa-paper-plane"></i>
 					      Email
 					    </button>
             </div>
