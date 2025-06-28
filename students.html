@@ -199,15 +199,18 @@ a.list-group-item:before {
           </div>
           <div class="list-group-item">
               <button class="btn btn-default pull-right" style="color: black" ng-click="">Evaluar</button>
-            <p class="list-group-item-text">Headquarters</p>
-            <h4 class="list-group-item-heading">{{company.level}}</h4>
+            <p class="list-group-item-text">{{company.agenda[3].title}}</p>
+        <h5 class="list-group-item-heading" >  
+         {{returnDateFormat(company.agenda[3].start)}} </h5>
           </div>
          
           <div class="list-group-item">
            
-            <p class="list-group-item-text">Revenue</p>
-            <h4 class="list-group-item-heading">{{company.level}}</h4>
-              <h4 class="list-group-item-heading">{{company.level}}</h4>
+            <p class="list-group-item-text">Evaluación</p>
+           <h5 class="list-group-item-heading" ng-repeat="lsn in company.currentLsn">  
+              <button class="btn btn-default" ng-if="lsn.status != 'Evaluada'"> Evaluar </button>
+  <button class="btn btn-default" ng-if="lsn.status == 'Evaluada'" disabled> Evaluado </button>
+             {{lsn.name}} </h5>
           </div>
            <div class="list-group-item">
             <p class="list-group-item-text">{{company.classtime}}</p>
@@ -229,8 +232,8 @@ a.list-group-item:before {
             </div>
             <div class="btn-group">
               <button class="btn btn-default">
-					      <i class="fa fa-paper-plane"></i>
-					      Email
+					      <i class="fa fa-comments"></i>
+					      Mensajes
 					    </button>
             </div>
           </div>
@@ -271,7 +274,12 @@ angular.module('companyApp', [])
   });
   
   
-  
+     $scope.returnDateFormat = function(date){
+    const dat = new Date(date);
+  const options = { weekday: 'long', month: 'long', day: 'numeric' };
+    var dat2 = dat.toLocaleDateString("es-mx",options).replace(",","");
+    return dat2.charAt(0).toUpperCase() + dat2.slice(1);
+  }
     
     $scope.selectedCompany = '';
     
