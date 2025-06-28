@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootcards/1.1.1/css/bootcards-desktop.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/remixicon@3.7.0/fonts/remixicon.css" rel="stylesheet"/>
+   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
 
 <style> 
   
@@ -181,10 +181,11 @@ a.list-group-item:before {
       <div class="panel panel-default company-detail" ng-repeat="company in companies" ng-if="selectedCompany == company.name">
         <div class="panel-heading clearfix">
         
-          <h3 class="panel-title pull-left">{{company.status}}</h3>
-          <a class="btn btn-primary pull-right" href="#">
-            <i class="fa fa-pencil"></i> Edit
-          </a>
+          <h3 class="panel-title pull-left" ng-if="company.status == 'ACTIVO'"> <i class="ri-progress-8-line" style="color: #28a745; text-shadow: 0 0 10px #28a745;"></i> ACTIVO </h3>
+ <h3 class="panel-title pull-left" ng-if="company.status != 'ACTIVO'"> <i class="ri-error-warning-fill" style="color: orange; text-shadow: 0 0 10px orange;"></i> PAGO PENDIENTE </h3>
+         <button class="btn btn-default pull-right" ng-if="company.status != 'ACTIVO'">
+            Registrar
+          </button> 
         </div>
         <div class="list-group">
            <div class="list-group-item">
@@ -212,9 +213,9 @@ a.list-group-item:before {
   <button class="btn btn-default" ng-if="lsn.status == 'Evaluada'" disabled> Evaluado </button>
             <a style="font-size: 15px; cursor: pointer;" ng-click="abrirNuevaPestana(lsn.pdf);$event.preventDefault();$event.stopPropagation()"> {{lsn.name}} </a></h5>
           </div>
-           <div class="list-group-item">
+        <!--   <div class="list-group-item">
             <p class="list-group-item-text">{{company.classtime}}</p>
-          </div>
+          </div>  -->
         </div>
          <div class="panel-footer">
           <div class="btn-group btn-group-justified">
