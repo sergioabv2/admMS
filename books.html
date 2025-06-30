@@ -343,6 +343,7 @@ background-color: rgba(0, 0, 0, 0.5);
      <!-- <h4>{{manual.level}}</h4>
           <p>{{manual.block}}</p>  -->
       <div class="mhn-inner">
+     
         <img ng-src="{{manual.background}}">
       </div>
     </div>
@@ -355,6 +356,7 @@ background-color: rgba(0, 0, 0, 0.5);
   <div class="mhn-slide owl-carousel">
     <div class="mhn-item" ng-repeat="manual in manuals" ng-click="showPreview(manual)">
       <div class="mhn-inner">
+       
         <img ng-src="{{manual.background}}">
       </div>
     </div>
@@ -367,16 +369,15 @@ background-color: rgba(0, 0, 0, 0.5);
    <div class="mhn-slide owl-carousel">
     <div class="mhn-item" ng-repeat="manual in manuals" ng-click="marcarPreferencia()">
       <div class="mhn-inner">
-         <div class="lock-icon">
-        <i class="ri-lock-fill"></i>
-      </div>
+    
+
         <img ng-src="{{manual.background}}">
       </div>
     </div>
   </div>
   
   
-  
+  <br><br>
  
   
   
@@ -393,13 +394,13 @@ background-color: rgba(0, 0, 0, 0.5);
       <p class="collection">Mozart Academy</p>
       <hr class="separator">
       <h2 class="title">{{selectedManual.title}}</h2>
-      <p class="author">{{selectedManual.author}}Bloque</p>
+      <p class="author">{{selectedManual.subtitle}}</p>
     </div>
 
     <div class="action-buttons">
       <button ng-click="openPlayer(selectedManual)">Play </button>
       <button class="noDisplay">Play (MIDI)</button>
-      <button  onclick="window.top.location.href='{selectedManual.pdf}';" >PDF</button>
+      <button  ng-click="openPDF(selectedManual.pdf)" >PDF</button>
     </div>
   </div>
 </div>
@@ -446,25 +447,36 @@ angular.module('books', [])
 .controller('main', ['$http', '$scope', '$sce', function($http, $scope, $sce){
   
   
-  $scope.manuals = [ 
-      {'title': 'Bloque 1 - Nivel 2','background': 'https://lh3.googleusercontent.com/d/1zs8OzO57s1b0MTavriKWjMohnLjr39-d', 'pdf': 'https://app.mozartacademy.mx/grandstaff', 'level': 'Nivel 2', 'block': 'Bloque 1'},
-      {'title': 'Bloque 3 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'pdf': 'https://app.mozartacademy.mx/grandstaff'},
-      {'title': 'Bloque 2 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '10Q34O2uDPaj5ZG7bpYpx8BGHZ4Q18ZLB'},
-      {'title': 'Bloque 1 - Nivel 1','background': 'https://lh3.googleusercontent.com/d/1Uf_sUg2ELZPF8t0fcuCdH6ZZOWrwzghM', 'id': '1Kghxri_BvRE0Ho4c2vMfrdBGp8HTmrGJ'},
-      {'title': 'Bloque 3 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1vYZFwqvHFg6m097Ivk4uRGAY38-EUvEu'},
-      {'title': 'Bloque 2 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1nxK06XODrHt2J6lScQz4JjthmPoc16Ec'},
-      {'title': 'Bloque 1 - Nivel P','background': 'https://lh3.googleusercontent.com/d/12_KSNMB0Z3z9knY_8vIofHT3Xvl-JUj-', 'id': '1bufcRACzv0QKKJDoc6RYhC1m7irb-UPa'}
+ $scope.manuals = [ 
+      {'title': 'Nivel Preparatorio','subtitle': 'Unidad 1','background': 'https://lh3.googleusercontent.com/d/1rFNza9NDinXOb0OOG3pTEYx8IYWygNKF', 'pdf': 'https://drive.google.com/file/d/1rFNza9NDinXOb0OOG3pTEYx8IYWygNKF/preview', 'lvl': 0, lsn: 0},
+      {'title': 'Nivel Preparatorio','subtitle': 'Unidad 2','background': 'https://lh3.googleusercontent.com/d/15qT2ccd4PkQC82qc-ig831qaqQo5gzbu', 'pdf': 'https://drive.google.com/file/d/15qT2ccd4PkQC82qc-ig831qaqQo5gzbu/preview', 'lvl': 0, lsn: 5},
+      {'title': 'Nivel Preparatorio','subtitle': 'Unidad 3','background': 'https://lh3.googleusercontent.com/d/1VVBfT4V3nfwekluTQcyepmm4-5XIFxis', 'pdf': 'https://drive.google.com/file/d/1VVBfT4V3nfwekluTQcyepmm4-5XIFxis/preview', 'lvl': 0, lsn: 9},
+      {'title': 'Nivel 1','subtitle': 'Unidad 1','background': 'https://lh3.googleusercontent.com/d/1sHsaDQvii8ApRIkpsN5h0e9yyRYg5tvY', 'pdf': 'https://drive.google.com/file/d/1sHsaDQvii8ApRIkpsN5h0e9yyRYg5tvY/preview', 'lvl': 1, lsn: 0},
+      {'title': 'Nivel 1','subtitle': 'Unidad 2','background': 'https://lh3.googleusercontent.com/d/12FwPz8DZqkRoeulbvXTzbMtcbQ4nE_xE', 'pdf': 'https://drive.google.com/file/d/12FwPz8DZqkRoeulbvXTzbMtcbQ4nE_xE/preview', 'lvl': 1, lsn: 4},
+      {'title': 'Nivel 1','subtitle': 'Unidad 3','background': 'https://lh3.googleusercontent.com/d/1tU1TzeczlheibtMLqucEYYpgvzkZ-48Q', 'pdf': 'https://drive.google.com/file/d/1tU1TzeczlheibtMLqucEYYpgvzkZ-48Q/preview', 'lvl': 1, lsn: 7},
+       {'title': 'Nivel 2','subtitle': 'Unidad 1','background': 'https://lh3.googleusercontent.com/d/1Ms7bmUV955rU5IzdgN4mcLhAe7KJYWWK', 'pdf': 'https://drive.google.com/file/d/1Ms7bmUV955rU5IzdgN4mcLhAe7KJYWWK/preview', 'lvl': 2, lsn: 0},
+      {'title': 'Nivel 2','subtitle': 'Unidad 2','background': 'https://lh3.googleusercontent.com/d/1AfEgtD_m-bSWmmZJXaxujlfTc6ehSDBJ', 'pdf': 'https://drive.google.com/file/d/1AfEgtD_m-bSWmmZJXaxujlfTc6ehSDBJ/preview', 'lvl': 2, lsn: 4},
+      {'title': 'Nivel 2','subtitle': 'Unidad 3','background': 'https://lh3.googleusercontent.com/d/1FHx4_pSIiA04oDAFhT4NM15D56unpRpw', 'pdf': 'https://drive.google.com/file/d/1FHx4_pSIiA04oDAFhT4NM15D56unpRpw/preview', 'lvl': 2, lsn: 7},
+       {'title': 'Nivel 3','subtitle': 'Unidad 1','background': 'https://lh3.googleusercontent.com/d/1P0azVqQgJKBr6B7rJQlCQIFfAELWUiif', 'pdf': 'https://drive.google.com/file/d/1P0azVqQgJKBr6B7rJQlCQIFfAELWUiif/preview', 'lvl': 2, lsn: 0},
+      {'title': 'Nivel 3','subtitle': 'Unidad 2','background': 'https://lh3.googleusercontent.com/d/1i-4cAu9BGFDN7kzoMFQAMKjp2vGzkKCs', 'pdf': 'https://drive.google.com/file/d/1i-4cAu9BGFDN7kzoMFQAMKjp2vGzkKCs/preview', 'lvl': 2, lsn: 4},
+      {'title': 'Nivel 3','subtitle': 'Unidad 3','background': 'https://lh3.googleusercontent.com/d/1P0azVqQgJKBr6B7rJQlCQIFfAELWUiif', 'pdf': '', 'lvl': 2, lsn: 7},
+     
     ];
-  
-  
+
+
+    $scope.openPDF = function(URL) {
+    window.open(URL, '_blank');
+  };
   
  $scope.selectedManual = null;
   $scope.showPlayer = false;
   $scope.currentManual = null;
 
+  
 $scope.showPreview = function(manual) {
-  $scope.selectedManual = manual;
+    $scope.selectedManual = manual;
 };
+
   
    $scope.openPlayer = function(manual) {
     $scope.currentManual = manual;
