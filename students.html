@@ -130,6 +130,10 @@ a.list-group-item:before {
 .media {
   margin-top: 0;
 }
+
+.btnPreview{
+  transform: scale(0.9)
+}
   
 </style>
 
@@ -149,12 +153,12 @@ a.list-group-item:before {
     </div>
     <div class="col-xs-4">
           <div class="form-group">
-      <select class="form-control" >
-        <option>Ahora</option>
-        <option>Hoy</option>
-        <option>Todos</option>
-        <option>Inactivos</option>
-      </select>
+         <select class="form-control" ng-model="selectedFilter" ng-change="applyFilter()">
+      <option value="active">Activo</option>
+      <option value="now">Ahora</option>
+      <option value="today">Hoy</option>
+      <option value="all">Todos</option>
+    </select>
     </div>
     </div>
   </div>
@@ -172,7 +176,7 @@ a.list-group-item:before {
 
         </div>
         <div class="list-group">
-          <a class="list-group-item" href="#" ng-repeat="company in companies | filter:searchQuery" ng-click="showCompany(company.name, $event)">
+          <a class="list-group-item" href="#" ng-repeat="company in filteredStudents | filter:searchQuery" ng-click="showCompany(company.name, $event)">
             <div class="row">
               <div class="col-sm-1">
                 <img style="border-radius: 50%;" ng-src="{{company.photo}}">
@@ -210,32 +214,60 @@ a.list-group-item:before {
         
         <div class="list-group">
            <div class="list-group-item">
-            
                <img class="pull-left" style="border-radius: 50%; width: 65px; height: 65px; margin-top: 4px; margin-right: 10px;" ng-src="{{company.photo}}">
             <h4 class="list-group-item-heading">
-					   {{company.name}}
-					    </h4>
-            <p class="list-group-item-text"><strong>{{company.level}}</strong></p>
-            <p class="list-group-item-text">{{company.classtime}}</p>
-             <br ng-if="company.classtime == ''">
+             {{company.name}}
+              </h4>
+            <p class="list-group-item-text">{{company.mail}}</p>
+             <p class="list-group-item-text">{{company.level}}</p>
+     
           </div>
           
-        <div class="list-group-item" ng-show="activeTab === 'Analytics'">  
-          <div class="list-group-item" >
-              <button class="btn btn-default pull-right" style="color: black" ng-click="">Asistencia</button>
-            <p class="list-group-item-text" style="margin-top: -7px;">{{company.agenda[3].title}}</p>
-        <h5 class="list-group-item-heading" style="margin-bottom: 7px;" >  
-         {{returnDateFormat(company.agenda[3].start)}} </h5>
-          </div>
+       <div class="list-group-item" ng-show="activeTab === 'Analytics'">  
+
+      
          
-          <div class="list-group-item">
-            <p class="list-group-item-text">Evaluación</p>
-           <h5 class="list-group-item-heading" ng-repeat="lsn in company.currentLsn">  
-              <button class="btn btn-default" ng-if="lsn.status != 'Evaluada'"> Evaluar </button>
-  <button class="btn btn-default" ng-if="lsn.status == 'Evaluada'" disabled> Evaluado </button>
-            <a style="font-size: 15px; cursor: pointer;" ng-click="abrirNuevaPestana(lsn.pdf);$event.preventDefault();$event.stopPropagation()"> {{lsn.name}} </a></h5>
+        <div class="panel panel-default">
+    <div class="panel-body" style="height: 260px; overflow-y: auto;">
+      <!-- Lista de grabaciones -->
+      <div ng-repeat="lsn in company.currentLsn" class="recording-container">
+        <div class="media">
+          <div class="media-left">
+            <i class="fa fa-clock fa-2x"></i>
           </div>
-       </div>
+          <div class="media-body">
+            <h5 class="media-heading">
+              {{lsn.name}}
+              <small class="text-muted pull-right">date</small>
+            </h5>
+            <p>
+              <span ng-if="lsn.status == 'Evaluada'" class="text-success">
+                Evaluado
+              </span>
+              <span ng-if="lsn.status != 'Evaluada'" class="text-warning">
+                Pendiente
+              </span>
+            </p>
+          </div>
+          <div class="media-right" style="display: flex; flex-direction: row;">
+         <button class="btn btn-default btnPreview" style="width: 62px; ng-click="openRecordingModal(recording)">Evaluar</button>
+            <button class="btn btn-default btnPreview" ng-click="abrirNuevaPestana(lsn.pdf);$event.preventDefault();$event.stopPropagation()">
+              Abrir
+            </button>
+          </div>
+        </div>
+        <hr ng-if="!$last">
+      </div>
+    </div>
+
+     <div class="panel-footer">
+      <button class="btn btn-primary btn-block">
+        <i class="fa fa-plus"></i> Agregar actividad
+      </button>
+    </div>
+   
+  </div>
+             </div>
           
           
    <div class="list-group-item" id="Agenda" ng-show="activeTab === 'Agenda'">
@@ -243,6 +275,8 @@ a.list-group-item:before {
    
     <div class="panel-body" style="height: 260px; overflow-y: auto;">
       <!-- Lista de mensajes -->
+
+        <div ng-if="company.agenda && company.agenda.length > 0">
       <div ng-repeat="event in company.agenda" class="message-container" >
         
         <!-- Cabecera del mensaje -->
@@ -261,11 +295,24 @@ a.list-group-item:before {
             </h5>
             <p >{{event.title}}</p>
           </div>
+           <div class="media-right" style="display: flex; flex-direction: row;">
+         <button class="btn btn-default btnPreview" style="width: 62px; ng-click="openRecordingModal(recording)"><i class="fa fa-play"></i></button>
+            <button class="btn btn-default btnPreview" ng-if="!recording.evaluated" ng-click="evaluateRecording(recording)">
+              Asistencia
+            </button>
+          </div>
         </div>
-       
-        
         <hr ng-if="!$last">
       </div>
+        </div>
+
+         <div ng-if="!company.agenda || company.agenda.length === 0" class="text-center" style="padding: 20px;">
+        <i class="fa fa-calendar fa-4x" style="color: #ddd;"></i>
+        <h4>No existen fechas</h4>
+        <p>Aún no hay fechas registradas</p>
+      </div>
+
+
     </div>
  <div class="panel-footer">
       <button class="btn btn-primary btn-block">
@@ -276,69 +323,54 @@ a.list-group-item:before {
 </div>
           
 
+
+
 <div class="list-group-item" id="Messages" ng-show="activeTab === 'Messages'">
   <div class="panel panel-default">
-   
     <div class="panel-body" style="height: 260px; overflow-y: auto;">
-      <!-- Lista de mensajes -->
-      <div ng-repeat="message in messages" class="message-container" ng-class="{ 'unread': !message.read }">
-        
-        <!-- Cabecera del mensaje -->
+      <!-- Lista de grabaciones -->
+      <div ng-if="company.audios && company.audios.length > 0">
+      <div ng-repeat="recording in company.audios" class="recording-container">
         <div class="media">
           <div class="media-left">
-            <img ng-src="https://lh3.googleusercontent.com/d/1gA-HKzQXWksHNg8jCbUveFUXoE3jfip_" class="img-circle" >
+            <i class="fa fa-music fa-2x"></i>
           </div>
           <div class="media-body">
-            <h5 class="media-heading">{{message.name}} 
-              <small class="text-muted pull-right">{{message.timestamp}}</small>
+            <h5 class="media-heading">
+              {{recording.lesson}}
+              <small class="text-muted pull-right">{{returnDateFormat(event.start)}}</small>
             </h5>
-            <p ng-if="message.type === 'text'">{{message.content}}</p>
+            <p>
+              <span ng-if="recording.evaluated" class="text-success">
+                Evaluado
+              </span>
+              <span ng-if="!recording.evaluated" class="text-warning">
+                Pendiente
+              </span>
+            </p>
+          </div>
+          <div class="media-right" style="display: flex; flex-direction: row;">
+         <button class="btn btn-default btnPreview" style="width: 62px; ng-click="openRecordingModal(recording)"><i class="fa fa-play"></i></button>
+            <button class="btn btn-default btnPreview" ng-if="!recording.evaluated" ng-click="evaluateRecording(recording)">
+              Evaluar
+            </button>
           </div>
         </div>
-        
-        <!-- Contenido multimedia -->
-        <div class="message-content" ng-switch="message.type">
-          
-          <!-- Imagen -->
-          <div ng-switch-when="image" class="text-center" style="margin-top: 10px;">
-            <img ng-src="{{message.url}}" class="img-thumbnail" style="max-height: 200px;">
-          </div>
-          
-          <!-- PDF -->
-          <div ng-switch-when="pdf" class="text-center" style="margin-top: 10px;">
-            <a href="{{message.url}}" target="_blank" class="btn btn-sm btn-danger">
-              <i class="fa fa-file-pdf-o"></i> {{message.content}}
-            </a>
-            <div class="thumbnail" style="margin-top: 10px;">
-              <img ng-src="{{message.img}}" style="max-height: 150px;">
-            </div>
-          </div>
-          
-          <!-- Video -->
-          <div ng-switch-when="video" class="embed-responsive embed-responsive-16by9" style="margin-top: 10px;">
-            <iframe class="embed-responsive-item" ng-src="{{message.url}}" allowfullscreen></iframe>
-          </div>
-          
-        </div>
-        
         <hr ng-if="!$last">
       </div>
-    </div>
-    <div class="panel-footer">
-      <div class="input-group">
-        <input type="text" class="form-control" placeholder="Escribe un mensaje...">
-        <span class="input-group-btn">
-            <button class="btn btn-default" style="width: 43px; ">
-            <i class="ri-attachment-2" style=" font-size: 14px"></i> 
-          </button>
-          <button class="btn btn-primary" type="button">
-            Enviar
-          </button>
-        </span>
+        </div>
+
+         <div ng-if="!company.audios || company.audios.length === 0" class="text-center" style="padding: 20px;">
+        <i class="fa fa-music fa-4x" style="color: #ddd;"></i>
+        <h4>No existen archivos</h4>
+        <p>Aún no hay grabaciones registradas</p>
       </div>
+
     </div>
+   
   </div>
 </div>
+
           
           
         </div>
@@ -350,17 +382,17 @@ a.list-group-item:before {
   <div class="btn-group btn-group-justified">
     <div class="btn-group">
       <button class="btn btn-default" ng-click="showTab('Analytics')">
-        <i class="fa fa-bar-chart"></i> Analytics
+       <i class="ri-folder-open-line"></i> Evaluación
       </button>
     </div>
     <div class="btn-group">
       <button class="btn btn-default" ng-click="showTab('Agenda')">
-        <i class="fa fa-calendar"></i> Agenda
+        <i class="ri-calendar-line"></i> Agenda
       </button>
     </div>
     <div class="btn-group">
       <button class="btn btn-default" ng-click="showTab('Messages')">
-        <i class="fa fa-comments"></i> Messages
+       <i class="ri-record-circle-line"></i> Grabación
       </button>
     </div>
   </div>
@@ -397,53 +429,13 @@ angular.module('companyApp', [])
   $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
     .then(function(response) { 
       $scope.companies = response.data.students;
-  //  $scope.filterByHour();
-  /* $scope.students.forEach(function(student) {
-     student.modalState = { isModalOpen1: false, isModalOpen2: false, isModalOpen3: false};
-     student.statusColor = student.status === "ACTIVO" ? "green" : "red";
-        });*/
+      $scope.filterByActive()
+
   });
   
-    $scope.messages = [
-  {
-    "sender": "admin",
-    "name": "Mozart Academy",
-    "type": "text",
-    "content": "Hola, soy tu asistente y estaré para apoyarte",
-    "timestamp": "15 may - 10:32",
-    "read": true
-  },
-      {
-    "sender": "admin",
-    "name": "Mozart Academy",
-    "type": "text",
-    "content": "Hola, soy tu asistente y estaré para apoyarte",
-    "timestamp": "15 may - 10:32",
-    "read": false
-  },
-      {
-    "sender": "admin",
-    "name": "Mozart Academy",
-    "type": "text",
-    "content": "Hola, soy tu asistente y estaré para apoyarte",
-    "timestamp": "15 may - 10:32",
-    "read": true
-  },
-      {
-    "sender": "admin",
-    "name": "Mozart Academy",
-    "type": "text",
-    "content": "Hola, soy tu asistente y estaré para apoyarte",
-    "timestamp": "15 may - 10:32",
-    "read": true
-  },
-  // ... resto de tus mensajes
-];
+ 
 
-// Para marcar como leído al hacer clic
-$scope.markAsRead = function(message) {
-  message.read = true;
-};
+
   
      $scope.returnDateFormat = function(date){
     const dat = new Date(date);
@@ -501,5 +493,80 @@ $scope.showTab = function(tabName) {
         document.querySelector('.companies-panel').style.display = 'none';
       }
     };
+
+
+
+
+$scope.applyFilter = function() {
+  switch($scope.selectedFilter) {
+    case 'active':
+      $scope.filterByActive();
+      break;
+    case 'now':
+      $scope.filterByHour(); // Asumo que "Ahora" usa filterByHour
+      break;
+    case 'today':
+      $scope.filterByDay();
+      break;
+    case 'all':
+      $scope.showAllStudents(); 
+      break;
+    default:
+      $scope.filterByActive();
+  }
+};
+
+
+
+      $scope.filteredStudents = [];
+       $scope.noStudentsMessage = '';
+
+        $scope.filterByActive = function() {
+    $scope.filteredStudents = $scope.companies.filter(function(student) {
+      return student.status === 'ACTIVO';
+    });
+  };
+
+
+  $scope.filterByDay = function() {
+    $scope.filteredStudents = $scope.companies.filter(function(student) {
+      return student.classtime.split(" ")[0] === $scope.getCurrentDay() && student.status === 'ACTIVO';
+    });
+     $scope.noStudentsMessage = $scope.filteredStudents.length === 0 ? 'No hay alumnos en este instante.' : '';
+  };
+
+  
+  $scope.filterByHour = function() {
+    $scope.filteredStudents = $scope.companies.filter(function(student) {
+      return (student.classtime.split(" ")[0] === $scope.getCurrentDay() && parseInt(student.classtime.split(" ")[2].split(":")[0]) === $scope.getCurrentHour()  && student.status === 'ACTIVO');
+    });
+    $scope.noStudentsMessage = $scope.filteredStudents.length === 0 ? 'No hay alumnos en este instante.' : '';
+  };
+  
+  
+  $scope.showAllStudents = function() {
+  $scope.filteredStudents = $scope.companies;
+  $scope.noStudentsMessage = '';
+};
+
+
+
+
+   
+    $scope.getCurrentDay = function() {
+    var days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    var now = new Date();
+    return days[now.getDay()];
+  };
+
+  $scope.getCurrentHour = function() {
+    var now = new Date();
+    var hours = now.getHours();
+    return hours
+  };
+
+
+
+
   }]);
 </script>
