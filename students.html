@@ -7,6 +7,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
 
+<script src="https://cdn.jsdelivr.net/combine/npm/tone@14.7.77,npm/@magenta/music@1.23.1/es6/core.js,npm/focus-visible@5,npm/html-midi-player@1.5.0"></script>
+
+ 
+
 <style> 
   
   body{
@@ -134,7 +138,192 @@ a.list-group-item:before {
 .btnPreview{
   transform: scale(0.9)
 }
-  
+
+#attendanceBtn {
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+#attendanceBtn:hover {
+  background-color: #f5f5f5;
+}
+
+.modal-content {
+  border-radius: 0;
+}
+
+.modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+   /* Eliminar el fondo del midi-player y sus partes internas */
+midi-player {
+  --midi-player-background: transparent !important;
+  --midi-player-controls-background: transparent !important;
+  background: transparent !important;
+}
+
+/* Si el componente usa shadow parts */
+midi-player::part(control-panel) {
+  background: transparent !important;
+}
+
+midi-player::part(background) {
+  background: transparent !important;
+}
+/*-----------------------
+    Audio Player - AP
+------------------------*/
+.ap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 50px;
+  font-family: inherit;
+  font-size: 14px;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  border-top: 1px solid #ccc;
+  background: #f2f2f2;
+  box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.1);
+  z-index: 99999;
+  /*display: none;*/
+}
+
+.ap__inner {
+  display: flex;
+  max-width: 1440px;
+  margin: auto;
+}
+
+.ap__item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ap__item--player {
+  flex: 2; /* Ocupa 2 partes del espacio disponible */
+  min-width: 0; /* Permite que el contenido se ajuste correctamente */
+  justify-content: flex-start; /* Alinea el contenido a la izquierda */
+  padding-left: 15px; /* Espaciado opcional */
+ margin-top: -4px;
+}
+
+.ap__item--settings {
+  flex: 1; /* Ocupa 1 parte del espacio disponible */
+  justify-content: flex-end; /* Alinea los botones a la derecha */
+  padding-right: 15px; /* Espaciado opcional */
+}
+
+
+.ap__item--playback > .ap__controls,
+.ap__item--settings > .ap__controls {
+  flex: 0 25%;
+  margin-top: -7px;
+}
+
+.ap__controls i{
+  margin-top: -10px !important;
+}
+
+@-webkit-keyframes fs {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fs {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+
+
+.progress__preload {
+  background: #c4c4c4;
+  z-index: 0;
+}
+
+.ap__controls,
+.ap button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  position: relative;
+  display: block;
+  height: 50px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.ap__controls:active,
+.ap button:active {
+  background: rgba(0, 0, 0, 0.1);
+}
+.ap__controls:hover,
+.ap button:hover {
+  opacity: 1;
+}
+
+
+
+.ap__controls.is-active > svg {
+  fill: steelblue;
+  filter: drop-shadow(0 0 3px rgba(70, 130, 180, 0.4));
+}
+
+@media (max-width: 1024px) {
+  .ap__item > .ap__controls {
+    flex: 1;
+  }
+}
+@media (max-width: 580px) {
+  .ap {
+    min-width: 250px;
+  }
+
+  .ap, .ap__inner {
+    height: auto;
+  }
+
+  .ap__inner {
+    flex-wrap: wrap;
+  }
+
+ 
+
+   .ap__item--player,
+  .ap__item--settings {
+    flex: 1 1 50% !important; /* Media query tiene prioridad */
+    order: 2;
+    min-width: initial;
+    justify-content: center;
+margin: 0;
+  }
+}
 </style>
 
 <div ng-app="companyApp" ng-controller="companyController" class="container">
@@ -232,15 +421,19 @@ a.list-group-item:before {
       <!-- Lista de grabaciones -->
       <div ng-repeat="lsn in company.currentLsn" class="recording-container">
         <div class="media">
-          <div class="media-left">
-            <i class="fa fa-clock fa-2x"></i>
+          <div class="media-left" style="cursor: pointer;" ng-click="toggleLsn(lsn)">
+            <i class="ri-time-line fa-2x" ng-if="lsn.status != 'Evaluada'"></i>
+             <i class="ri-check-line fa-2x" style="color: green; opacity: 0.8; text-shadow: 0 0 10px green;" ng-if="lsn.status == 'Evaluada'"></i>
           </div>
           <div class="media-body">
             <h5 class="media-heading">
               {{lsn.name}}
-              <small class="text-muted pull-right">date</small>
+   
+                <button class="btn btn-default btnPreview pull-right" style="width: 62px;" ng-click="abrirNuevaPestana(lsn.pdf);$event.preventDefault();$event.stopPropagation()">
+              Abrir
+            </button>
             </h5>
-            <p>
+            <p style="margin-bottom: -20px; font-size: 12px; font-weight: 400">
               <span ng-if="lsn.status == 'Evaluada'" class="text-success">
                 Evaluado
               </span>
@@ -249,20 +442,17 @@ a.list-group-item:before {
               </span>
             </p>
           </div>
-          <div class="media-right" style="display: flex; flex-direction: row;">
-         <button class="btn btn-default btnPreview" style="width: 62px; ng-click="openRecordingModal(recording)">Evaluar</button>
-            <button class="btn btn-default btnPreview" ng-click="abrirNuevaPestana(lsn.pdf);$event.preventDefault();$event.stopPropagation()">
-              Abrir
-            </button>
-          </div>
+     
         </div>
         <hr ng-if="!$last">
       </div>
     </div>
 
-     <div class="panel-footer">
-      <button class="btn btn-primary btn-block">
-        <i class="fa fa-plus"></i> Agregar actividad
+
+
+ <div class="panel-footer">
+      <button class="btn btn-primary btn-block" ng-click="openEditModal2(company)">
+       <i class="ri-edit-2-line"></i>Editar
       </button>
     </div>
    
@@ -281,26 +471,25 @@ a.list-group-item:before {
         
         <!-- Cabecera del mensaje -->
         <div class="media">
-          <div class="media-left">
-             <span ng-if="event.attendance == 1" class="text-success">
-              <i class="fa fa-check-circle fa-2x"></i>
+          <div class="media-left" style="cursor: pointer;" ng-click="toggleAttendance(event)">
+             <span ng-if="event.attendance === 1" >
+              <i class="ri-check-line fa-2x" style="color: green; opacity: 0.8; text-shadow: 0 0 10px green;"></i>
             </span>
-            <span ng-if="event.attendance == 0" class="text-danger">
-              <i class="fa fa-times-circle fa-2x"></i>
+            <span ng-if="event.attendance === 0" >
+              <i class="ri-close-line fa-2x" style="color: red; opacity: 0.8; text-shadow: 0 0 10px red;"></i>
+            </span>
+              <span ng-if="event.attendance === ''" >
+              <i class="ri-subtract-line fa-2x"></i>
             </span>
           </div>
-          <div class="media-body">
+          <div class="media-body" >
             <h5 class="media-heading">{{event.title}}
-              <small class="text-muted pull-right">{{returnDateFormat(event.start)}}</small>
+              <small class="text-muted pull-right" style="cursor: pointer">Editar</small>
             </h5>
-            <p >{{event.title}}</p>
+            <p style="margin-bottom: -20px; font-size: 12px; color: gray; font-weight: 400">{{returnDateFormat(event.start)}}</p>
+            <br ng-if="$last">
           </div>
-           <div class="media-right" style="display: flex; flex-direction: row;">
-         <button class="btn btn-default btnPreview" style="width: 62px; ng-click="openRecordingModal(recording)"><i class="fa fa-play"></i></button>
-            <button class="btn btn-default btnPreview" ng-if="!recording.evaluated" ng-click="evaluateRecording(recording)">
-              Asistencia
-            </button>
-          </div>
+        
         </div>
         <hr ng-if="!$last">
       </div>
@@ -315,12 +504,12 @@ a.list-group-item:before {
 
     </div>
  <div class="panel-footer">
-      <button class="btn btn-primary btn-block">
-        <i class="fa fa-plus"></i> Nuevo evento
+    <button class="btn btn-primary btn-block" ng-click="openEditModal(company)">
+       <i class="ri-edit-2-line"></i>Editar
       </button>
     </div>
   </div>
-</div>
+</div> 
           
 
 
@@ -338,23 +527,14 @@ a.list-group-item:before {
           <div class="media-body">
             <h5 class="media-heading">
               {{recording.lesson}}
-              <small class="text-muted pull-right">{{returnDateFormat(event.start)}}</small>
+  
+               <button class="btn btn-default btnPreview pull-right" style="width: 62px;" ng-click="openPlayer(recording)"><i class="fa fa-play"></i></button>
             </h5>
-            <p>
-              <span ng-if="recording.evaluated" class="text-success">
-                Evaluado
-              </span>
-              <span ng-if="!recording.evaluated" class="text-warning">
-                Pendiente
-              </span>
+            <p style=" font-size: 12px; font-weight: 400; color: gray">
+               {{returnDateFormat(recording.date)}}
             </p>
           </div>
-          <div class="media-right" style="display: flex; flex-direction: row;">
-         <button class="btn btn-default btnPreview" style="width: 62px; ng-click="openRecordingModal(recording)"><i class="fa fa-play"></i></button>
-            <button class="btn btn-default btnPreview" ng-if="!recording.evaluated" ng-click="evaluateRecording(recording)">
-              Evaluar
-            </button>
-          </div>
+       
         </div>
         <hr ng-if="!$last">
       </div>
@@ -399,10 +579,123 @@ a.list-group-item:before {
 </div>
         
         
+
+
+
         
         
       </div>
     </div>
+
+                  <!-- Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Opciones</h4>
+      </div>
+      <div class="modal-body">
+        <select class="form-control" ng-model="selectedOption">
+          <option value="1">Agregar evento</option>
+          <option value="2">Registrar pago</option>
+        </select>
+        
+        <!-- Contenido dinámico según opción -->
+        <div ng-if="selectedOption == '1'" style="margin-top: 15px;">
+          <div class="form-group">
+            <label>Título del evento</label>
+            <input type="text" class="form-control" ng-model="newEvent.title">
+          </div>
+          <div class="form-group">
+            <label>Fecha y hora</label>
+            <input type="datetime-local" class="form-control" ng-model="newEvent.date">
+          </div>
+        </div>
+        
+        <div ng-if="selectedOption == '2'" style="margin-top: 15px;">
+          <div class="form-group">
+            <label>Fecha de pago</label>
+            <input type="date" class="form-control" ng-model="paymentDate" ng-init="paymentDate = today">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" ng-click="processOption()">Continuar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+                  <!-- Modal2 -->
+<div class="modal fade" id="editModal2" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Opciones</h4>
+      </div>
+      <div class="modal-body">
+        <select class="form-control" ng-model="selectedOption2">
+          <option value="1">Aprobar todo</option>
+          <option value="2">Asignar nivel</option>
+           <option value="3">Agregar actividad</option>
+        </select>
+         
+        <!-- Contenido dinámico según opción -->
+        <div ng-if="selectedOption2 == '2'" style="margin-top: 15px;">
+         
+        </div>
+        
+        <div ng-if="selectedOption2 == '3'" style="margin-top: 15px;">
+         
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" ng-click="processOption2()">Continuar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+                                 <!-- Player -->
+   
+ 
+<div class="ap" id="ap">
+   <div class="ap__inner">
+  
+      <div class="ap__item ap__item--player">
+
+         <midi-player 
+          id="midiPlayer"
+          sound-font 
+          visualizer="#midiVisualizer"
+          style="width: 100%">
+        </midi-player>
+      </div>
+      <div class="ap__item ap__item--settings">
+          <button class="ap__controls" id="commentAudioBtn">
+               <i class="ri-message-3-line fa-2x"></i>
+          </button>
+        <button class="ap__controls" id="checkAudioBtn">
+           <i class="ri-checkbox-circle-line fa-2x"></i>
+        </button>
+        <button class="ap__controls" id="closeAudioBtn" ng-click="closePlayer()">
+          <i class="ri-close-circle-fill fa-2x"></i>
+        </button>
+      </div>
+  </div>
+</div>
+
+
+
   </div>
 </div>
 
@@ -411,7 +704,7 @@ angular.module('companyApp', [])
   .controller('companyController', ['$http', '$scope', function($http, $scope) {
 
     $scope.companies = [];
-//  $scope.orderList = 'name';
+
 
    var requestData = {
                 action: "getAdminData",
@@ -430,19 +723,33 @@ angular.module('companyApp', [])
     .then(function(response) { 
       $scope.companies = response.data.students;
       $scope.filterByActive()
+    
 
   });
   
  
 
 
-  
-     $scope.returnDateFormat = function(date){
+ 
+
+  $scope.returnDateFormat = function(date) {
     const dat = new Date(date);
-  const options = { weekday: 'long', month: 'long', day: 'numeric' };
-    var dat2 = dat.toLocaleDateString("es-mx",options).replace(",","");
-    return dat2.charAt(0).toUpperCase() + dat2.slice(1);
-  }
+    const optionsDate = { 
+        weekday: 'long', 
+        month: 'long', 
+        day: 'numeric' 
+    };
+    const optionsTime = {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    };
+
+    var dateStr = dat.toLocaleDateString("es-MX", optionsDate).replace(",", "");
+    dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+    var timeStr = dat.toLocaleTimeString("es-MX", optionsTime);
+    return dateStr + ' - ' + timeStr;
+};
     
      $scope.abrirNuevaPestana = function(URL) {
      const regex = /\/d\/([^\/]+)\//;
@@ -493,6 +800,144 @@ $scope.showTab = function(tabName) {
         document.querySelector('.companies-panel').style.display = 'none';
       }
     };
+
+
+$scope.toggleAttendance = function(event) {
+  if(event.attendance === 1) {
+    event.attendance = 0;
+  } else  {
+    event.attendance = 1;
+  } 
+};
+
+$scope.toggleLsn = function(lsn) {
+  if(lsn.status != 'Evaluada') {
+    lsn.status = 'Evaluada';
+  } else  {
+    lsn.status = 'Pendiente';
+  } 
+};
+
+
+$scope.selectedOption = '1';
+$scope.selectedOption2 = '1';
+$scope.currentCompany = null; 
+$scope.currentCompany2 = null; 
+$scope.currentRecording = null; 
+$scope.today = new Date().toISOString().split('T')[0];
+$scope.newEvent = { title: '', date: '' };
+
+$scope.openEditModal = function(company) {
+    $scope.currentCompany = company; 
+  $('#editModal').modal('show');
+};
+
+$scope.processOption = function() {
+  if($scope.selectedOption == '1') {
+    // Agregar nuevo evento al currentCompany
+    var newEventObj = {
+      title: $scope.newEvent.title,
+      start: new Date($scope.newEvent.date),
+      attendance: ''
+    };
+    
+    if(!$scope.currentCompany.agenda) {
+      $scope.currentCompany.agenda = []; // Inicializar array si no existe
+    }
+    
+    $scope.currentCompany.agenda.push(newEventObj);
+    $scope.newEvent = { title: '', date: '' }; // Limpiar campos
+    
+  } else if($scope.selectedOption == '2') {
+    
+  }
+  
+  $('#editModal').modal('hide');
+};
+
+
+
+
+$scope.openEditModal2 = function(company) {
+    $scope.currentCompany2 = company; 
+  $('#editModal2').modal('show');
+};
+
+$scope.processOption2 = function() {
+  if($scope.selectedOption2 == '1') {
+    // Agregar nuevo evento al currentCompany
+    var newEventObj = {
+      title: $scope.newEvent.title,
+      start: new Date($scope.newEvent.date),
+      attendance: ''
+    };
+    
+    if(!$scope.currentCompany2.agenda) {
+      $scope.currentCompany2.agenda = []; // Inicializar array si no existe
+    }
+    
+    $scope.currentCompany2.agenda.push(newEventObj);
+    $scope.newEvent = { title: '', date: '' }; // Limpiar campos
+    
+  } else if($scope.selectedOption2 == '2') {
+    
+  }
+  
+  $('#editModal2').modal('hide');
+};
+
+
+
+
+
+
+$scope.midiPlayer = null;
+$scope.progressPercent = 0;
+    
+
+$scope.openPlayer = function(recording) {
+      $scope.currentRecording = recording;
+      $('#ap').css('display', 'block');
+
+      if ($scope.midiPlayer) {
+        $scope.midiPlayer.stop();
+        $scope.midiPlayer.src = recording.midi;
+        console.log('Archivo MIDI asignado:', recording.midi);
+      }
+    };
+    
+    $scope.closePlayer  = function() {
+       $('#ap').css('display', 'none');
+   $scope.currentRecording = null; 
+   if ($scope.midiPlayer) $scope.midiPlayer.stop();
+   
+}
+    
+
+// Inicializar el reproductor
+$scope.initPlayer = function() {
+  $scope.midiPlayer = document.getElementById('midiPlayer');
+  
+  // Configurar eventos
+  $scope.midiPlayer.addEventListener('ready', function() {
+    $scope.$apply();
+  });
+  
+  $scope.midiPlayer.addEventListener('pause', function() {
+    $scope.$apply();
+  });
+  
+  $scope.midiPlayer.addEventListener('play', function() {
+    $scope.$apply();
+  });
+  
+};
+
+// Llamar a initPlayer cuando se carga la vista
+$scope.initPlayer();
+
+
+
 
 
 
@@ -564,7 +1009,7 @@ $scope.applyFilter = function() {
     var hours = now.getHours();
     return hours
   };
-
+ 
 
 
 
