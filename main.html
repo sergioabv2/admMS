@@ -922,16 +922,13 @@ width: 200px; /* Ajusta según el tamaño deseado */
             <a href="#/menu/library" class="item" ng-class="(activeMenuClr=='library')?'menuSelectedColor':''" ng-click="activeMenuClr = 'library'" menu-toggle="left"><i class="ri-book-shelf-line" ></i>&nbsp&nbspBiblioteca</a>
       <a href="#/menu/agenda" class="item" ng-class="(activeMenuClr=='agenda')?'menuSelectedColor':''" ng-click="activeMenuClr = 'agenda'" menu-toggle="left"><i class="ri-calendar-todo-fill"></i>&nbsp&nbspCalendario</a>   
 
-            <hr>
-
-                 <a href="#/menu/courses" class="item" ng-class="(activeMenuClr=='courses')?'menuSelectedColor':''" ng-click="activeMenuClr = 'courses'" menu-toggle="left"><i class="ri-chat-voice-line" ></i>&nbsp&nbspTareas</a>  
-          <a href="#/menu/statistics" class="item" ng-class="(activeMenuClr=='statistics')?'menuSelectedColor':''" ng-click="activeMenuClr = 'statistics'" menu-toggle="left"><i class="ri-edit-2-line"></i>&nbsp&nbspCorrecciones</a> 
+   <hr>
+  <a href="#/menu/statistics" class="item" ng-class="(activeMenuClr=='statistics')?'menuSelectedColor':''" ng-click="activeMenuClr = 'statistics'" menu-toggle="left"><i class="ri-building-line"></i>&nbsp&nbspMozart Academic</a> 
+ <a href="#/menu/reel" class="item" ng-class="(activeMenuClr=='reel')?'menuSelectedColor':''" ng-click="activeMenuClr = 'reel'" menu-toggle="left"><i class="ri-speak-line"></i>&nbsp&nbspMensajes</a> 
 
    <hr>
 
- <a href="#/menu/reel" class="item" ng-class="(activeMenuClr=='reel')?'menuSelectedColor':''" ng-click="activeMenuClr = 'reel'" menu-toggle="left"><i class="ri-building-line"></i>&nbsp&nbspPresencial</a> 
-
-
+                 <a href="#/menu/courses" class="item" ng-class="(activeMenuClr=='courses')?'menuSelectedColor':''" ng-click="activeMenuClr = 'courses'" menu-toggle="left"><i class="ri-chat-voice-line" ></i>&nbsp&nbspTareas</a>  
           </ul>
   
         </ion-content>
@@ -1233,22 +1230,10 @@ width: 200px; /* Ajusta según el tamaño deseado */
       
       <ion-content > 
 
-        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/corrections" frameborder="0" allowfullscreen></iframe></div>   
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/mClass" frameborder="0" allowfullscreen></iframe></div>   
       </ion-content>
 
-       <div id="myModal" class="modal" ng-show="isModalVisible">
-    <div class="modal-content">
-      <span class="close" ng-click="closeModal()" style="color: black">&times;</span>
-       <img src="https://lh3.googleusercontent.com/d/1bJZN2UX0fspMxGdHpyinsx29oj6dyG5X" style="max-width: 100%;" />
-    <p style="text-align: center; font-weight: bold;">
-      <br> Agrega a inicio:   </p> 
-        <p style="text-align: center;" >
-       1. <i class="ri-share-2-fill"></i> Icono de compartir  <br>
-       2. <i class="ri-add-box-line"></i> Agregar a inicio <br>
-       3. Agregar
-       </p>
-    </div>
-  </div>  
+    
 
     </ion-view>
   </script>
