@@ -363,21 +363,25 @@
             currentColor = 'red';
         
         // URL de tu PDF en cloud storage
-            function getParameterByName(name) {
-      const url = window.location.href;
-      name = name.replace(/[\[\]]/g, '\\$&');
-      const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
-      const results = regex.exec(url);
-      if (!results) return null;
-      if (!results[2]) return '';
-      return decodeURIComponent(results[2].replace(/\+/g, ' '));
-    }
+       function getParameterByName(name) {
+  const url = window.location.href;
+  name = name.replace(/[\[\]]/g, '\\$&');
+  const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+  const results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
 
-     let url = null;
-    const fileId = getParameterByName('fileId');
-    if (fileId) {
-      url = `https://drive.google.com/uc?export=download&id=${fileId}`;
-    }
+let url = null;
+const fileId = getParameterByName('fileId'); // <- ya viene decodificado (con espacios)
+
+if (fileId) {
+  // Necesitamos re-codificarlo para que sea válido en URL
+  const encodedFileId = encodeURIComponent(fileId).replace(/%2F/g, '/');
+  url = `https://storage.googleapis.com/mozartcourse/${encodedFileId}`;
+}
+
 
         
         // Inicializar el visualizador de PDF
