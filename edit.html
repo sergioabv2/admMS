@@ -373,9 +373,10 @@
       return decodeURIComponent(results[2].replace(/\+/g, ' '));
     }
 
+     let url = null;
     const fileId = getParameterByName('fileId');
     if (fileId) {
-      const url = `https://drive.google.com/file/d/${fileId}/preview`;
+      url = `https://drive.google.com/uc?export=download&id=${fileId}`;
     }
 
         
