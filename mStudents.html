@@ -86,35 +86,35 @@ li {
 
 .radial-menu{
     z-index: 20;
-		width:100px;
-		height:100px;
-		margin:auto;
+    width:100px;
+    height:100px;
+    margin:auto;
 right: -10px;
   top: 25px;
-		position:absolute;
-		border-radius:50%;
-		display:flex;
-		justify-content:center;
-		align-items:center;
-		cursor: pointer;
-		font-size: 20px;
+    position:absolute;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    cursor: pointer;
+    font-size: 20px;
 
 }
 
 .larger-area{
-	background: transparent;
-	width: 100px;
-	height: 100px;
-	position: absolute;
-	border-radius: 50%;
-	z-index: -2;
-	transition: 1s ease;
+  background: transparent;
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  border-radius: 50%;
+  z-index: -2;
+  transition: 1s ease;
   cursor:default;
 }
 .radial-menu:hover .larger-area{
-	width: 230px;
-	height: 230px;
-	transition: 1s ease;
+  width: 230px;
+  height: 230px;
+  transition: 1s ease;
 }
 .menu-item{
     position:absolute;
@@ -125,135 +125,135 @@ right: -10px;
     z-index:19;
   display: flex;
     border-radius:50%;
-		top:calc(50% - 25px);
-		left: 50%;
-		transform-origin: 0;
-		transition: 1s ease;
-		font-size: 30px;
-		color: #2e2e2e;
+    top:calc(50% - 25px);
+    left: 50%;
+    transform-origin: 0;
+    transition: 1s ease;
+    font-size: 30px;
+    color: #2e2e2e;
   opacity: 0;
     visibility: hidden;
 }
 .radial-menu:hover .menu-item{
-	top:-35px;
-	left: -120px;
-	transition: 1s ease;
-	transform-origin: calc(60%) calc(70% + 55px);
+  top:-35px;
+  left: -120px;
+  transition: 1s ease;
+  transform-origin: calc(60%) calc(70% + 55px);
   opacity: 1;
     visibility: visible;
 }
 
 ._1{
   background-image: linear-gradient(-45deg, #c1cfff, #889AD9);
-		transform:rotate(0);
+    transform:rotate(0);
 }
 ._1:hover{
   background-image: linear-gradient(-45deg, #a8b4dc, #6a77a6);
-		transition: background-image 0s;
+    transition: background-image 0s;
 }
 ._1>div{
     transform:rotate(0);
-		transition: 1s ease;
+    transition: 1s ease;
 }
 .radial-menu:hover ._1>div{
     transform:rotate(calc(360deg));
-		transition: 1s ease;
+    transition: 1s ease;
 }
 ._2{
-		background-image: linear-gradient(0deg, #fb9084, #C5685E);
-		transform:rotate(-45deg);
+    background-image: linear-gradient(0deg, #fb9084, #C5685E);
+    transform:rotate(-45deg);
 }
 ._2:hover{
-		background-image: linear-gradient(0deg, #c77066, #964e47);
-		transition: background-image 0s;
+    background-image: linear-gradient(0deg, #c77066, #964e47);
+    transition: background-image 0s;
 }
 ._2>div{
     transform:rotate(0);
-		transition: 1s ease;
+    transition: 1s ease;
 }
 .radial-menu:hover ._2>div{
     transform:rotate(calc(45deg + 360deg));
-		transition: 1s ease;
+    transition: 1s ease;
 }
 ._3{
-		background-image: linear-gradient(-90deg, #fde7ea, #DDBEC3);
-		transform:rotate(-90deg);
+    background-image: linear-gradient(-90deg, #fde7ea, #DDBEC3);
+    transform:rotate(-90deg);
 }
 ._3:hover{
-		background-image: linear-gradient(-90deg, #d7c2c5, #ae9297);
-		transition: background-image 0s;
+    background-image: linear-gradient(-90deg, #d7c2c5, #ae9297);
+    transition: background-image 0s;
 }
 ._3>div{
     transform:rotate(0);
-		transition: 1s ease;
+    transition: 1s ease;
 }
 .radial-menu:hover ._3>div{
     transform:rotate(calc(90deg + 360deg));
-		transition: 1s ease;
+    transition: 1s ease;
 }
 ._4{
-		background-image: linear-gradient(135deg, #e0f7fa, #b2ebf2);
-		transform:rotate(-135deg);
+    background-image: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+    transform:rotate(-135deg);
 }
 ._4:hover{
-	 background-image: linear-gradient(135deg, #80deea, #4dd0e1);
-		transition: background-image 0s;
+   background-image: linear-gradient(135deg, #80deea, #4dd0e1);
+    transition: background-image 0s;
 }
 ._4>div{
     transform:rotate(0);
-		transition: 1s ease;
+    transition: 1s ease;
 }
 .radial-menu:hover ._4>div{
     transform:rotate(calc(135deg + 360deg));
-		transition: 1s ease;
+    transition: 1s ease;
 }
 ._5{
-		background-image: linear-gradient(135deg, #fbf5f1, #DED5CE);
-		transform:rotate(-180deg);
+    background-image: linear-gradient(135deg, #fbf5f1, #DED5CE);
+    transform:rotate(-180deg);
 }
 ._5:hover{
-		background-image: linear-gradient(135deg, #d7cec8, #9c9189);
-		transition: background-image 0s;
+    background-image: linear-gradient(135deg, #d7cec8, #9c9189);
+    transition: background-image 0s;
 }
 ._5>div{
     transform:rotate(0);
-		transition: 1s ease;
+    transition: 1s ease;
 }
 .radial-menu:hover ._5>div{
     transform:rotate(calc(180deg + 360deg));
-		transition: 1s ease;
+    transition: 1s ease;
 }
 ._6{
-		background-image: linear-gradient(45deg, #dbeaec, #90a4a6);
-		transform:rotate(-225deg);
+    background-image: linear-gradient(45deg, #dbeaec, #90a4a6);
+    transform:rotate(-225deg);
 }
 ._6:hover{
-		background-image: linear-gradient(45deg, #bfcdcf, #6f8285);
-		transition: background-image 0s;
+    background-image: linear-gradient(45deg, #bfcdcf, #6f8285);
+    transition: background-image 0s;
 }
 ._6>div{
     transform:rotate(0);
-		transition: 1s ease;
+    transition: 1s ease;
 }
 .radial-menu:hover ._6>div{
     transform:rotate(calc(225deg + 360deg));
-		transition: 1s ease;
+    transition: 1s ease;
 }
 ._7{
-		background-image: linear-gradient(90deg, #fbf4f8, #DFCED8);
-		transform:rotate(-270deg);
+    background-image: linear-gradient(90deg, #fbf4f8, #DFCED8);
+    transform:rotate(-270deg);
 }
 ._7:hover{
-		background-image: linear-gradient(90deg, #dcced6, #aea0a9);
-		transition: background-image 0s;
+    background-image: linear-gradient(90deg, #dcced6, #aea0a9);
+    transition: background-image 0s;
 }
 ._7>div{
     transform:rotate(0);
-		transition: 1s ease;
+    transition: 1s ease;
 }
 .radial-menu:hover ._7>div{
     transform:rotate(calc(270deg + 360deg));
-		transition: 1s ease;
+    transition: 1s ease;
 }
 ._8 {
     background-image: linear-gradient(135deg, #e0f2e9, #b3d9c5);
@@ -267,11 +267,11 @@ right: -10px;
 
 ._8>div{
     transform:rotate(0);
-		transition: 1s ease;
+    transition: 1s ease;
 }
 .radial-menu:hover ._8>div{
     transform:rotate(calc(315deg + 360deg));
-		transition: 1s ease;
+    transition: 1s ease;
 }
 @keyframes rot{
     100%{transform:rotate(360deg);}
@@ -417,7 +417,7 @@ margin-left: -20px;
      margin-right: -80px;
   }
   .radial-menu:hover .menu-item{
-	left: 18px;
+  left: 18px;
     top:-40px;
     transform-origin: calc(60%) calc(50% + 70px);
   }
@@ -426,7 +426,7 @@ margin-left: -20px;
   
 
 
-	
+  
 .formLoader {
   overflow: hidden;
   height: 80%;
@@ -682,7 +682,7 @@ margin-left: -20px;
 
 
 
-	     <div class="modal-container" ng-show="currentUser.modalState.isModalOpen4">
+       <div class="modal-container" ng-show="currentUser.modalState.isModalOpen4">
   <div class="custom-modal">
     <div class="modal-content">
       <label for="userSelect" class="custom-label">Elige la actividad por restablecer:</label><br>
@@ -710,10 +710,10 @@ margin-left: -20px;
       <label class="custom-label">Mensaje rápido</label><br>
       <div class="form-row">
        <select class="custom-select" ng-model="msgType" ng-change="updateResp()">
-	       <option value="event"> Eventual </option>
-	        <option value="ready"> Secuencial </option>
-         <option value="BPM"> BPM </option>
+          <option value="ready"> Instrucción </option>
+         <option value="BPM"> BPM inicial</option>
  <option value="BPM+"> BPM+ </option>
+ <option value="delete"> Borrar </option>
         </select> 
 <select class="custom-select" ng-model="msgResp" ng-options="option for option in options"></select> 
         <div class="button-group">
@@ -790,19 +790,19 @@ studentsApp.controller('studentsCtrl', ['$http', '$scope', function($http, $scop
   };
      
 $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
-	    alert("Pago registrado")
+      alert("Pago registrado")
    };
 
  $scope.newPayment = function(student) {
      var result = confirm("¿Registrar pago?");
-	if (result) {
-	    postPay(student.mail)
-	} 
+  if (result) {
+      postPay(student.mail)
+  } 
   } 
 
 
-	
-	
+  
+  
    //evaluate
     function postEvaluation(mail, type, index) {
      var requestData = {
@@ -839,7 +839,7 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 
 
 
-	   //restore
+     //restore
     function postRestore(mail, type, index) {
      var requestData = {
     action: "restore",
@@ -874,7 +874,7 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 
 
 
-	
+  
   
    //span
     function postSpan(mail, lvl, lsn, index) {
@@ -895,14 +895,14 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
       .then(function(response) { 
   $scope.students[index].currentLsn = response.data.newlessons
-	      if(lvl == 0){
-		 $scope.students[index].level = "Nivel Preparatorio"
-	      }else{
-		 $scope.students[index].level = "Nivel "+lvl
-	      } 
+        if(lvl == 0){
+     $scope.students[index].level = "Nivel Preparatorio"
+        }else{
+     $scope.students[index].level = "Nivel "+lvl
+        } 
   $scope.students[index].blq = ""
     $scope.students[index].color = lvlColor(lvl)
-	       $(".formLoader").css("display", "none");
+         $(".formLoader").css("display", "none");
     $("#students").css("filter", "none");
 }) 
    };
@@ -925,7 +925,7 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
   
 
    $scope.span = function(selectedStudent, lvl, lsn) {
-	   $(".formLoader").css("display", "flex");
+     $(".formLoader").css("display", "flex");
     $("#students").css("filter", "blur(2px)");
      var index = $scope.students.findIndex(function(student) {
     return student === selectedStudent;
@@ -937,7 +937,7 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 
 
 
-//Attendance	
+//Attendance  
 function postPay(mail, nClass, log) {
      var requestData = {
     action: "attendance",
@@ -956,15 +956,15 @@ function postPay(mail, nClass, log) {
 $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6hquJNhqEGEKecOPLowyjBJU8SS_wQ57W2--XobEA/exec', requestData, config)
    };
 
-	
+  
    $scope.attendance = function(student, selectedDate) {
-	   postPay(student.mail, selectedDate, 1)
+     postPay(student.mail, selectedDate, 1)
      student.payed = !student.payed;
      $scope.currentUser.modalState.isModalOpen3 = false;
   }
   
     $scope.absence = function(student, selectedDate) {
-	postPay(student.mail, selectedDate, 0)
+  postPay(student.mail, selectedDate, 0)
      student.unpayed = !student.unpayed;
       $scope.currentUser.modalState.isModalOpen3 = false;
   }
@@ -972,7 +972,7 @@ $http.post('https://script.google.com/macros/s/AKfycbzuRdRbf_Yy-JUEUm4E2qzvWLm6h
 
 
 
-	
+  
   $scope.openModal = function(user, modalNumber) {
         $scope.students.forEach(function(student) {
             student.modalState.isModalOpen1 = false;
@@ -1024,12 +1024,14 @@ $scope.updateResp = function() {
   if ($scope.msgType === 'BPM') {
     $scope.options = ['35', '40', '45', '50', '55', '60', '70', 'Final'];
   }else if ($scope.msgType === 'BPM+') {
-    $scope.options = ['+5', '-5', '+10', '-10'];
+    $scope.options = ['+5', '-5', '+10'];
   } else if ($scope.msgType === 'ready') {
-    $scope.options = ['Mano Derecha', 'Mano Izquierda', 'Ambas manos', 'Siguiente ejercicio', 'Cambio de pagina', 'Tema concluido'];
-  } else if ($scope.msgType === 'event') {
-    $scope.options = ['Presentación formal', 'Presentación informal', 'Descanso', 'Borrar'];
-  }
+    $scope.options = ['Solo Derecha', 'Ahora Izquierda', 'Ambas manos', 'Siguiente ejercicio', 'Cambio de pagina', 'Tema concluido'];
+  } else if ($scope.msgType === 'present') {
+     $scope.options = ['Primera', 'Corta'];
+  }   else if ($scope.msgType === 'delete') {
+    text = ""
+  } 
 };
   
   
@@ -1039,45 +1041,43 @@ $scope.updateResp = function() {
     if(opt == '+5'){
       text = "Listo, sube 5 bits más al metrónomo"
     }else if(opt == '-5'){
-	text = "Por favor, reduce 5 bits menos a la velocidad del metrónomo"
+  text = "Por favor, reduce 5 bits menos a la velocidad del metrónomo"
     }else if(opt == '+10'){
-	text = "Perfecto, sube 10 bits más al metrónomo"
+  text = "Perfecto, sube 10 bits más al metrónomo"
     }else if(opt == '35'){
-	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 35 bits"
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 35 bits"
     }else if(opt == '40'){
-	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 40 bits"
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 40 bits"
     }else if(opt == '45'){
-	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 45 bits"
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 45 bits"
     }else if(opt == '50'){
-	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 50 bits"
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 50 bits"
     }else if(opt == '55'){
-	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 55 bits"
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 55 bits"
     }else if(opt == '60'){
-	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 60 bits"
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 60 bits"
     }else if(opt == '70'){
-	text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 70 bits"
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 70 bits"
     }else if(opt == 'Final'){
-	text = "Perfecto, vamos a ajustar la velocidad del metrónomo a la velocidad final que indica el ejercicio"
+  text = "Perfecto, vamos a ajustar la velocidad del metrónomo a la velocidad final que indica el ejercicio"
     }else if(opt == 'Mano Derecha'){
-	text = "Vamos a comenzar a trabajar el primer ejercicio leyendo solo la mano derecha sin metrónomo"
+  text = "Vamos a comenzar a trabajar la actividad leyendo solo la mano derecha sin metrónomo"
     }else if(opt == 'Mano Izquierda'){
-	text = "Bien, ahora vamos a trabajar solo la mano izquierda"
+  text = "Listo, ahora vamos a darle un repaso solo a la mano izquierda"
     }else if(opt == 'Ambas manos'){
-	text = "Listo, vamos a leer con ambas manos"
+  text = "Ya está, ahora si vamos a leer con ambas manos"
     }else if(opt == 'Siguiente ejercicio'){
-	text = "Excelente trabajo, vamos a pasar al siguiente ejercicio, de igual forma leyendo solo mano derecha"
+  text = "Listo ya quedó el ejercicio, vamos a continuar trabajando el siguiente ejercicio"
     }else if(opt == 'Cambio de pagina'){
-	text = "Perfecto, vamos a cambiar de página"
+  text = "Perfecto, vamos a cambiar de página y continuar con el siguiente ejercicio"
+    }else if(opt == 'Primera'){
+  text = "Hola buenas tardes, me presento, soy Alicia y seré tu asistente virtual, asistiré al profesor en darte indicaciones cuando él se encuentre ocupado"
+    }else if(opt == 'Corta'){
+  text = "Hola, ¿como estás?, bienvenido"
     }else if(opt == 'Tema concluido'){
-	text = "Excelente trabajo, has concluido el tema"
-    }else if(opt == 'Presentación formal'){
-	text = "Buenas tardes, me presento, soy Alicia y seré tu asistente virtual, el profesor tiene oido de director de orquesta y está al tanto de varios instrumentos a la vez, pero lo asistiré cuando s encuentre ocupado "
-    }else if(opt == 'Presentación informal'){
-	text = ""
-    }else if(opt == 'Descanso'){
-	text = "Excelente trabajo, puedes tomar un breve descanso de 1 minuto para refrescar la mente y no saturarse de información"
+  text = "Excelente trabajo, puedes tomar un breve descanso de 1 minuto para refrescar la mente y no saturarse de información"
     }else if(opt == 'Borrar'){
-	text = ""
+  text = ""
     }
 
 
