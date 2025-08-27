@@ -374,12 +374,13 @@
 
   // Codificamos de nuevo para la URL del bucket
   const encodedFileId = encodeURIComponent(fileId);
-  alert(encodedFileId);
+  
   return `https://storage.googleapis.com/mozartacademy-files/pdf/${encodedFileId}`;
 }
 
 // Uso
 const url = getFileUrl();
+     alert(url)
         
         // Inicializar el visualizador de PDF
     function initPdfViewer() {
