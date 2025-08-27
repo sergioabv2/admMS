@@ -374,6 +374,7 @@
 
   // Codificamos de nuevo para la URL del bucket
   const encodedFileId = encodeURIComponent(fileId);
+  alert(`https://storage.googleapis.com/mozartacademy-files/pdf/${encodedFileId}`);
   return `https://storage.googleapis.com/mozartacademy-files/pdf/${encodedFileId}`;
 }
 
