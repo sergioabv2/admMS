@@ -1,10 +1,10 @@
  <html lang="es">
-<head>  
+<head>    
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
      <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
-    <title>Visualizador de PDF con Anotaciones</title>
-    <style>
+    <title>Visualizador de PDF con Anotaciones</title> 
+    <style> 
         body {
             margin: 0;
             padding: 0;
@@ -325,7 +325,7 @@
     </div>
     
     <div class="page-info" id="page-num">Página: 1/1</div>
-    
+     
     <div class="canvas-container">
         <div id="loading" class="loading">Cargando PDF...</div>
         <div id="pdf-container"></div>
@@ -336,8 +336,9 @@
   
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
-    <script>
-        // Configuración de PDF.js
+
+   <script>
+     // Configuración de PDF.js
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
         
         // Variables de estado
@@ -354,16 +355,18 @@
             showAnnotations = true,
             lastX = 0,
             lastY = 0,
-            drawingHistory = [],
+ 
             historyIndex = -1,
             pdfPages = [],
             textAnnotations = [],
+            drawingAnnotations = [],
             touchStartDistance = 0,
             initialScale = 1.0,
             currentColor = 'red';
-        
-        // URL de tu PDF en cloud storage
-       function getParameterByName(name) {
+
+
+
+      function getParameterByName(name) {
   const url = window.location.href;
   name = name.replace(/[\[\]]/g, '\\$&');
   const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
@@ -373,67 +376,76 @@
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 
-let url = null;
+        let url = null;
 const fileId = getParameterByName('fileId'); // <- ya viene decodificado (con espacios)
 
 if (fileId) {
   // Necesitamos re-codificarlo para que sea válido en URL
   const encodedFileId = encodeURIComponent(fileId).replace(/%2F/g, '/');
-  url = `https://storage.googleapis.com/mozartcourse/${encodedFileId}`;
+  url = `https://storage.googleapis.com/mozartacademy-files/pdf/${encodedFileId}`;
+}
+        
+        // Inicializar el visualizador de PDF
+    function initPdfViewer() {
+    document.getElementById('loading').style.display = 'block';
+    
+    const loadingTask = pdfjsLib.getDocument({
+        url: url,
+        withCredentials: false
+    });
+    
+    loadingTask.promise.then(function(pdfDoc_) {
+        pdfDoc = pdfDoc_;
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('page-num').textContent = `Página: 1/${pdfDoc.numPages}`;
+        
+        // Renderizar todas las páginas
+        renderAllPages();
+        
+        // Ajustar al cambiar tamaño de ventana
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                if (pdfDoc) {
+                    // Renderizar páginas
+                    renderAllPages();
+                    
+                    // Redibujar todas las anotaciones después del resize
+                    redrawAllStrokes();
+                }
+            }, 200); // Debounce de 200ms
+        });
+        
+    }).catch(function(error) {
+        console.error('Error al cargar el PDF:', error);
+        document.getElementById('loading').textContent = 'Error al cargar el PDF. Verifica la consola para más detalles.';
+    });
 }
 
 
-        
-        // Inicializar el visualizador de PDF
-        function initPdfViewer() {
-            document.getElementById('loading').style.display = 'block';
+function redrawAllStrokes() {
+    // Limpiar el canvas
+    annotationCtx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
+    
+    // Redibujar todos los trazos
+    drawingAnnotations.forEach(stroke => {
+        if (stroke.type === 'drawing' && stroke.points.length > 0) {
+            annotationCtx.beginPath();
+            annotationCtx.moveTo(stroke.points[0].x, stroke.points[0].y);
+            annotationCtx.lineWidth = stroke.width;
+            annotationCtx.strokeStyle = stroke.color;
+            annotationCtx.lineCap = 'round';
+            annotationCtx.lineJoin = 'round';
             
-            const loadingTask = pdfjsLib.getDocument({
-                url: url,
-                withCredentials: false
-            });
-            
-            loadingTask.promise.then(function(pdfDoc_) {
-                pdfDoc = pdfDoc_;
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('page-num').textContent = `Página: 1/${pdfDoc.numPages}`;
-                
-                // Renderizar todas las páginas
-                renderAllPages();
-                
-                // Ajustar al cambiar tamaño de ventana
-               // Reemplazar el event listener existente con este:
-let resizeTimeout;
-window.addEventListener('resize', function() {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(function() {
-        if (pdfDoc) {
-            // Guardar el estado actual antes de redimensionar
-            saveCanvasState();
-            
-            // Renderizar páginas
-            renderAllPages();
-            
-            // Restaurar el estado del canvas de anotaciones
-            if (drawingHistory.length > 0) {
-                const img = new Image();
-                img.onload = function() {
-                    annotationCtx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
-                    annotationCtx.drawImage(img, 0, 0, img.width, img.height, 
-                                          0, 0, annotationCanvas.width, annotationCanvas.height);
-                };
-                img.src = drawingHistory[historyIndex].dataURL;
+            for (let i = 1; i < stroke.points.length; i++) {
+                annotationCtx.lineTo(stroke.points[i].x, stroke.points[i].y);
             }
+            
+            annotationCtx.stroke();
         }
-    }, 200); // Debounce de 200ms
-});
-                
-            }).catch(function(error) {
-                console.error('Error al cargar el PDF:', error);
-                document.getElementById('loading').textContent = 'Error al cargar el PDF. Verifica la consola para más detalles.';
-            });
-        }
-        
+    });
+}
         // Función para limitar la frecuencia de ejecución
         function throttle(func, limit) {
             let lastFunc;
@@ -766,19 +778,16 @@ window.addEventListener('resize', function() {
     if (confirm('¿Estás seguro de que quieres eliminar todas las anotaciones?')) {
         // Limpiar canvas de dibujo
         annotationCtx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
+
+        textAnnotations = [];
+        drawingAnnotations = [];
         
-        // Reiniciar historial con el estado limpio
-        drawingHistory = [{
-            dataURL: annotationCanvas.toDataURL('image/png'),
-            width: annotationCanvas.width,
-            height: annotationCanvas.height
-        }];
-        historyIndex = 0;
+        
         
         // Limpiar anotaciones de texto
         const textContainer = document.getElementById('text-annotations-container');
         textContainer.innerHTML = '';
-        textAnnotations = [];
+
         
         // Eliminar de localStorage
         localStorage.removeItem('pdfDrawingAnnotations');
@@ -804,61 +813,66 @@ window.addEventListener('resize', function() {
 
     return { x, y };
 }
-
+  
         
       
-        
-        // Configurar elemento de texto
-        function setupTextElement(textElement, x, y) {
-            textElement.className = 'text-annotation';
-            textElement.contentEditable = true;
-            textElement.style.position = 'absolute';
-            textElement.style.left = x + 'px';
-            textElement.style.top = y + 'px';
-            textElement.style.minWidth = '100px';
-            textElement.style.minHeight = '20px';
-            textElement.style.width = 'auto';
-            textElement.style.height = 'auto';
-            textElement.style.padding = '5px';
-            textElement.style.backgroundColor = 'rgba(255, 255, 0, 0.5)';
-            textElement.style.border = '1px solid #000';
-            textElement.style.zIndex = '100';
-            textElement.style.resize = 'none';
-            textElement.style.overflow = 'hidden';
-            textElement.style.cursor = 'move';
-            textElement.style.whiteSpace = 'normal';
-            textElement.style.wordBreak = 'break-word';
-            textElement.style.display = 'inline-block';
-            textElement.style.lineHeight = '1.2';
-            textElement.style.fontSize = '14px';
+        function addTextAnnotation(e) {
+    if (!isTextMode) return;
+    e.preventDefault();
 
-            // Añadir manejador de redimensión
-            const resizeHandle = document.createElement('div');
-            resizeHandle.style.width = '10px';
-            resizeHandle.style.height = '10px';
-            resizeHandle.style.backgroundColor = 'blue';
-            resizeHandle.style.position = 'absolute';
-            resizeHandle.style.right = '0';
-            resizeHandle.style.bottom = '0';
-            resizeHandle.style.cursor = 'se-resize';
-            textElement.appendChild(resizeHandle);
- 
-            // Eventos para el elemento de texto
-            textElement.addEventListener('mousedown', handleTextMouseDown);
-            textElement.addEventListener('touchstart', handleTextTouchStart, { passive: false });
-            resizeHandle.addEventListener('mousedown', startResizeText);
-            resizeHandle.addEventListener('touchstart', startResizeTextTouch, { passive: false });
-            
-            // Ajustar tamaño automáticamente al contenido
-            textElement.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-                this.style.width = 'auto';
-                this.style.width = (this.scrollWidth) + 'px';
-            });
+    const pos = getCanvasPosition(annotationCanvas, e);
+    
+    // Crear elemento de texto simple
+    const textElement = document.createElement('div');
+    textElement.className = 'text-annotation';
+    textElement.contentEditable = true;
+    textElement.style.position = 'absolute';
+    textElement.style.left = pos.x + 'px';
+    textElement.style.top = pos.y + 'px';
+    textElement.style.minWidth = '100px';
+    textElement.style.minHeight = '20px';
+    textElement.style.padding = '5px';
+    textElement.style.backgroundColor = 'rgba(255, 255, 0, 0.5)';
+    textElement.style.border = '1px solid #000';
+    textElement.style.zIndex = '100';
+    textElement.style.cursor = 'move';
+    
+    // Añadir al contenedor
+    document.getElementById('text-annotations-container').appendChild(textElement);
+    
+    // Enfocar el elemento para edición inmediata
+    textElement.focus();
+    
+    // Almacenar como objeto JSON en el array
+    const annotation = {
+        id: Date.now(), // ID único
+        type: 'text',
+        x: pos.x,
+        y: pos.y,
+        page: currentPage,
+        content: '', // Se actualizará al guardar
+        width: 100,
+        height: 20,
+        color: 'rgba(255, 255, 0, 0.5)',
+        timestamp: new Date().toISOString()
+    };
+    
+    textAnnotations.push(annotation);
+    
+    // Guardar contenido cuando el usuario termina de editar
+    textElement.addEventListener('blur', function() {
+        annotation.content = this.textContent;
+        annotation.width = this.offsetWidth;
+        annotation.height = this.offsetHeight;
+        saveTextAnnotations();
+    });
+    
 
-            return textElement;
-        }
+    // Guardar anotaciones
+    saveTextAnnotations();
+}
+
+
 
         // Función para manejar el clic en borrar
         function handleEraseClick(e) {
@@ -890,86 +904,7 @@ window.addEventListener('resize', function() {
         }
 
       
-      function addTextAnnotation(e) {
-    if (!isTextMode) return;
-    e.preventDefault();
-
-    const pos = getCanvasPosition(annotationCanvas, e);
-    const textAnnotationsContainer = document.getElementById('text-annotations-container');
-    const containerRect = textAnnotationsContainer.getBoundingClientRect();
-
-
-    const text = prompt("Escribe la anotación (puedes usar dos párrafos separados por '||'):");
-    if (!text) return;
-
-    const [paragraph1, paragraph2] = text.split("||").map(p => p.trim());
-
-    // Create main wrapper for the annotation
-    const annotationWrapper = document.createElement('div');
-    annotationWrapper.className = 'pdf-annotation-wrapper';
-    annotationWrapper.style.setProperty('--point-top', pos.y + 'px');
-    annotationWrapper.style.setProperty('--point-left', pos.x + 'px');
-
-    if (pos.x > containerRect.width * 0.7) {
-        annotationWrapper.classList.add('right-edge');
-    }
-    // Check if near bottom edge
-    if (pos.y > containerRect.height * 0.7) {
-        annotationWrapper.classList.add('bottom-edge');
-    }
-
-    // Create checkbox (annotation point)
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.className = 'annotation-point';
-    checkbox.id = 'annotation-' + Date.now(); // Unique ID
-    checkbox.style.left = `0px`; // Position relative to wrapper
-    checkbox.style.top = `0px`;  // Position relative to wrapper
-
-    // Create label with wave effect
-    const label = document.createElement('label');
-    label.htmlFor = checkbox.id;
-    label.className = 'annotation-label';
-    label.style.left = `0px`; // Position relative to wrapper
-    label.style.top = `0px`;  // Position relative to wrapper
-    label.innerHTML = `<span><span></span></span>`;
-
-    // Create description container with blur effect
-    const description = document.createElement('div');
-    description.className = 'annotation-description';
-    description.style.display = 'none'; // Hidden by default
-
-    // Create text content for the description with typewriter effect
-    const textContentDiv = document.createElement('div');
-    textContentDiv.className = 'annotation-text-content'; // A new class to target for content
-    textContentDiv.innerHTML = `
-        <p class="typewriter delay-1">${paragraph1 || ""}</p>
-        ${paragraph2 ? `<p class="typewriter delay-2">${paragraph2}</p>` : ""}
-    `;
-    description.appendChild(textContentDiv);
-
-
-    annotationWrapper.appendChild(checkbox);
-    annotationWrapper.appendChild(label);
-    annotationWrapper.appendChild(description);
-    textAnnotationsContainer.appendChild(annotationWrapper);
-
-
-    // Store reference to the added annotation
-    textAnnotations.push({
-        id: checkbox.id,
-        element: annotationWrapper,
-        x: pos.x,
-        y: pos.y,
-        page: currentPage,
-        text: text, // Store original text for saving
-        checked: false // Initial state
-    });
-
-    // Setup events for the new annotation
-    setupAnnotationEvents(annotationWrapper);
-    saveTextAnnotations(); // Save annotations after adding a new one
-}
+    
 
 function setupAnnotationEvents(wrapper) {
     const checkbox = wrapper.querySelector('.annotation-point');
@@ -1041,54 +976,52 @@ function setupAnnotationEvents(wrapper) {
 }
 
 
-function loadDrawingAnnotations() {
-    const savedDrawing = localStorage.getItem('pdfDrawingAnnotations');
-    if (!savedDrawing) return;
-    
-    const img = new Image();
-    img.onload = function() {
-        // Limpiar el canvas antes de dibujar
-        annotationCtx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
-        annotationCtx.drawImage(img, 0, 0);
-        
-        // Guardar el estado inicial
-        saveCanvasState();
-    };
-    img.src = savedDrawing;
-}
+
 
 // Update `saveTextAnnotations` to store the text and checked state
 function saveTextAnnotations() {
     const annotationsToSave = textAnnotations.map(anno => {
-        return {
+return {
             id: anno.id,
+            type: anno.type,
             x: anno.x,
             y: anno.y,
             page: anno.page,
-            text: anno.element.querySelector('.annotation-text-content').innerHTML, // Save the innerHTML including p tags
-            checked: anno.element.querySelector('.annotation-point').checked
+            content: anno.content,
+            width: anno.width,
+            height: anno.height,
+            color: anno.color,
+            timestamp: anno.timestamp
         };
     });
-    localStorage.setItem('pdfTextAnnotations', JSON.stringify(annotationsToSave));
+    
 }
-        
-        // Guardar anotaciones de dibujo
-        function saveDrawingAnnotations() {
-            localStorage.setItem('pdfDrawingAnnotations', annotationCanvas.toDataURL('image/png'));
-        }
-        
-        // Cargar anotaciones de dibujo guardadas
-        function loadDrawingAnnotations() {
-            const savedDrawing = localStorage.getItem('pdfDrawingAnnotations');
-            if (!savedDrawing) return;
+             // Cargar anotaciones de dibujo guardadas
+       function loadDrawingAnnotations() {
+    const savedDrawing = localStorage.getItem('pdfDrawingAnnotations');
+    if (!savedDrawing) return;
+    
+    drawingAnnotations = JSON.parse(savedDrawing);
+    
+    // Redibujar todos los trazos
+    drawingAnnotations.forEach(stroke => {
+        if (stroke.type === 'drawing' && stroke.points.length > 0) {
+            annotationCtx.beginPath();
+            annotationCtx.moveTo(stroke.points[0].x, stroke.points[0].y);
+            annotationCtx.lineWidth = stroke.width;
+            annotationCtx.strokeStyle = stroke.color;
+            annotationCtx.lineCap = 'round';
+            annotationCtx.lineJoin = 'round';
             
-            const img = new Image();
-            img.onload = function() {
-                annotationCtx.drawImage(img, 0, 0);
-                saveCanvasState();
-            };
-            img.src = savedDrawing;
+            for (let i = 1; i < stroke.points.length; i++) {
+                annotationCtx.lineTo(stroke.points[i].x, stroke.points[i].y);
+            }
+            
+            annotationCtx.stroke();
         }
+    });
+}
+
         
         // Cargar todas las anotaciones
         function loadAnnotations() {
@@ -1104,22 +1037,7 @@ function saveTextAnnotations() {
         }
         
         // Guardar estado actual del canvas
-        function saveCanvasState() {
-    // Guardar como URL de datos en lugar de ImageData
-    const snapshot = {
-        dataURL: annotationCanvas.toDataURL('image/png'),
-        width: annotationCanvas.width,
-        height: annotationCanvas.height
-    };
-    
-    if (historyIndex < drawingHistory.length - 1) {
-        drawingHistory = drawingHistory.slice(0, historyIndex + 1);
-    }
-    
-    drawingHistory.push(snapshot);
-    historyIndex++;
-}
-        
+      
         // Event listeners para botones
         document.getElementById('zoom-in').addEventListener('click', zoomIn);
         document.getElementById('zoom-out').addEventListener('click', zoomOut);
@@ -1222,6 +1140,18 @@ function saveTextAnnotations() {
             isDrawing = true;
             const pos = getCanvasPosition(annotationCanvas, e);
             [lastX, lastY] = [pos.x, pos.y];
+
+            const stroke = {
+        id: Date.now(),
+        type: 'drawing',
+        page: currentPage,
+        color: currentColor,
+        width: 2,
+        points: [{x: lastX, y: lastY}],
+        timestamp: new Date().toISOString()
+    };
+    
+    drawingAnnotations.push(stroke);
               
             // Comenzar nuevo trazo 
             annotationCtx.beginPath();
@@ -1231,8 +1161,8 @@ function saveTextAnnotations() {
             annotationCtx.lineCap = 'round';
             annotationCtx.lineJoin = 'round';
             
-            // Guardar estado antes de empezar a dibujar
-            saveCanvasState();
+
+            //saveCanvasState();
         } 
         
         function draw(e) {
@@ -1242,6 +1172,11 @@ function saveTextAnnotations() {
             
             annotationCtx.lineTo(pos.x, pos.y);
             annotationCtx.stroke();
+
+            if (drawingAnnotations.length > 0) {
+                const currentStroke = drawingAnnotations[drawingAnnotations.length - 1];
+                currentStroke.points.push({x: pos.x, y: pos.y});
+            }
             
             [lastX, lastY] = [pos.x, pos.y];
         }
@@ -1249,11 +1184,18 @@ function saveTextAnnotations() {
         function stopDrawing() {
             if (isDrawing && isDrawingMode) {
                 annotationCtx.closePath();
+                saveDrawingAnnotations();
             }
             isDrawing = false;
         }
+
+        function saveDrawingAnnotations() {
+            localStorage.setItem('pdfDrawingAnnotations', JSON.stringify(drawingAnnotations));
+        }
+
         
         // Inicializar
         initPdfViewer();
-    </script>
-</body>   
+   </script>
+   
+</body>         
