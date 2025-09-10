@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <title>Visualizador de PDF con Anotaciones</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            touch-action: none;
+            overflow: hidden;
+        }
+
+        .canvas-container {
+            position: relative;
+            height: 100%;
+            overflow: auto;
+            background-color: #525659;
+            width: 100%;
+        }
+
+        #pdf-canvas {
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            max-width: 100%;
+        }
+
+        .pdf-page {
+            display: flex;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        #annotation-canvas {
+            margin: 0 auto;
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            pointer-events: none; /* Se activa solo en modos de edición */
+        }
+
+        .controls-left {
+            position: fixed;
+            right: 10px;
+            bottom: 22px;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 100;
+        }
+
+        .control-btn2 {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background-color: #555;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn2:hover {
+            background-color: #666;
+        }
+
+        .control-btn2.active {
+            background-color: #4CAF50;
+        }
+
+        .controls-right {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background-color: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+
+        .control-btn.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .page-info {
+            position: fixed;
+            left: 10px;
+            bottom: 22px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 100;
+        }
+
+        .loading {
+            color: white;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .hidden-control {
+            display: none !important;
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 8px;
+            margin-left: 10px;
+            padding: 5px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .color-option {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 1px solid #ccc;
+        }
+        
+        /* Estilos para anotaciones de texto (si los necesitas) */
+        #text-annotations-container {
+             position: absolute;
+             top: 0;
+             left: 50%;
+             transform: translateX(-50%);
+             pointer-events: none;
+             z-index: 50;
+        }
+
+        .text-annotation {
+            position: absolute;
+            min-width: 100px;
+            min-height: 20px;
+            padding: 5px;
+            background-color: rgba(255, 255, 0, 0.5);
+            border: 1px solid #000;
+            z-index: 100;
+            cursor: move;
+            pointer-events: all; /* Para poder interactuar con ellas */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="controls-left">
+        <button id="zoom-out" class="control-btn2"><i class="ri-subtract-line"></i></button>
+        <button id="zoom-in" class="control-btn2"><i class="ri-add-line"></i></button>
+        <div id="color-palette" class="color-palette" style="display: none;">
+            <div class="color-option" data-color="red" style="background: red"></div>
+            <div class="color-option" data-color="blue" style="background: blue"></div>
+            <div class="color-option" data-color="green" style="background: green"></div>
+            <div class="color-option" data-color="black" style="background: black"></div>
+        </div>
+    </div>
+    
+    <div class="controls-right">
+        <button id="draw-btn" class="control-btn"><i class="ri-edit-2-line"></i></button>
+        <button id="color-btn" class="control-btn hidden-control"><i class="ri-palette-line"></i></button>
+        <button id="toggle-annotations-btn" class="control-btn hidden-control"><i class="ri-eye-line"></i></button>
+        <button id="text-btn" class="control-btn hidden-control"><i class="ri-text"></i></button>
+        <button id="erase-btn" class="control-btn hidden-control"><i class="ri-eraser-line"></i></button>
+        <button id="delete-btn" class="control-btn hidden-control"><i class="ri-delete-bin-2-line"></i></button>
+        <button id="save-btn" class="control-btn hidden-control"><i class="ri-save-line"></i></button>
+    </div>
+    
+    <div class="page-info" id="page-num">Página: 1/1</div>
+    
+    <div class="canvas-container">
+        <div id="loading" class="loading">Cargando PDF...</div>
+        <div id="pdf-container"></div>
+        <canvas id="annotation-canvas"></canvas>
+        <div id="text-annotations-container"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+
+    <script>
+        // Configuración de PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+        
+        // Variables de estado
+        let pdfDoc = null,
+            currentPage = 1,
+            scale = 1.0,
+            pdfContainer = document.getElementById('pdf-container'),
+            annotationCanvas = document.getElementById('annotation-canvas'),
+            annotationCtx = annotationCanvas.getContext('2d'),
+            isDrawing = false,
+            isDrawingMode = false,
+            isTextMode = false,
+            isEraseMode = false,
+            showAnnotations = true,
+            pdfPages = [],
+            textAnnotations = [],
+            drawingAnnotations = [],
+            currentColor = 'red';
+
+        function getFileUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const fileId = params.get("fileId");
+            if (!fileId) return null;
+            const encodedFileId = encodeURIComponent(fileId);
+            return `https://storage.googleapis.com/mozartacademy-files/pdf/${encodedFileId}`;
+        }
+        
+        const url = getFileUrl();
+        
+        // Inicializar el visualizador de PDF
+        function initPdfViewer() {
+            document.getElementById('loading').style.display = 'block';
+            
+            const loadingTask = pdfjsLib.getDocument({
+                url: url,
+                withCredentials: false
+            });
+            
+            loadingTask.promise.then(function(pdfDoc_) {
+                pdfDoc = pdfDoc_;
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('page-num').textContent = `Página: 1/${pdfDoc.numPages}`;
+                
+                renderAllPages();
+                
+                let resizeTimeout;
+                window.addEventListener('resize', function() {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(function() {
+                        if (pdfDoc) {
+                            renderAllPages();
+                        }
+                    }, 200);
+                });
+                
+            }).catch(function(error) {
+                console.error('Error al cargar el PDF:', error);
+                document.getElementById('loading').textContent = 'Error al cargar el PDF.';
+            });
+        }
+
+        // Renderizar todas las páginas
+        function renderAllPages() {
+            pdfContainer.innerHTML = '';
+            pdfPages = [];
+            
+            const containerWidth = document.querySelector('.canvas-container').clientWidth;
+            const allPagesContainer = document.createElement('div');
+            allPagesContainer.style.width = '100%';
+            
+            function renderPage(pageNumber) {
+                if (pageNumber > pdfDoc.numPages) {
+                    pdfContainer.appendChild(allPagesContainer);
+                    updateAnnotationCanvasSize();
+                    loadAnnotations();
+                    return;
+                }
+                
+                const pageContainer = document.createElement('div');
+                pageContainer.className = 'pdf-page';
+                
+                const canvas = document.createElement('canvas');
+                canvas.className = 'pdf-page-canvas';
+                
+                pageContainer.appendChild(canvas);
+                allPagesContainer.appendChild(pageContainer);
+                
+                pdfDoc.getPage(pageNumber).then(function(page) {
+                    const viewport = page.getViewport({ scale: 1.0 });
+                    const newScale = containerWidth / viewport.width;
+                    const scaledViewport = page.getViewport({ scale: newScale * scale });
+                    
+                    canvas.height = scaledViewport.height;
+                    canvas.width = scaledViewport.width;
+                    
+                    pdfPages[pageNumber - 1] = {
+                        element: pageContainer,
+                        canvas: canvas,
+                        viewport: scaledViewport,
+                        pageNumber: pageNumber
+                    };
+                    
+                    const renderContext = {
+                        canvasContext: canvas.getContext('2d'),
+                        viewport: scaledViewport
+                    };
+                    
+                    page.render(renderContext).promise.then(function() {
+                        renderPage(pageNumber + 1);
+                    });
+                });
+            }
+            
+            renderPage(1);
+        }
+
+        // Actualizar el tamaño del canvas de anotaciones
+        function updateAnnotationCanvasSize() {
+            if (pdfPages.length === 0) return;
+            
+            let totalHeight = 0;
+            let maxWidth = 0;
+            
+            pdfPages.forEach(page => {
+                totalHeight += page.element.offsetHeight;
+                maxWidth = Math.max(maxWidth, page.element.offsetWidth);
+            });
+            
+            annotationCanvas.width = maxWidth;
+            annotationCanvas.height = totalHeight;
+            
+            const textContainer = document.getElementById('text-annotations-container');
+            textContainer.style.width = maxWidth + 'px';
+            textContainer.style.height = totalHeight + 'px';
+        }
+
+        // Redibuja todos los trazos desde los datos JSON guardados
+        function redrawAllStrokes() {
+            annotationCtx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
+            if (!showAnnotations) return;
+
+            drawingAnnotations.forEach(stroke => {
+                if (stroke.type === 'drawing' && stroke.points.length > 0) {
+                    const page = pdfPages[stroke.pageNum - 1];
+                    if (!page) return;
+
+                    const pageTopOffset = page.element.offsetTop;
+                    const pageWidth = page.canvas.width;
+                    const pageHeight = page.canvas.height;
+
+                    annotationCtx.beginPath();
+                    
+                    const firstPoint = stroke.points[0];
+                    const startX = firstPoint.x * pageWidth;
+                    const startY = (firstPoint.y * pageHeight) + pageTopOffset;
+                    annotationCtx.moveTo(startX, startY);
+                    
+                    annotationCtx.lineWidth = (stroke.width || 2) * scale;
+                    annotationCtx.strokeStyle = stroke.color;
+                    annotationCtx.lineCap = 'round';
+                    annotationCtx.lineJoin = 'round';
+                    
+                    for (let i = 1; i < stroke.points.length; i++) {
+                        const point = stroke.points[i];
+                        const x = point.x * pageWidth;
+                        const y = (point.y * pageHeight) + pageTopOffset;
+                        annotationCtx.lineTo(x, y);
+                    }
+                    
+                    annotationCtx.stroke();
+                }
+            });
+        }
+        
+        // Actualizar la información de página visible
+        function updateVisiblePage() {
+            // ... (función original sin cambios)
+        }
+
+        // --- Funciones de Control ---
+        function zoomIn() {
+            if (scale >= 3.0) return;
+            scale += 0.1;
+            renderAllPages();
+        }
+
+        function zoomOut() {
+            if (scale <= 0.5) return;
+            scale -= 0.1;
+            renderAllPages();
+        }
+
+        function toggleDrawing() {
+             isDrawingMode = !isDrawingMode;
+             isTextMode = false;
+             isEraseMode = false;
+             
+             document.getElementById('draw-btn').classList.toggle('active', isDrawingMode);
+             document.getElementById('text-btn').classList.remove('active');
+             document.getElementById('erase-btn').classList.remove('active');
+             
+             if(isDrawingMode){
+                annotationCanvas.style.pointerEvents = 'auto';
+                annotationCanvas.style.cursor = 'crosshair';
+                // Lógica para mostrar/ocultar paleta de colores si es necesario
+             } else {
+                annotationCanvas.style.pointerEvents = 'none';
+                annotationCanvas.style.cursor = 'default';
+             }
+        }
+        
+        // ... (resto de funciones toggleTextMode, toggleEraseMode, etc. sin cambios)
+
+        function toggleAnnotationsVisibility() {
+            showAnnotations = !showAnnotations;
+            document.getElementById('toggle-annotations-btn').classList.toggle('active', showAnnotations);
+            redrawAllStrokes(); // Redibujar para mostrar u ocultar
+            document.getElementById('text-annotations-container').style.display = showAnnotations ? 'block' : 'none';
+        }
+        
+        function clearAllAnnotations() {
+            if (confirm('¿Estás seguro de que quieres eliminar todas las anotaciones?')) {
+                drawingAnnotations = [];
+                textAnnotations = [];
+                localStorage.removeItem('pdfDrawingAnnotations');
+                localStorage.removeItem('pdfTextAnnotations');
+                redrawAllStrokes();
+                document.getElementById('text-annotations-container').innerHTML = '';
+            }
+        }
+
+        // --- Lógica de Dibujo con Coordenadas Relativas ---
+        
+        function getCanvasPosition(canvas, event) {
+            let rect = canvas.getBoundingClientRect();
+            let x, y;
+            if (event.touches) {
+                x = event.touches[0].clientX - rect.left;
+                y = event.touches[0].clientY - rect.top;
+            } else {
+                x = event.clientX - rect.left;
+                y = event.clientY - rect.top;
+            }
+            return { x, y };
+        }
+
+        function getRelativeCoords(e) {
+            const pos = getCanvasPosition(annotationCanvas, e);
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            for (const page of pdfPages) {
+                const pageRect = page.canvas.getBoundingClientRect();
+                if (clientY >= pageRect.top && clientY <= pageRect.bottom) {
+                    const x = pos.x / page.canvas.width;
+                    const y = (clientY - pageRect.top) / page.canvas.height;
+                    
+                    return {
+                        pageX: Math.max(0, Math.min(1, x)),
+                        pageY: Math.max(0, Math.min(1, y)),
+                        pageNum: page.pageNumber
+                    };
+                }
+            }
+            return null;
+        }
+
+        function startDrawing(e) {
+            if (!isDrawingMode) return;
+            const relativePos = getRelativeCoords(e);
+            if (!relativePos) return;
+
+            isDrawing = true;
+            
+            const stroke = {
+                id: Date.now(),
+                type: 'drawing',
+                pageNum: relativePos.pageNum,
+                color: currentColor,
+                width: 2,
+                points: [{ x: relativePos.pageX, y: relativePos.pageY }],
+                timestamp: new Date().toISOString()
+            };
+            drawingAnnotations.push(stroke);
+
+            const pos = getCanvasPosition(annotationCanvas, e);
+            annotationCtx.beginPath();
+            annotationCtx.moveTo(pos.x, pos.y);
+            annotationCtx.lineWidth = 2 * scale;
+            annotationCtx.strokeStyle = currentColor;
+            annotationCtx.lineCap = 'round';
+            annotationCtx.lineJoin = 'round';
+        }
+
+        function draw(e) {
+            if (!isDrawing || !isDrawingMode) return;
+            e.preventDefault();
+
+            const relativePos = getRelativeCoords(e);
+            if (!relativePos) return;
+
+            const currentStroke = drawingAnnotations[drawingAnnotations.length - 1];
+            
+            if (currentStroke.pageNum === relativePos.pageNum) {
+                currentStroke.points.push({ x: relativePos.pageX, y: relativePos.pageY });
+                
+                const pos = getCanvasPosition(annotationCanvas, e);
+                annotationCtx.lineTo(pos.x, pos.y);
+                annotationCtx.stroke();
+            }
+        }
+
+        function stopDrawing() {
+            if (isDrawing) {
+                saveDrawingAnnotations();
+            }
+            isDrawing = false;
+        }
+
+        // --- Almacenamiento ---
+        
+        function saveDrawingAnnotations() {
+            localStorage.setItem('pdfDrawingAnnotations', JSON.stringify(drawingAnnotations));
+        }
+
+        function loadDrawingAnnotations() {
+            const savedData = localStorage.getItem('pdfDrawingAnnotations');
+            if (savedData) {
+                drawingAnnotations = JSON.parse(savedData);
+                redrawAllStrokes();
+            }
+        }
+        
+        // ... (funciones save/load para anotaciones de texto si las implementas)
+
+        function loadAnnotations() {
+            loadDrawingAnnotations();
+            // loadTextAnnotations();
+        }
+
+        function saveAllAnnotations() {
+            saveDrawingAnnotations();
+            // saveTextAnnotations();
+            alert('Anotaciones guardadas');
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('zoom-in').addEventListener('click', zoomIn);
+        document.getElementById('zoom-out').addEventListener('click', zoomOut);
+        document.getElementById('draw-btn').addEventListener('click', toggleDrawing);
+        document.getElementById('toggle-annotations-btn').addEventListener('click', toggleAnnotationsVisibility);
+        document.getElementById('delete-btn').addEventListener('click', clearAllAnnotations);
+        document.getElementById('save-btn').addEventListener('click', saveAllAnnotations);
+        // ... (resto de listeners)
+        
+        annotationCanvas.addEventListener('mousedown', startDrawing);
+        annotationCanvas.addEventListener('mousemove', draw);
+        annotationCanvas.addEventListener('mouseup', stopDrawing);
+        annotationCanvas.addEventListener('mouseout', stopDrawing);
+        
+        annotationCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e); }, { passive: false });
+        annotationCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }, { passive: false });
+        annotationCanvas.addEventListener('touchend', stopDrawing);
+
+        // Inicializar
+        initPdfViewer();
+    </script>
+</body>
+</html>
