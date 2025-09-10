@@ -38,6 +38,7 @@
             justify-content: center; cursor: pointer; transition: background-color 0.2s;
         }
         .control-btn2:hover { background-color: #666; }
+        .control-btn2:disabled { background-color: #333; cursor: not-allowed; opacity: 0.5; }
         .controls-right {
             position: fixed; right: 20px; top: 20px; display: flex;
             flex-direction: column; align-items: flex-end; gap: 8px; z-index: 1000;
@@ -48,42 +49,61 @@
             align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease;
         }
         .control-btn:hover { transform: scale(1.1); }
+        .control-btn:disabled { cursor: not-allowed; opacity: 0.5; transform: none; }
         .control-btn.active { background-color: #4CAF50; color: white; }
         .page-info {
             position: fixed; left: 10px; bottom: 22px; background-color: rgba(0, 0, 0, 0.7);
             color: white; padding: 5px 10px; border-radius: 4px; z-index: 100;
         }
         .loading { color: white; text-align: center; margin-top: 50px; }
-        .hidden-control { display: none !important; }
 
         /* --- NUEVOS ESTILOS PARA WEBRTC Y ZOOM --- */
         .rtc-controls {
-            position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.7);
-            padding: 10px; border-radius: 8px; color: white; z-index: 1001;
+            position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8);
+            padding: 15px; border-radius: 8px; color: white; z-index: 1001;
             display: flex; flex-direction: column; gap: 8px; font-size: 14px;
+            min-width: 250px;
         }
         .rtc-controls input, .rtc-controls button {
-            padding: 5px; border-radius: 4px; border: 1px solid #555;
-            background: #333; color: white;
+            padding: 8px; border-radius: 4px; border: 1px solid #555;
+            background: #333; color: white; font-size: 14px;
         }
-        .rtc-controls button { cursor: pointer; background: #007bff; border-color: #007bff;}
+        .rtc-controls button { 
+            cursor: pointer; background: #007bff; border-color: #007bff;
+            transition: background 0.2s;
+        }
         .rtc-controls button:hover { background: #0056b3; }
-        #rtc-status { margin: 5px 0 0; font-style: italic; }
+        .rtc-controls button:disabled { background: #666; cursor: not-allowed; opacity: 0.6; }
+        #rtc-status { 
+            margin: 5px 0 0; font-style: italic; padding: 5px;
+            background: rgba(255,255,255,0.1); border-radius: 4px;
+        }
         #zoom-indicator {
             background: rgba(0,0,0,0.7); color: white; padding: 5px 10px;
             border-radius: 4px; font-size: 14px;
         }
+        .connection-indicator {
+            display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+            margin-right: 8px;
+        }
+        .connection-indicator.disconnected { background-color: #f44336; }
+        .connection-indicator.connecting { background-color: #ff9800; }
+        .connection-indicator.connected { background-color: #4caf50; }
     </style>
 </head>
 
 <body>
     <div class="rtc-controls">
         <div>
-            <input type="text" id="session-id-input" placeholder="ID de Sesión">
-            <button id="join-session-btn">Unirse</button>
+            <input type="text" id="session-id-input" placeholder="ID de Sesión (6 caracteres)">
+            <button id="join-session-btn">Unirse como Cliente</button>
         </div>
         <button id="start-session-btn">Iniciar Sesión como Host</button>
-        <p id="rtc-status">Estado: Desconectado</p>
+        <button id="disconnect-btn" style="background: #dc3545; border-color: #dc3545;" disabled>Desconectar</button>
+        <p id="rtc-status">
+            <span class="connection-indicator disconnected"></span>
+            Estado: Desconectado
+        </p>
     </div>
 
     <div class="controls-left">
@@ -94,7 +114,8 @@
     
     <div class="controls-right">
         <button id="draw-btn" class="control-btn"><i class="ri-edit-2-line"></i></button>
-        </div>
+        <button id="clear-btn" class="control-btn"><i class="ri-eraser-line"></i></button>
+    </div>
     
     <div class="page-info" id="page-num">Página: 1/1</div>
     
@@ -113,7 +134,12 @@
             authDomain: "jcubic-webrtc.firebaseapp.com",
             databaseURL: "https://jcubic-webrtc.firebaseio.com",
         };
-        const iceServers = [ { urls: "stun:stun.relay.metered.ca:80" } ]; // Usamos un STUN simple
+        
+        const iceServers = [
+            { urls: "stun:stun.relay.metered.ca:80" },
+            { urls: "stun:stun.l.google.com:19302" },
+            { urls: "stun:stun1.l.google.com:19302" }
+        ];
 
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
@@ -123,14 +149,17 @@
         let peer = null;
         let isHost = false;
         let sessionId = null;
+        let connectionState = 'disconnected';
 
+        // Referencias DOM
         const rtcStatus = document.getElementById('rtc-status');
         const sessionIdInput = document.getElementById('session-id-input');
         const startSessionBtn = document.getElementById('start-session-btn');
         const joinSessionBtn = document.getElementById('join-session-btn');
+        const disconnectBtn = document.getElementById('disconnect-btn');
         const zoomIndicator = document.getElementById('zoom-indicator');
 
-        // --- LÓGICA DE PDF.JS (con modificaciones) ---
+        // --- LÓGICA DE PDF.JS ---
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
         
         let pdfDoc = null, scale = 1.0, pdfContainer = document.getElementById('pdf-container');
@@ -145,13 +174,28 @@
         }
         const url = getFileUrl();
 
+        function updateConnectionStatus(state, message) {
+            connectionState = state;
+            const indicator = document.querySelector('.connection-indicator');
+            indicator.className = `connection-indicator ${state}`;
+            rtcStatus.innerHTML = `<span class="connection-indicator ${state}"></span>${message}`;
+        }
+
         function initPdfViewer() {
+            if (!url) {
+                document.getElementById('loading').textContent = 'Error: No se encontró el archivo PDF';
+                return;
+            }
+            
             const loadingTask = pdfjsLib.getDocument({ url });
             loadingTask.promise.then(pdfDoc_ => {
                 pdfDoc = pdfDoc_;
                 document.getElementById('loading').style.display = 'none';
                 renderAllPages();
                 window.addEventListener('resize', () => renderAllPages());
+            }).catch(error => {
+                document.getElementById('loading').textContent = 'Error al cargar el PDF: ' + error.message;
+                console.error('Error loading PDF:', error);
             });
         }
 
@@ -201,7 +245,7 @@
         function redrawAllStrokes() {
             annotationCtx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
             drawingAnnotations.forEach(stroke => {
-                if (stroke.points.length > 0) {
+                if (stroke.points && stroke.points.length > 0) {
                     const page = pdfPages[stroke.pageNum - 1];
                     if (!page) return;
 
@@ -213,7 +257,7 @@
                     annotationCtx.moveTo(firstPoint.x * width, (firstPoint.y * height) + pageTopOffset);
                     
                     annotationCtx.lineWidth = (stroke.width || 2) * scale;
-                    annotationCtx.strokeStyle = stroke.color;
+                    annotationCtx.strokeStyle = stroke.color || 'red';
                     annotationCtx.lineCap = 'round';
                     annotationCtx.lineJoin = 'round';
 
@@ -230,32 +274,65 @@
             zoomIndicator.textContent = `Zoom: ${Math.round(scale * 100)}%`;
         }
 
+        function updateControlsState() {
+            const connected = connectionState === 'connected';
+            const canControl = connected && isHost;
+            
+            // Controles de zoom solo para el host
+            document.getElementById('zoom-in').disabled = !canControl;
+            document.getElementById('zoom-out').disabled = !canControl;
+            
+            // Controles de dibujo solo para el host
+            document.getElementById('draw-btn').disabled = !canControl;
+            document.getElementById('clear-btn').disabled = !canControl;
+            
+            // Controles de conexión
+            startSessionBtn.disabled = connected;
+            joinSessionBtn.disabled = connected;
+            disconnectBtn.disabled = !connected;
+        }
+
         function zoomIn() {
-            if (scale >= 3.0 || !isHost) return;
-            scale += 0.1;
+            if (scale >= 3.0 || !isHost || connectionState !== 'connected') return;
+            scale = Math.min(3.0, scale + 0.1);
             updateZoomIndicator();
             renderAllPages();
-            if (peer && peer.connected) {
-                peer.send(JSON.stringify({ type: 'zoom', scale: scale }));
-            }
+            sendMessage({ type: 'zoom', scale: scale });
         }
 
         function zoomOut() {
-            if (scale <= 0.5 || !isHost) return;
-            scale -= 0.1;
+            if (scale <= 0.5 || !isHost || connectionState !== 'connected') return;
+            scale = Math.max(0.5, scale - 0.1);
             updateZoomIndicator();
             renderAllPages();
-            if (peer && peer.connected) {
-                peer.send(JSON.stringify({ type: 'zoom', scale: scale }));
-            }
+            sendMessage({ type: 'zoom', scale: scale });
         }
 
         function toggleDrawing() {
-            if (!isHost) return; // Solo el host puede dibujar
+            if (!isHost || connectionState !== 'connected') return;
             isDrawingMode = !isDrawingMode;
             document.getElementById('draw-btn').classList.toggle('active', isDrawingMode);
             annotationCanvas.style.pointerEvents = isDrawingMode ? 'auto' : 'none';
             annotationCanvas.style.cursor = isDrawingMode ? 'crosshair' : 'default';
+        }
+
+        function clearAnnotations() {
+            if (!isHost || connectionState !== 'connected') return;
+            if (confirm('¿Estás seguro de que quieres borrar todas las anotaciones?')) {
+                drawingAnnotations = [];
+                redrawAllStrokes();
+                sendMessage({ type: 'clear' });
+            }
+        }
+
+        function sendMessage(message) {
+            if (peer && peer.connected) {
+                try {
+                    peer.send(JSON.stringify(message));
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                }
+            }
         }
         
         // --- LÓGICA DE DIBUJO ---
@@ -285,14 +362,19 @@
         }
 
         function startDrawing(e) {
-            if (!isDrawingMode || !isHost) return;
+            if (!isDrawingMode || !isHost || connectionState !== 'connected') return;
             const relativePos = getRelativeCoords(e);
             if (!relativePos) return;
+            
+            e.preventDefault();
             isDrawing = true;
             
             const stroke = {
-                id: Date.now(), pageNum: relativePos.pageNum, color: currentColor,
-                width: 2, points: [{ x: relativePos.pageX, y: relativePos.pageY }]
+                id: Date.now() + Math.random(),
+                pageNum: relativePos.pageNum,
+                color: currentColor,
+                width: 2,
+                points: [{ x: relativePos.pageX, y: relativePos.pageY }]
             };
             drawingAnnotations.push(stroke);
 
@@ -306,13 +388,13 @@
         }
 
         function draw(e) {
-            if (!isDrawing || !isDrawingMode || !isHost) return;
+            if (!isDrawing || !isDrawingMode || !isHost || connectionState !== 'connected') return;
             e.preventDefault();
             const relativePos = getRelativeCoords(e);
             if (!relativePos) return;
 
             const currentStroke = drawingAnnotations[drawingAnnotations.length - 1];
-            if (currentStroke.pageNum === relativePos.pageNum) {
+            if (currentStroke && currentStroke.pageNum === relativePos.pageNum) {
                 currentStroke.points.push({ x: relativePos.pageX, y: relativePos.pageY });
                 const pos = getCanvasPosition(e);
                 annotationCtx.lineTo(pos.x, pos.y);
@@ -323,107 +405,228 @@
         function stopDrawing() {
             if (!isDrawing) return;
             isDrawing = false;
-            if (peer && peer.connected && isHost) {
+            if (connectionState === 'connected' && isHost && drawingAnnotations.length > 0) {
                 const lastStroke = drawingAnnotations[drawingAnnotations.length - 1];
-                peer.send(JSON.stringify({ type: 'draw', stroke: lastStroke }));
+                sendMessage({ type: 'draw', stroke: lastStroke });
             }
         }
 
-        // --- LÓGICA DE CONEXIÓN WEBRTC ---
+        // --- LÓGICA DE CONEXIÓN WEBRTC MEJORADA ---
+        function cleanupConnection() {
+            if (peer) {
+                peer.removeAllListeners();
+                if (!peer.destroyed) {
+                    peer.destroy();
+                }
+                peer = null;
+            }
+            if (sessionId) {
+                // Limpiar datos de Firebase
+                db.ref('sessions/' + sessionId).remove();
+                sessionId = null;
+            }
+        }
+
         function setupPeerEvents() {
             peer.on('error', err => {
                 console.error('Error de Peer:', err);
-                rtcStatus.textContent = 'Error en la conexión.';
+                updateConnectionStatus('disconnected', 'Error en la conexión: ' + err.message);
+                updateControlsState();
             });
 
             peer.on('connect', () => {
-                rtcStatus.textContent = `Estado: Conectado (${isHost ? 'Host' : 'Cliente'})`;
-                startSessionBtn.disabled = true;
-                joinSessionBtn.disabled = true;
-                sessionIdInput.disabled = true;
+                updateConnectionStatus('connected', `Conectado como ${isHost ? 'Host' : 'Cliente'}`);
+                updateControlsState();
+                
+                // Si es host, enviar estado actual
+                if (isHost) {
+                    sendMessage({ type: 'sync', scale: scale, annotations: drawingAnnotations });
+                }
+            });
+
+            peer.on('close', () => {
+                updateConnectionStatus('disconnected', 'Conexión cerrada');
+                updateControlsState();
             });
             
-            // SOLO EL CLIENTE RECIBE DATOS
-            if (!isHost) {
-                peer.on('data', data => {
+            peer.on('data', data => {
+                try {
                     const message = JSON.parse(data.toString());
-                    if (message.type === 'draw') {
+                    handleReceivedMessage(message);
+                } catch (error) {
+                    console.error('Error parsing message:', error);
+                }
+            });
+        }
+
+        function handleReceivedMessage(message) {
+            switch (message.type) {
+                case 'draw':
+                    if (message.stroke) {
                         drawingAnnotations.push(message.stroke);
                         redrawAllStrokes();
-                    } else if (message.type === 'zoom') {
+                    }
+                    break;
+                case 'zoom':
+                    if (message.scale) {
                         scale = message.scale;
                         updateZoomIndicator();
                         renderAllPages();
                     }
-                });
+                    break;
+                case 'clear':
+                    drawingAnnotations = [];
+                    redrawAllStrokes();
+                    break;
+                case 'sync':
+                    if (message.scale) scale = message.scale;
+                    if (message.annotations) drawingAnnotations = message.annotations;
+                    updateZoomIndicator();
+                    renderAllPages();
+                    break;
             }
         }
 
-        startSessionBtn.addEventListener('click', () => {
-            isHost = true;
-            sessionId = Math.random().toString(36).substring(2, 8);
-            sessionIdInput.value = sessionId;
-            rtcStatus.textContent = 'Esperando al cliente...';
+        function disconnect() {
+            cleanupConnection();
+            isHost = false;
+            updateConnectionStatus('disconnected', 'Desconectado');
+            updateControlsState();
+            sessionIdInput.value = '';
+        }
 
-            peer = new SimplePeer({ initiator: true, config: { iceServers } });
+        // --- EVENT LISTENERS PARA CONEXIÓN ---
+        startSessionBtn.addEventListener('click', () => {
+            if (connectionState !== 'disconnected') return;
+            
+            isHost = true;
+            sessionId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            sessionIdInput.value = sessionId;
+            updateConnectionStatus('connecting', `Esperando cliente... ID: ${sessionId}`);
+            updateControlsState();
+
+            peer = new SimplePeer({ 
+                initiator: true, 
+                config: { iceServers },
+                trickle: false
+            });
+            
             setupPeerEvents();
 
             peer.on('signal', offer => {
-                db.ref('sessions/' + sessionId + '/offer').set(JSON.stringify(offer));
+                db.ref('sessions/' + sessionId + '/offer').set({
+                    data: JSON.stringify(offer),
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
             });
 
-            db.ref('sessions/' + sessionId + '/answer').on('value', snap => {
-                const answer = snap.val();
-                if (answer) {
-                    peer.signal(JSON.parse(answer));
+            // Escuchar respuesta del cliente
+            const answerRef = db.ref('sessions/' + sessionId + '/answer');
+            answerRef.on('value', snap => {
+                const answerData = snap.val();
+                if (answerData && answerData.data) {
+                    try {
+                        peer.signal(JSON.parse(answerData.data));
+                        answerRef.off(); // Dejar de escuchar
+                    } catch (error) {
+                        console.error('Error processing answer:', error);
+                    }
                 }
             });
+
+            // Timeout de conexión
+            setTimeout(() => {
+                if (connectionState === 'connecting') {
+                    updateConnectionStatus('disconnected', 'Tiempo de espera agotado');
+                    cleanupConnection();
+                    updateControlsState();
+                }
+            }, 30000);
         });
 
         joinSessionBtn.addEventListener('click', () => {
+            if (connectionState !== 'disconnected') return;
+            
             isHost = false;
-            sessionId = sessionIdInput.value.trim();
-            if (!sessionId) {
-                alert('Por favor, introduce un ID de sesión.');
+            sessionId = sessionIdInput.value.trim().toUpperCase();
+            if (!sessionId || sessionId.length !== 6) {
+                alert('Por favor, introduce un ID de sesión válido (6 caracteres).');
                 return;
             }
-            rtcStatus.textContent = 'Conectando al host...';
-
-            peer = new SimplePeer({ initiator: false, config: { iceServers } });
-            setupPeerEvents();
             
+            updateConnectionStatus('connecting', 'Conectando al host...');
+            updateControlsState();
+
+            // Verificar si la sesión existe
             db.ref('sessions/' + sessionId + '/offer').once('value', snap => {
-                const offer = snap.val();
-                if (offer) {
-                    peer.signal(JSON.parse(offer));
-                } else {
-                    rtcStatus.textContent = 'Error: ID de sesión no encontrado.';
+                const offerData = snap.val();
+                if (!offerData || !offerData.data) {
+                    updateConnectionStatus('disconnected', 'Error: ID de sesión no encontrado');
+                    updateControlsState();
+                    return;
+                }
+
+                peer = new SimplePeer({ 
+                    initiator: false, 
+                    config: { iceServers },
+                    trickle: false
+                });
+                
+                setupPeerEvents();
+                
+                peer.on('signal', answer => {
+                    db.ref('sessions/' + sessionId + '/answer').set({
+                        data: JSON.stringify(answer),
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                });
+
+                try {
+                    peer.signal(JSON.parse(offerData.data));
+                } catch (error) {
+                    console.error('Error processing offer:', error);
+                    updateConnectionStatus('disconnected', 'Error al procesar la oferta de conexión');
+                    updateControlsState();
                 }
             });
 
-            peer.on('signal', answer => {
-                db.ref('sessions/' + sessionId + '/answer').set(JSON.stringify(answer));
-            });
+            // Timeout de conexión
+            setTimeout(() => {
+                if (connectionState === 'connecting') {
+                    updateConnectionStatus('disconnected', 'Tiempo de conexión agotado');
+                    cleanupConnection();
+                    updateControlsState();
+                }
+            }, 15000);
         });
 
-        // --- EVENT LISTENERS ---
+        disconnectBtn.addEventListener('click', disconnect);
+
+        // --- EVENT LISTENERS PARA CONTROLES ---
         document.getElementById('zoom-in').addEventListener('click', zoomIn);
         document.getElementById('zoom-out').addEventListener('click', zoomOut);
         document.getElementById('draw-btn').addEventListener('click', toggleDrawing);
+        document.getElementById('clear-btn').addEventListener('click', clearAnnotations);
         
+        // Eventos de dibujo
         annotationCanvas.addEventListener('mousedown', startDrawing);
         annotationCanvas.addEventListener('mousemove', draw);
         annotationCanvas.addEventListener('mouseup', stopDrawing);
         annotationCanvas.addEventListener('mouseout', stopDrawing);
         
-        annotationCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e); }, { passive: false });
-        annotationCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }, { passive: false });
+        annotationCanvas.addEventListener('touchstart', startDrawing, { passive: false });
+        annotationCanvas.addEventListener('touchmove', draw, { passive: false });
         annotationCanvas.addEventListener('touchend', stopDrawing);
+
+        // Limpiar al cerrar la página
+        window.addEventListener('beforeunload', () => {
+            cleanupConnection();
+        });
 
         // Inicializar
         initPdfViewer();
         updateZoomIndicator();
-
+        updateControlsState();
     </script>
 </body>
 </html>
