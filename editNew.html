@@ -4,206 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
-    <title>Visualizador de PDF con Anotaciones</title>
+    <title>Visualizador PDF Colaborativo (Host/Cliente)</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.1/simplepeer.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            height: 100vh;
-            touch-action: none;
-            overflow: hidden;
+            margin: 0; padding: 0; font-family: Arial, sans-serif;
+            height: 100vh; touch-action: none; overflow: hidden;
         }
-
         .canvas-container {
-            position: relative;
-            height: 100%;
-            overflow: auto;
-            background-color: #525659;
-            width: 100%;
+            position: relative; height: 100%; overflow: auto;
+            background-color: #525659; width: 100%;
         }
-
-        #pdf-canvas {
-            display: block;
-            margin: 0 auto;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            max-width: 100%;
-        }
-
         .pdf-page {
-            display: flex;
-            justify-content: center;
-            margin: 0 auto;
+            display: flex; justify-content: center; margin: 0 auto;
             position: relative;
         }
-
         #annotation-canvas {
-            margin: 0 auto;
-            position: absolute;
-            left: 50%;
-            top: 0;
-            transform: translateX(-50%);
-            pointer-events: none; /* Se activa solo en modos de edición */
+            position: absolute; left: 50%; top: 0;
+            transform: translateX(-50%); pointer-events: none;
         }
-
         .controls-left {
-            position: fixed;
-            right: 10px;
-            bottom: 22px;
-            display: flex;
-            flex-direction: row;
-            gap: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 14px;
-            z-index: 100;
+            position: fixed; right: 10px; bottom: 22px; display: flex;
+            gap: 10px; background-color: rgba(0, 0, 0, 0.7); color: white;
+            padding: 5px 10px; border-radius: 4px; z-index: 100;
         }
-
         .control-btn2 {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            background-color: #555;
-            color: white;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            width: 32px; height: 32px; border-radius: 6px; background-color: #555;
+            color: white; border: none; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; transition: background-color 0.2s;
         }
-
-        .control-btn2:hover {
-            background-color: #666;
-        }
-
-        .control-btn2.active {
-            background-color: #4CAF50;
-        }
-
+        .control-btn2:hover { background-color: #666; }
         .controls-right {
-            position: fixed;
-            right: 20px;
-            top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 8px;
-            z-index: 1000;
+            position: fixed; right: 20px; top: 20px; display: flex;
+            flex-direction: column; align-items: flex-end; gap: 8px; z-index: 1000;
         }
-
         .control-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: white;
-            border: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            width: 40px; height: 40px; border-radius: 50%; background: white;
+            border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); display: flex;
+            align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease;
         }
-
-        .control-btn:hover {
-            background-color: rgba(255, 255, 255, 1);
-            transform: scale(1.1);
-        }
-
-        .control-btn.active {
-            background-color: #4CAF50;
-            color: white;
-        }
-
+        .control-btn:hover { transform: scale(1.1); }
+        .control-btn.active { background-color: #4CAF50; color: white; }
         .page-info {
-            position: fixed;
-            left: 10px;
-            bottom: 22px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 14px;
-            z-index: 100;
+            position: fixed; left: 10px; bottom: 22px; background-color: rgba(0, 0, 0, 0.7);
+            color: white; padding: 5px 10px; border-radius: 4px; z-index: 100;
         }
+        .loading { color: white; text-align: center; margin-top: 50px; }
+        .hidden-control { display: none !important; }
 
-        .loading {
-            color: white;
-            text-align: center;
-            margin-top: 50px;
+        /* --- NUEVOS ESTILOS PARA WEBRTC Y ZOOM --- */
+        .rtc-controls {
+            position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.7);
+            padding: 10px; border-radius: 8px; color: white; z-index: 1001;
+            display: flex; flex-direction: column; gap: 8px; font-size: 14px;
         }
-
-        .hidden-control {
-            display: none !important;
+        .rtc-controls input, .rtc-controls button {
+            padding: 5px; border-radius: 4px; border: 1px solid #555;
+            background: #333; color: white;
         }
-
-        .color-palette {
-            display: flex;
-            gap: 8px;
-            margin-left: 10px;
-            padding: 5px;
-            background: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .color-option {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 1px solid #ccc;
-        }
-        
-        /* Estilos para anotaciones de texto (si los necesitas) */
-        #text-annotations-container {
-             position: absolute;
-             top: 0;
-             left: 50%;
-             transform: translateX(-50%);
-             pointer-events: none;
-             z-index: 50;
-        }
-
-        .text-annotation {
-            position: absolute;
-            min-width: 100px;
-            min-height: 20px;
-            padding: 5px;
-            background-color: rgba(255, 255, 0, 0.5);
-            border: 1px solid #000;
-            z-index: 100;
-            cursor: move;
-            pointer-events: all; /* Para poder interactuar con ellas */
+        .rtc-controls button { cursor: pointer; background: #007bff; border-color: #007bff;}
+        .rtc-controls button:hover { background: #0056b3; }
+        #rtc-status { margin: 5px 0 0; font-style: italic; }
+        #zoom-indicator {
+            background: rgba(0,0,0,0.7); color: white; padding: 5px 10px;
+            border-radius: 4px; font-size: 14px;
         }
     </style>
 </head>
 
 <body>
+    <div class="rtc-controls">
+        <div>
+            <input type="text" id="session-id-input" placeholder="ID de Sesión">
+            <button id="join-session-btn">Unirse</button>
+        </div>
+        <button id="start-session-btn">Iniciar Sesión como Host</button>
+        <p id="rtc-status">Estado: Desconectado</p>
+    </div>
+
     <div class="controls-left">
+        <div id="zoom-indicator">Zoom: 100%</div>
         <button id="zoom-out" class="control-btn2"><i class="ri-subtract-line"></i></button>
         <button id="zoom-in" class="control-btn2"><i class="ri-add-line"></i></button>
-        <div id="color-palette" class="color-palette" style="display: none;">
-            <div class="color-option" data-color="red" style="background: red"></div>
-            <div class="color-option" data-color="blue" style="background: blue"></div>
-            <div class="color-option" data-color="green" style="background: green"></div>
-            <div class="color-option" data-color="black" style="background: black"></div>
-        </div>
     </div>
     
     <div class="controls-right">
         <button id="draw-btn" class="control-btn"><i class="ri-edit-2-line"></i></button>
-        <button id="color-btn" class="control-btn hidden-control"><i class="ri-palette-line"></i></button>
-        <button id="toggle-annotations-btn" class="control-btn hidden-control"><i class="ri-eye-line"></i></button>
-        <button id="text-btn" class="control-btn hidden-control"><i class="ri-text"></i></button>
-        <button id="erase-btn" class="control-btn hidden-control"><i class="ri-eraser-line"></i></button>
-        <button id="delete-btn" class="control-btn hidden-control"><i class="ri-delete-bin-2-line"></i></button>
-        <button id="save-btn" class="control-btn hidden-control"><i class="ri-save-line"></i></button>
-    </div>
+        </div>
     
     <div class="page-info" id="page-num">Página: 1/1</div>
     
@@ -211,273 +102,182 @@
         <div id="loading" class="loading">Cargando PDF...</div>
         <div id="pdf-container"></div>
         <canvas id="annotation-canvas"></canvas>
-        <div id="text-annotations-container"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
 
     <script>
-        // Configuración de PDF.js
+        // --- CONFIGURACIÓN WEBRTC Y FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCiYZ-_3zXQCu6DIkOd_HRGLCS3s6bIYiE",
+            authDomain: "jcubic-webrtc.firebaseapp.com",
+            databaseURL: "https://jcubic-webrtc.firebaseio.com",
+        };
+        const iceServers = [ { urls: "stun:stun.relay.metered.ca:80" } ]; // Usamos un STUN simple
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+        
+        let peer = null;
+        let isHost = false;
+        let sessionId = null;
+
+        const rtcStatus = document.getElementById('rtc-status');
+        const sessionIdInput = document.getElementById('session-id-input');
+        const startSessionBtn = document.getElementById('start-session-btn');
+        const joinSessionBtn = document.getElementById('join-session-btn');
+        const zoomIndicator = document.getElementById('zoom-indicator');
+
+        // --- LÓGICA DE PDF.JS (con modificaciones) ---
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
         
-        // Variables de estado
-        let pdfDoc = null,
-            currentPage = 1,
-            scale = 1.0,
-            pdfContainer = document.getElementById('pdf-container'),
-            annotationCanvas = document.getElementById('annotation-canvas'),
-            annotationCtx = annotationCanvas.getContext('2d'),
-            isDrawing = false,
-            isDrawingMode = false,
-            isTextMode = false,
-            isEraseMode = false,
-            showAnnotations = true,
-            pdfPages = [],
-            textAnnotations = [],
-            drawingAnnotations = [],
-            currentColor = 'red';
+        let pdfDoc = null, scale = 1.0, pdfContainer = document.getElementById('pdf-container');
+        let annotationCanvas = document.getElementById('annotation-canvas'), annotationCtx = annotationCanvas.getContext('2d');
+        let isDrawing = false, isDrawingMode = false, pdfPages = [], drawingAnnotations = [], currentColor = 'red';
 
         function getFileUrl() {
             const params = new URLSearchParams(window.location.search);
             const fileId = params.get("fileId");
             if (!fileId) return null;
-            const encodedFileId = encodeURIComponent(fileId);
-            return `https://storage.googleapis.com/mozartacademy-files/pdf/${encodedFileId}`;
+            return `https://storage.googleapis.com/mozartacademy-files/pdf/${encodeURIComponent(fileId)}`;
         }
-        
         const url = getFileUrl();
-        
-        // Inicializar el visualizador de PDF
+
         function initPdfViewer() {
-            document.getElementById('loading').style.display = 'block';
-            
-            const loadingTask = pdfjsLib.getDocument({
-                url: url,
-                withCredentials: false
-            });
-            
-            loadingTask.promise.then(function(pdfDoc_) {
+            const loadingTask = pdfjsLib.getDocument({ url });
+            loadingTask.promise.then(pdfDoc_ => {
                 pdfDoc = pdfDoc_;
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('page-num').textContent = `Página: 1/${pdfDoc.numPages}`;
-                
                 renderAllPages();
-                
-                let resizeTimeout;
-                window.addEventListener('resize', function() {
-                    clearTimeout(resizeTimeout);
-                    resizeTimeout = setTimeout(function() {
-                        if (pdfDoc) {
-                            renderAllPages();
-                        }
-                    }, 200);
-                });
-                
-            }).catch(function(error) {
-                console.error('Error al cargar el PDF:', error);
-                document.getElementById('loading').textContent = 'Error al cargar el PDF.';
+                window.addEventListener('resize', () => renderAllPages());
             });
         }
 
-        // Renderizar todas las páginas
         function renderAllPages() {
             pdfContainer.innerHTML = '';
             pdfPages = [];
-            
-            const containerWidth = document.querySelector('.canvas-container').clientWidth;
-            const allPagesContainer = document.createElement('div');
-            allPagesContainer.style.width = '100%';
-            
-            function renderPage(pageNumber) {
-                if (pageNumber > pdfDoc.numPages) {
-                    pdfContainer.appendChild(allPagesContainer);
-                    updateAnnotationCanvasSize();
-                    loadAnnotations();
-                    return;
-                }
-                
-                const pageContainer = document.createElement('div');
-                pageContainer.className = 'pdf-page';
-                
-                const canvas = document.createElement('canvas');
-                canvas.className = 'pdf-page-canvas';
-                
-                pageContainer.appendChild(canvas);
-                allPagesContainer.appendChild(pageContainer);
-                
-                pdfDoc.getPage(pageNumber).then(function(page) {
+            const containerWidth = pdfContainer.clientWidth;
+
+            const renderPromises = [];
+            for (let i = 1; i <= pdfDoc.numPages; i++) {
+                const promise = pdfDoc.getPage(i).then(page => {
                     const viewport = page.getViewport({ scale: 1.0 });
                     const newScale = containerWidth / viewport.width;
                     const scaledViewport = page.getViewport({ scale: newScale * scale });
-                    
+
+                    const pageContainer = document.createElement('div');
+                    pageContainer.className = 'pdf-page';
+                    const canvas = document.createElement('canvas');
+                    pageContainer.appendChild(canvas);
+                    pdfContainer.appendChild(pageContainer);
+
                     canvas.height = scaledViewport.height;
                     canvas.width = scaledViewport.width;
                     
-                    pdfPages[pageNumber - 1] = {
-                        element: pageContainer,
-                        canvas: canvas,
-                        viewport: scaledViewport,
-                        pageNumber: pageNumber
-                    };
-                    
-                    const renderContext = {
-                        canvasContext: canvas.getContext('2d'),
-                        viewport: scaledViewport
-                    };
-                    
-                    page.render(renderContext).promise.then(function() {
-                        renderPage(pageNumber + 1);
-                    });
-                });
-            }
-            
-            renderPage(1);
-        }
+                    pdfPages[i - 1] = { element: pageContainer, canvas: canvas };
 
-        // Actualizar el tamaño del canvas de anotaciones
-        function updateAnnotationCanvasSize() {
-            if (pdfPages.length === 0) return;
-            
-            let totalHeight = 0;
-            let maxWidth = 0;
-            
-            pdfPages.forEach(page => {
-                totalHeight += page.element.offsetHeight;
-                maxWidth = Math.max(maxWidth, page.element.offsetWidth);
+                    return page.render({ canvasContext: canvas.getContext('2d'), viewport: scaledViewport }).promise;
+                });
+                renderPromises.push(promise);
+            }
+            Promise.all(renderPromises).then(() => {
+                updateAnnotationCanvasSize();
+                redrawAllStrokes();
             });
-            
+        }
+        
+        function updateAnnotationCanvasSize() {
+            let totalHeight = 0, maxWidth = 0;
+            pdfPages.forEach(p => {
+                totalHeight += p.element.offsetHeight;
+                maxWidth = Math.max(maxWidth, p.element.offsetWidth);
+            });
             annotationCanvas.width = maxWidth;
             annotationCanvas.height = totalHeight;
-            
-            const textContainer = document.getElementById('text-annotations-container');
-            textContainer.style.width = maxWidth + 'px';
-            textContainer.style.height = totalHeight + 'px';
         }
 
-        // Redibuja todos los trazos desde los datos JSON guardados
         function redrawAllStrokes() {
             annotationCtx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
-            if (!showAnnotations) return;
-
             drawingAnnotations.forEach(stroke => {
-                if (stroke.type === 'drawing' && stroke.points.length > 0) {
+                if (stroke.points.length > 0) {
                     const page = pdfPages[stroke.pageNum - 1];
                     if (!page) return;
 
                     const pageTopOffset = page.element.offsetTop;
-                    const pageWidth = page.canvas.width;
-                    const pageHeight = page.canvas.height;
+                    const { width, height } = page.canvas;
 
                     annotationCtx.beginPath();
-                    
                     const firstPoint = stroke.points[0];
-                    const startX = firstPoint.x * pageWidth;
-                    const startY = (firstPoint.y * pageHeight) + pageTopOffset;
-                    annotationCtx.moveTo(startX, startY);
+                    annotationCtx.moveTo(firstPoint.x * width, (firstPoint.y * height) + pageTopOffset);
                     
                     annotationCtx.lineWidth = (stroke.width || 2) * scale;
                     annotationCtx.strokeStyle = stroke.color;
                     annotationCtx.lineCap = 'round';
                     annotationCtx.lineJoin = 'round';
-                    
+
                     for (let i = 1; i < stroke.points.length; i++) {
                         const point = stroke.points[i];
-                        const x = point.x * pageWidth;
-                        const y = (point.y * pageHeight) + pageTopOffset;
-                        annotationCtx.lineTo(x, y);
+                        annotationCtx.lineTo(point.x * width, (point.y * height) + pageTopOffset);
                     }
-                    
                     annotationCtx.stroke();
                 }
             });
         }
-        
-        // Actualizar la información de página visible
-        function updateVisiblePage() {
-            // ... (función original sin cambios)
+
+        function updateZoomIndicator() {
+            zoomIndicator.textContent = `Zoom: ${Math.round(scale * 100)}%`;
         }
 
-        // --- Funciones de Control ---
         function zoomIn() {
-            if (scale >= 3.0) return;
+            if (scale >= 3.0 || !isHost) return;
             scale += 0.1;
+            updateZoomIndicator();
             renderAllPages();
+            if (peer && peer.connected) {
+                peer.send(JSON.stringify({ type: 'zoom', scale: scale }));
+            }
         }
 
         function zoomOut() {
-            if (scale <= 0.5) return;
+            if (scale <= 0.5 || !isHost) return;
             scale -= 0.1;
+            updateZoomIndicator();
             renderAllPages();
+            if (peer && peer.connected) {
+                peer.send(JSON.stringify({ type: 'zoom', scale: scale }));
+            }
         }
 
         function toggleDrawing() {
-             isDrawingMode = !isDrawingMode;
-             isTextMode = false;
-             isEraseMode = false;
-             
-             document.getElementById('draw-btn').classList.toggle('active', isDrawingMode);
-             document.getElementById('text-btn').classList.remove('active');
-             document.getElementById('erase-btn').classList.remove('active');
-             
-             if(isDrawingMode){
-                annotationCanvas.style.pointerEvents = 'auto';
-                annotationCanvas.style.cursor = 'crosshair';
-                // Lógica para mostrar/ocultar paleta de colores si es necesario
-             } else {
-                annotationCanvas.style.pointerEvents = 'none';
-                annotationCanvas.style.cursor = 'default';
-             }
+            if (!isHost) return; // Solo el host puede dibujar
+            isDrawingMode = !isDrawingMode;
+            document.getElementById('draw-btn').classList.toggle('active', isDrawingMode);
+            annotationCanvas.style.pointerEvents = isDrawingMode ? 'auto' : 'none';
+            annotationCanvas.style.cursor = isDrawingMode ? 'crosshair' : 'default';
         }
         
-        // ... (resto de funciones toggleTextMode, toggleEraseMode, etc. sin cambios)
-
-        function toggleAnnotationsVisibility() {
-            showAnnotations = !showAnnotations;
-            document.getElementById('toggle-annotations-btn').classList.toggle('active', showAnnotations);
-            redrawAllStrokes(); // Redibujar para mostrar u ocultar
-            document.getElementById('text-annotations-container').style.display = showAnnotations ? 'block' : 'none';
-        }
-        
-        function clearAllAnnotations() {
-            if (confirm('¿Estás seguro de que quieres eliminar todas las anotaciones?')) {
-                drawingAnnotations = [];
-                textAnnotations = [];
-                localStorage.removeItem('pdfDrawingAnnotations');
-                localStorage.removeItem('pdfTextAnnotations');
-                redrawAllStrokes();
-                document.getElementById('text-annotations-container').innerHTML = '';
-            }
-        }
-
-        // --- Lógica de Dibujo con Coordenadas Relativas ---
-        
-        function getCanvasPosition(canvas, event) {
-            let rect = canvas.getBoundingClientRect();
-            let x, y;
-            if (event.touches) {
-                x = event.touches[0].clientX - rect.left;
-                y = event.touches[0].clientY - rect.top;
-            } else {
-                x = event.clientX - rect.left;
-                y = event.clientY - rect.top;
-            }
-            return { x, y };
+        // --- LÓGICA DE DIBUJO ---
+        function getCanvasPosition(e) {
+            const rect = annotationCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
         function getRelativeCoords(e) {
-            const pos = getCanvasPosition(annotationCanvas, e);
+            const pos = getCanvasPosition(e);
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
             for (const page of pdfPages) {
                 const pageRect = page.canvas.getBoundingClientRect();
                 if (clientY >= pageRect.top && clientY <= pageRect.bottom) {
                     const x = pos.x / page.canvas.width;
                     const y = (clientY - pageRect.top) / page.canvas.height;
-                    
                     return {
                         pageX: Math.max(0, Math.min(1, x)),
                         pageY: Math.max(0, Math.min(1, y)),
-                        pageNum: page.pageNumber
+                        pageNum: pdfPages.indexOf(page) + 1
                     };
                 }
             }
@@ -485,24 +285,18 @@
         }
 
         function startDrawing(e) {
-            if (!isDrawingMode) return;
+            if (!isDrawingMode || !isHost) return;
             const relativePos = getRelativeCoords(e);
             if (!relativePos) return;
-
             isDrawing = true;
             
             const stroke = {
-                id: Date.now(),
-                type: 'drawing',
-                pageNum: relativePos.pageNum,
-                color: currentColor,
-                width: 2,
-                points: [{ x: relativePos.pageX, y: relativePos.pageY }],
-                timestamp: new Date().toISOString()
+                id: Date.now(), pageNum: relativePos.pageNum, color: currentColor,
+                width: 2, points: [{ x: relativePos.pageX, y: relativePos.pageY }]
             };
             drawingAnnotations.push(stroke);
 
-            const pos = getCanvasPosition(annotationCanvas, e);
+            const pos = getCanvasPosition(e);
             annotationCtx.beginPath();
             annotationCtx.moveTo(pos.x, pos.y);
             annotationCtx.lineWidth = 2 * scale;
@@ -512,65 +306,110 @@
         }
 
         function draw(e) {
-            if (!isDrawing || !isDrawingMode) return;
+            if (!isDrawing || !isDrawingMode || !isHost) return;
             e.preventDefault();
-
             const relativePos = getRelativeCoords(e);
             if (!relativePos) return;
 
             const currentStroke = drawingAnnotations[drawingAnnotations.length - 1];
-            
             if (currentStroke.pageNum === relativePos.pageNum) {
                 currentStroke.points.push({ x: relativePos.pageX, y: relativePos.pageY });
-                
-                const pos = getCanvasPosition(annotationCanvas, e);
+                const pos = getCanvasPosition(e);
                 annotationCtx.lineTo(pos.x, pos.y);
                 annotationCtx.stroke();
             }
         }
 
         function stopDrawing() {
-            if (isDrawing) {
-                saveDrawingAnnotations();
-            }
+            if (!isDrawing) return;
             isDrawing = false;
-        }
-
-        // --- Almacenamiento ---
-        
-        function saveDrawingAnnotations() {
-            localStorage.setItem('pdfDrawingAnnotations', JSON.stringify(drawingAnnotations));
-        }
-
-        function loadDrawingAnnotations() {
-            const savedData = localStorage.getItem('pdfDrawingAnnotations');
-            if (savedData) {
-                drawingAnnotations = JSON.parse(savedData);
-                redrawAllStrokes();
+            if (peer && peer.connected && isHost) {
+                const lastStroke = drawingAnnotations[drawingAnnotations.length - 1];
+                peer.send(JSON.stringify({ type: 'draw', stroke: lastStroke }));
             }
         }
-        
-        // ... (funciones save/load para anotaciones de texto si las implementas)
 
-        function loadAnnotations() {
-            loadDrawingAnnotations();
-            // loadTextAnnotations();
+        // --- LÓGICA DE CONEXIÓN WEBRTC ---
+        function setupPeerEvents() {
+            peer.on('error', err => {
+                console.error('Error de Peer:', err);
+                rtcStatus.textContent = 'Error en la conexión.';
+            });
+
+            peer.on('connect', () => {
+                rtcStatus.textContent = `Estado: Conectado (${isHost ? 'Host' : 'Cliente'})`;
+                startSessionBtn.disabled = true;
+                joinSessionBtn.disabled = true;
+                sessionIdInput.disabled = true;
+            });
+            
+            // SOLO EL CLIENTE RECIBE DATOS
+            if (!isHost) {
+                peer.on('data', data => {
+                    const message = JSON.parse(data.toString());
+                    if (message.type === 'draw') {
+                        drawingAnnotations.push(message.stroke);
+                        redrawAllStrokes();
+                    } else if (message.type === 'zoom') {
+                        scale = message.scale;
+                        updateZoomIndicator();
+                        renderAllPages();
+                    }
+                });
+            }
         }
 
-        function saveAllAnnotations() {
-            saveDrawingAnnotations();
-            // saveTextAnnotations();
-            alert('Anotaciones guardadas');
-        }
+        startSessionBtn.addEventListener('click', () => {
+            isHost = true;
+            sessionId = Math.random().toString(36).substring(2, 8);
+            sessionIdInput.value = sessionId;
+            rtcStatus.textContent = 'Esperando al cliente...';
 
-        // --- Event Listeners ---
+            peer = new SimplePeer({ initiator: true, config: { iceServers } });
+            setupPeerEvents();
+
+            peer.on('signal', offer => {
+                db.ref('sessions/' + sessionId + '/offer').set(JSON.stringify(offer));
+            });
+
+            db.ref('sessions/' + sessionId + '/answer').on('value', snap => {
+                const answer = snap.val();
+                if (answer) {
+                    peer.signal(JSON.parse(answer));
+                }
+            });
+        });
+
+        joinSessionBtn.addEventListener('click', () => {
+            isHost = false;
+            sessionId = sessionIdInput.value.trim();
+            if (!sessionId) {
+                alert('Por favor, introduce un ID de sesión.');
+                return;
+            }
+            rtcStatus.textContent = 'Conectando al host...';
+
+            peer = new SimplePeer({ initiator: false, config: { iceServers } });
+            setupPeerEvents();
+            
+            db.ref('sessions/' + sessionId + '/offer').once('value', snap => {
+                const offer = snap.val();
+                if (offer) {
+                    peer.signal(JSON.parse(offer));
+                } else {
+                    rtcStatus.textContent = 'Error: ID de sesión no encontrado.';
+                }
+            });
+
+            peer.on('signal', answer => {
+                db.ref('sessions/' + sessionId + '/answer').set(JSON.stringify(answer));
+            });
+        });
+
+        // --- EVENT LISTENERS ---
         document.getElementById('zoom-in').addEventListener('click', zoomIn);
         document.getElementById('zoom-out').addEventListener('click', zoomOut);
         document.getElementById('draw-btn').addEventListener('click', toggleDrawing);
-        document.getElementById('toggle-annotations-btn').addEventListener('click', toggleAnnotationsVisibility);
-        document.getElementById('delete-btn').addEventListener('click', clearAllAnnotations);
-        document.getElementById('save-btn').addEventListener('click', saveAllAnnotations);
-        // ... (resto de listeners)
         
         annotationCanvas.addEventListener('mousedown', startDrawing);
         annotationCanvas.addEventListener('mousemove', draw);
@@ -583,6 +422,8 @@
 
         // Inicializar
         initPdfViewer();
+        updateZoomIndicator();
+
     </script>
 </body>
 </html>
