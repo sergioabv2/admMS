@@ -884,46 +884,45 @@
         }
 
         function getRelativeCoords(e) {
-            const pos = getCanvasPosition(e);
-            
-            for (let i = 0; i < pdfPages.length; i++) {
-                const page = pdfPages[i];
-                const pageEl = page.element;
-                const pageTop = pageEl.offsetTop;
-                const pageBottom = pageTop + pageEl.offsetHeight;
-                
-                if (pos.y >= pageTop && pos.y <= pageBottom) {
-                    const pageCanvas = page.canvas;
-                    if (!pageCanvas || !page.rendered) continue;
-                    
-                    // --- INICIO DE LA CORRECCIÓN ---
+          const pos = getCanvasPosition(e);
+          
+          for (let i = 0; i < pdfPages.length; i++) {
+              const page = pdfPages[i];
+              const pageEl = page.element;
+              const pageTop = pageEl.offsetTop;
+              const pageBottom = pageTop + pageEl.offsetHeight;
+              
+              // 1. Verifica que el cursor esté en la altura de la página
+              if (pos.y >= pageTop && pos.y <= pageBottom) {
+                  const pageCanvas = page.canvas;
+                  if (!pageCanvas || !page.rendered) continue;
+                  
+                  // --- INICIO DE LA NUEVA CORRECCIÓN ---
 
-                    // Ya no necesitas estas líneas, pos.x es la coordenada correcta.
-                    // const pageLeft = pageEl.offsetLeft;
-                    // const pageRight = pageLeft + pageEl.offsetWidth;
-                    // if (pos.x >= pageLeft && pos.x <= pageRight) {
+                  // 2. Verifica que el cursor esté DENTRO del ancho de la página
+                  if (pos.x >= 0 && pos.x <= pageEl.offsetWidth) {
+                      const relativeY = pos.y - pageTop;
+                      
+                      // pos.x ya es la coordenada X relativa correcta
+                      const x = pos.x / pageCanvas.width;
+                      const y = relativeY / pageCanvas.height;
+                      
+                      return {
+                          pageX: Math.max(0, Math.min(1, x)),
+                          pageY: Math.max(0, Math.min(1, y)),
+                          pageNum: i + 1,
+                          canvasWidth: pageCanvas.width,
+                          canvasHeight: pageCanvas.height
+                      };
+                  }
+                  // Si el cursor no está en el ancho de la página, el 'if' falla
+                  // y la función continuará hasta retornar 'null' al final.
 
-                    const relativeX = pos.x; // Simplemente usa pos.x directamente
-                        
-                    const relativeY = pos.y - pageTop;
-                    
-                    const x = relativeX / pageCanvas.width;
-                    const y = relativeY / pageCanvas.height;
-                    
-                    return {
-                        pageX: Math.max(0, Math.min(1, x)),
-                        pageY: Math.max(0, Math.min(1, y)),
-                        pageNum: i + 1,
-                        canvasWidth: pageCanvas.width,
-                        canvasHeight: pageCanvas.height
-                    };
-                    // } // Elimina el cierre del if
-                    
-                    // --- FIN DE LA CORRECCIÓN ---
-                }
-            }
-            return null;
-        }
+                  // --- FIN DE LA NUEVA CORRECCIÓN ---
+              }
+          }
+          return null; // Devuelve null si no se está sobre ninguna página
+      }
 
         function startDrawing(e) {
             if (!isDrawingMode || isPinching) return;
