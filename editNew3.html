@@ -896,26 +896,30 @@
                     const pageCanvas = page.canvas;
                     if (!pageCanvas || !page.rendered) continue;
                     
-                    // Calcular posición relativa dentro de la página
+                    // --- INICIO DE LA CORRECCIÓN ---
+
+                    // Ya no necesitas estas líneas, pos.x es la coordenada correcta.
+                    // const pageLeft = pageEl.offsetLeft;
+                    // const pageRight = pageLeft + pageEl.offsetWidth;
+                    // if (pos.x >= pageLeft && pos.x <= pageRight) {
+
+                    const relativeX = pos.x; // Simplemente usa pos.x directamente
+                        
                     const relativeY = pos.y - pageTop;
-                    const pageLeft = pageEl.offsetLeft;
-                    const pageRight = pageLeft + pageEl.offsetWidth;
                     
-                    // Verificar que está dentro del ancho de la página
-                    if (pos.x >= pageLeft && pos.x <= pageRight) {
-                        const relativeX = pos.x - pageLeft;
-                        
-                        const x = relativeX / pageCanvas.width;
-                        const y = relativeY / pageCanvas.height;
-                        
-                        return {
-                            pageX: Math.max(0, Math.min(1, x)),
-                            pageY: Math.max(0, Math.min(1, y)),
-                            pageNum: i + 1,
-                            canvasWidth: pageCanvas.width,
-                            canvasHeight: pageCanvas.height
-                        };
-                    }
+                    const x = relativeX / pageCanvas.width;
+                    const y = relativeY / pageCanvas.height;
+                    
+                    return {
+                        pageX: Math.max(0, Math.min(1, x)),
+                        pageY: Math.max(0, Math.min(1, y)),
+                        pageNum: i + 1,
+                        canvasWidth: pageCanvas.width,
+                        canvasHeight: pageCanvas.height
+                    };
+                    // } // Elimina el cierre del if
+                    
+                    // --- FIN DE LA CORRECCIÓN ---
                 }
             }
             return null;
