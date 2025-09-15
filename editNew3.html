@@ -7,373 +7,144 @@
     <title>Visualizador PDF con Anotaciones - Optimizado</title>
     
     <style>
-        * { box-sizing: border-box; }
-        
         body {
-            margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 0; font-family: Arial, sans-serif;
             height: 100vh; touch-action: none; overflow: hidden;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #333;
         }
-        
         .canvas-container {
             position: relative; height: 100%; overflow: auto;
             background-color: #525659; width: 100%;
             -webkit-overflow-scrolling: touch; 
         }
-        
         .pdf-page {
             display: flex; justify-content: center; margin: 10px auto;
             position: relative;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            border-radius: 8px;
-            overflow: hidden;
-            min-height: 200px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            min-height: 200px; /* Altura mínima para páginas no cargadas */
         }
-        
         .pdf-page.loading {
-            background: linear-gradient(45deg, #666, #777);
+            background: #666;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: 500;
         }
-        
         .pdf-page canvas {
             transition: opacity 0.3s ease;
-            border-radius: 8px;
         }
-        
         #annotation-canvas {
             position: absolute; left: 50%; top: 0;
             transform: translateX(-50%); pointer-events: none;
-            z-index: 10;
         }
-        
-        /* Controles principales - Panel flotante */
-        .main-controls {
-            position: fixed; top: 20px; right: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 1000;
-            transition: all 0.3s ease;
+        .controls-left {
+            position: fixed; right: 10px; bottom: 22px; display: flex;
+            align-items: center; gap: 10px; background-color: rgba(0, 0, 0, 0.7);
+            color: white; padding: 5px 10px; border-radius: 4px; z-index: 100;
         }
-        
-        .main-controls:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        .control-btn2 {
+            width: 32px; height: 32px; border-radius: 6px; background-color: #555;
+            color: white; border: none; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; transition: background-color 0.2s;
         }
-        
-        .control-section {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            padding: 4px;
+        .control-btn2:hover { background-color: #666; }
+        .controls-right {
+            position: fixed; right: 20px; top: 20px; display: flex;
+            flex-direction: column; align-items: flex-end; gap: 8px; z-index: 1000;
         }
-        
-        .control-section.drawing-tools {
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            padding-bottom: 8px;
-            margin-bottom: 4px;
-        }
-        
         .control-btn {
-            width: 44px; height: 44px; 
-            border-radius: 12px; 
-            background: linear-gradient(145deg, #f0f0f0, #ffffff);
-            border: none; 
-            box-shadow: 
-                0 4px 12px rgba(0,0,0,0.1),
-                inset 0 1px 0 rgba(255,255,255,0.8);
+            width: 40px; height: 40px; border-radius: 50%; background: white;
+            border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); display: flex;
+            align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease;
+            flex-shrink: 0; /* Evita que los botones se encojan */
+        }
+        .control-btn:hover { transform: scale(1.1); }
+        .control-btn.active { background-color: #4CAF50; color: white; }
+        
+        /* --- NUEVA BARRA DE HERRAMIENTAS DE DIBUJO --- */
+        .drawing-toolbar {
             display: flex;
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 18px;
-            color: #333;
-            position: relative;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 5px;
+            border-radius: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             overflow: hidden;
         }
-        
-        .control-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 
-                0 6px 16px rgba(0,0,0,0.15),
-                inset 0 1px 0 rgba(255,255,255,0.9);
+
+        .toolbar-item {
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            width: 0;
+            transition: width 0.3s ease, opacity 0.3s ease;
+            visibility: hidden;
         }
         
-        .control-btn:active {
-            transform: translateY(0);
-            box-shadow: 
-                0 2px 8px rgba(0,0,0,0.2),
-                inset 0 1px 0 rgba(255,255,255,0.7);
+        .drawing-toolbar.expanded .toolbar-item {
+            opacity: 1;
+            width: auto;
+            margin-left: 5px;
+            visibility: visible;
         }
-        
-        .control-btn.active {
-            background: linear-gradient(145deg, #4CAF50, #45a049);
-            color: white;
-            box-shadow: 
-                0 4px 12px rgba(76, 175, 80, 0.3),
-                inset 0 1px 0 rgba(255,255,255,0.3);
-        }
-        
-        .control-btn.active:hover {
-            box-shadow: 
-                0 6px 16px rgba(76, 175, 80, 0.4),
-                inset 0 1px 0 rgba(255,255,255,0.4);
-        }
-        
-        /* Color picker mejorado */
+
         .color-picker-container {
-            width: 44px; height: 44px; 
-            border-radius: 12px; 
-            background: linear-gradient(145deg, #f0f0f0, #ffffff);
-            box-shadow: 
-                0 4px 12px rgba(0,0,0,0.1),
-                inset 0 1px 0 rgba(255,255,255,0.8);
-            padding: 6px;
-            cursor: pointer; 
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+            width: 30px; height: 30px; border-radius: 50%;
+            border: none; padding: 2px;
+            box-sizing: border-box; cursor: pointer;
+            flex-shrink: 0;
         }
-        
-        .color-picker-container:hover {
-            transform: translateY(-1px);
-            box-shadow: 
-                0 6px 16px rgba(0,0,0,0.15),
-                inset 0 1px 0 rgba(255,255,255,0.9);
-        }
-        
         #color-picker {
-            width: 100%; height: 100%; 
-            border: none; padding: 0; 
-            background: none;
-            border-radius: 8px; 
-            cursor: pointer;
+            width: 100%; height: 100%; border: none; padding: 0; background: none;
+            border-radius: 50%; cursor: pointer;
         }
-        
         #color-picker::-webkit-color-swatch-wrapper { padding: 0; }
-        #color-picker::-webkit-color-swatch { 
-            border: none; 
-            border-radius: 8px;
-            box-shadow: inset 0 0 0 2px rgba(255,255,255,0.5);
-        }
-        #color-picker::-moz-color-swatch { 
-            border: none; 
-            border-radius: 8px; 
-        }
-        
-        /* Selector de grosor */
+        #color-picker::-webkit-color-swatch { border: 1px solid #ccc; border-radius: 50%; }
+        #color-picker::-moz-color-swatch { border: 1px solid #ccc; border-radius: 50%; }
+
+        /* Estilos para el slider de grosor */
         .stroke-width-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        .stroke-width-slider {
-            width: 80px;
-            height: 6px;
-            border-radius: 3px;
-            background: linear-gradient(to right, #ddd, #999);
-            outline: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-        }
-        
-        .stroke-width-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: linear-gradient(145deg, #4CAF50, #45a049);
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            transition: all 0.2s ease;
-        }
-        
-        .stroke-width-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        
-        .stroke-width-slider::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: linear-gradient(145deg, #4CAF50, #45a049);
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        
-        .stroke-indicator {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--current-color, #FF0000);
-            border: 2px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .stroke-preview {
-            width: var(--stroke-width, 2px);
-            height: var(--stroke-width, 2px);
-            background: white;
-            border-radius: 50%;
-        }
-        
-        /* Controles de zoom */
-        .zoom-controls {
-            position: fixed; left: 20px; bottom: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 8px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             gap: 8px;
-            z-index: 1000;
+            color: #333;
         }
-        
-        .zoom-btn {
-            width: 36px; height: 36px; 
-            border-radius: 8px; 
-            background: linear-gradient(145deg, #f0f0f0, #ffffff);
-            color: #333; 
-            border: none; 
-            display: flex; 
+        #stroke-width-slider {
+            width: 80px;
+            cursor: pointer;
+        }
+        #stroke-width-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #333;
+            display: flex;
+            justify-content: center;
             align-items: center;
-            justify-content: center; 
-            cursor: pointer; 
-            transition: all 0.2s ease;
-            font-size: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
         }
-        
-        .zoom-btn:hover { 
-            background: linear-gradient(145deg, #e0e0e0, #f0f0f0);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        .zoom-btn:active {
-            transform: translateY(0);
-        }
-        
-        /* Indicador de página */
+
         .page-info {
-            position: fixed; right: 20px; bottom: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white; 
-            padding: 8px 16px; 
-            border-radius: 20px; 
-            z-index: 1000;
-            font-weight: 500;
-            font-size: 14px;
-            backdrop-filter: blur(10px);
+            position: fixed; left: 10px; bottom: 22px; background-color: rgba(0, 0, 0, 0.7);
+            color: white; padding: 5px 10px; border-radius: 4px; z-index: 100;
         }
-        
-        .loading { 
-            color: white; 
-            text-align: center; 
-            margin-top: 50px; 
-            font-size: 1.2em; 
-            font-weight: 500;
-        }
+        .loading { color: white; text-align: center; margin-top: 50px; font-size: 1.2em; }
         
         #zoom-indicator {
-            background: rgba(0, 0, 0, 0.8);
-            color: white; 
-            padding: 6px 12px;
-            border-radius: 12px; 
-            font-size: 13px;
-            font-weight: 500;
-            min-width: 80px;
-            text-align: center;
+            background: rgba(0,0,0,0.7); color: white; padding: 5px 10px;
+            border-radius: 4px; font-size: 14px;
         }
-        
-        /* Indicador de progreso */
+
         .progress-bar {
-            position: fixed; top: 0; left: 0; width: 100%; height: 4px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 3px;
             background: rgba(255,255,255,0.2); z-index: 1001; display: none;
         }
         .progress-fill {
-            height: 100%; 
-            background: linear-gradient(90deg, #4CAF50, #45a049); 
-            width: 0%; 
-            transition: width 0.3s ease;
-            border-radius: 0 2px 2px 0;
-        }
-        
-        /* Tooltips mejorados */
-        .control-btn[title]:hover::after,
-        .color-picker-container[title]:hover::after {
-            content: attr(title);
-            position: absolute;
-            bottom: -35px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            white-space: nowrap;
-            z-index: 1001;
-        }
-        
-        /* Responsive para móviles */
-        @media (max-width: 768px) {
-            .main-controls {
-                top: 10px;
-                right: 10px;
-                padding: 8px;
-                border-radius: 12px;
-            }
-            
-            .control-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
-            
-            .color-picker-container {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .zoom-controls {
-                left: 10px;
-                bottom: 10px;
-                padding: 6px;
-            }
-            
-            .zoom-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 14px;
-            }
-            
-            .page-info {
-                right: 10px;
-                bottom: 10px;
-                padding: 6px 12px;
-                font-size: 12px;
-            }
+            height: 100%; background: #4CAF50; width: 0%; transition: width 0.3s ease;
         }
     </style>
 </head>
@@ -383,53 +154,41 @@
         <div class="progress-fill" id="progress-fill"></div>
     </div>
 
-    <!-- Controles principales -->
-    <div class="main-controls">
-        <!-- Herramientas de dibujo -->
-        <div class="control-section drawing-tools">
-            <div class="color-picker-container" title="Color del trazo">
-                <input type="color" id="color-picker" value="#FF0000">
-            </div>
-            
-            <div class="stroke-width-container">
-                <div class="stroke-indicator" style="--current-color: #FF0000; --stroke-width: 2px;">
-                    <div class="stroke-preview"></div>
+    <div class="controls-left">
+        <div id="zoom-indicator">Zoom: 100%</div>
+        <button id="zoom-out" class="control-btn2"><i class="ri-subtract-line"></i></button>
+        <button id="zoom-in" class="control-btn2"><i class="ri-add-line"></i></button>
+    </div>
+    
+    <div class="controls-right">
+        <div id="drawing-toolbar" class="drawing-toolbar">
+             <button id="draw-btn" class="control-btn" title="Activar/Desactivar lápiz"><i class="ri-edit-2-line"></i></button>
+
+            <div class="toolbar-item">
+                <div class="color-picker-container">
+                    <input type="color" id="color-picker" value="#FF0000" title="Seleccionar color del lápiz">
                 </div>
-                <input type="range" id="stroke-width-slider" class="stroke-width-slider" 
-                       min="1" max="10" value="2" title="Grosor del trazo">
             </div>
             
-            <button id="draw-btn" class="control-btn" title="Activar/Desactivar lápiz">
-                <i class="ri-edit-2-line"></i>
-            </button>
+            <div class="toolbar-item">
+                <div class="stroke-width-container">
+                     <input type="range" id="stroke-width-slider" min="1" max="10" value="2" title="Grosor del trazo">
+                     <div id="stroke-width-indicator">2</div>
+                </div>
+            </div>
+
+            <div class="toolbar-item">
+                <button id="clear-btn" class="control-btn" title="Borrar todas las anotaciones" style="background-color: #f1f1f1;">
+                    <i class="ri-eraser-line" style="color: #333;"></i>
+                </button>
+            </div>
         </div>
-        
-        <!-- Herramientas generales -->
-        <div class="control-section">
-            <button id="clear-btn" class="control-btn" title="Borrar todas las anotaciones">
-                <i class="ri-eraser-line"></i>
-            </button>
-            <button id="quality-btn" class="control-btn" title="Alternar calidad de renderizado">
-                <i class="ri-hd-line"></i>
-            </button>
-        </div>
+
+        <button id="quality-btn" class="control-btn" title="Alternar calidad de renderizado"><i class="ri-hd-line"></i></button>
     </div>
     
-    <!-- Controles de zoom -->
-    <div class="zoom-controls">
-        <div id="zoom-indicator">100%</div>
-        <button id="zoom-out" class="zoom-btn" title="Reducir zoom">
-            <i class="ri-subtract-line"></i>
-        </button>
-        <button id="zoom-in" class="zoom-btn" title="Aumentar zoom">
-            <i class="ri-add-line"></i>
-        </button>
-    </div>
-    
-    <!-- Indicador de página -->
     <div class="page-info" id="page-num">Página: -/-</div>
     
-    <!-- Contenedor principal -->
     <div class="canvas-container">
         <div id="loading" class="loading">Cargando PDF...</div>
         <div id="pdf-container"></div>
@@ -450,8 +209,8 @@
         const progressBar = document.getElementById('progress-bar');
         const progressFill = document.getElementById('progress-fill');
         const strokeWidthSlider = document.getElementById('stroke-width-slider');
-        const strokeIndicator = document.querySelector('.stroke-indicator');
-        const strokePreview = document.querySelector('.stroke-preview');
+        const strokeWidthIndicator = document.getElementById('stroke-width-indicator');
+        const drawingToolbar = document.getElementById('drawing-toolbar');
 
         // Estado de la aplicación
         let pdfDoc = null, scale = 1.0;
@@ -464,13 +223,10 @@
         let lastScrollTime = 0;
         let scrollTimeout = null;
         let renderedPages = new Set();
-        let currentStroke = null;
 
-        // Cache de páginas renderizadas
         const pageCache = new Map();
         const MAX_CACHE_SIZE = 10;
-
-        // Configuración de calidad adaptativa
+        
         const QUALITY_CONFIG = {
             low: { scale: 0.5, maxPages: 20 },
             high: { scale: 1.0, maxPages: 5 }
@@ -490,13 +246,6 @@
 
         function updateProgress(percent) {
             progressFill.style.width = `${percent}%`;
-        }
-
-        function updateStrokeIndicator() {
-            strokeIndicator.style.setProperty('--current-color', currentColor);
-            strokeIndicator.style.setProperty('--stroke-width', `${currentStrokeWidth * 2}px`);
-            strokePreview.style.width = `${Math.max(2, currentStrokeWidth)}px`;
-            strokePreview.style.height = `${Math.max(2, currentStrokeWidth)}px`;
         }
 
         async function initPdfViewer() {
@@ -526,7 +275,7 @@
                 
                 if (pdfDoc.numPages > QUALITY_CONFIG.high.maxPages) {
                     highQuality = false;
-                    document.getElementById('quality-btn').style.background = 'linear-gradient(145deg, #ff9800, #f57c00)';
+                    document.getElementById('quality-btn').style.background = '#ff9800';
                 }
                 
                 await initializePages();
@@ -561,7 +310,7 @@
 
                 const pageContainer = document.createElement('div');
                 pageContainer.className = 'pdf-page loading';
-                pageContainer.textContent = `Cargando página ${i}...`;
+                pageContainer.textContent = `Página ${i}`;
                 pageContainer.style.height = `${scaledViewport.height}px`;
                 pageContainer.style.width = `${scaledViewport.width}px`;
                 pageContainer.dataset.pageNum = i;
@@ -636,11 +385,7 @@
                     unloadPage(pageNum);
                 });
             }
-
             visiblePages = newVisiblePages;
-            
-            // Redibujar anotaciones después de actualizar páginas visibles
-            requestAnimationFrame(() => redrawAllStrokes());
         }
 
         function queuePageRender(pageNum) {
@@ -731,7 +476,7 @@
             const pageData = pdfPages[pageNum - 1];
             if (!pageData || !pageData.rendered) return;
             
-            pageData.element.innerHTML = `Cargando página ${pageNum}...`;
+            pageData.element.innerHTML = `Página ${pageNum}`;
             pageData.element.classList.add('loading');
             pageData.canvas = null;
             pageData.rendered = false;
@@ -746,11 +491,6 @@
             });
             annotationCanvas.width = maxWidth;
             annotationCanvas.height = totalHeight;
-            
-            // Configurar contexto con mejores configuraciones
-            annotationCtx.lineCap = 'round';
-            annotationCtx.lineJoin = 'round';
-            annotationCtx.globalCompositeOperation = 'source-over';
         }
 
         function updatePageIndicator() {
@@ -769,39 +509,31 @@
         }
 
         function redrawAllStrokes() {
-            if (!annotationCanvas.width || !annotationCanvas.height) return;
-            
             annotationCtx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
             
             drawingAnnotations.forEach(stroke => {
-                if (!stroke.points || stroke.points.length < 2) return;
+                if (!stroke.points || stroke.points.length < 1) return;
+                if (!visiblePages.has(stroke.pageNum)) return;
                 
-                const pageIndex = stroke.pageNum - 1;
-                const page = pdfPages[pageIndex];
+                const page = pdfPages[stroke.pageNum - 1];
                 if (!page || !page.rendered) return;
 
                 const pageTopOffset = page.element.offsetTop;
-                const pageCanvas = page.canvas;
-                if (!pageCanvas) return;
+                const { width, height } = page.viewport;
 
                 annotationCtx.beginPath();
-                annotationCtx.strokeStyle = stroke.color || currentColor;
-                annotationCtx.lineWidth = (stroke.width || currentStrokeWidth) * scale;
+                const firstPoint = stroke.points[0];
+                annotationCtx.moveTo(firstPoint.x * width, (firstPoint.y * height) + pageTopOffset);
+                
+                annotationCtx.lineWidth = (stroke.width || 2) * scale; // Usa el grosor guardado
+                annotationCtx.strokeStyle = stroke.color || 'red';
                 annotationCtx.lineCap = 'round';
                 annotationCtx.lineJoin = 'round';
 
-                const firstPoint = stroke.points[0];
-                const startX = firstPoint.x * pageCanvas.width;
-                const startY = (firstPoint.y * pageCanvas.height) + pageTopOffset;
-                annotationCtx.moveTo(startX, startY);
-
                 for (let i = 1; i < stroke.points.length; i++) {
                     const point = stroke.points[i];
-                    const x = point.x * pageCanvas.width;
-                    const y = (point.y * pageCanvas.height) + pageTopOffset;
-                    annotationCtx.lineTo(x, y);
+                    annotationCtx.lineTo(point.x * width, (point.y * height) + pageTopOffset);
                 }
-                
                 annotationCtx.stroke();
             });
         }
@@ -810,7 +542,6 @@
             scale = Math.max(0.5, Math.min(3.0, newScale));
             updateZoomIndicator();
             
-            // Limpiar páginas renderizadas para forzar re-renderizado con nuevo zoom
             renderedPages.clear();
             pageCache.clear();
             
@@ -818,22 +549,15 @@
         }
 
         function updateZoomIndicator() {
-            zoomIndicator.textContent = `${Math.round(scale * 100)}%`;
+            zoomIndicator.textContent = `Zoom: ${Math.round(scale * 100)}%`;
         }
 
         function toggleQuality() {
             highQuality = !highQuality;
             const qualityBtn = document.getElementById('quality-btn');
-            if (highQuality) {
-                qualityBtn.style.background = 'linear-gradient(145deg, #4CAF50, #45a049)';
-                qualityBtn.style.color = 'white';
-            } else {
-                qualityBtn.style.background = 'linear-gradient(145deg, #ff9800, #f57c00)';
-                qualityBtn.style.color = 'white';
-            }
+            qualityBtn.style.background = highQuality ? '#4CAF50' : '#ff9800';
             qualityBtn.title = `Calidad: ${highQuality ? 'Alta' : 'Baja'}`;
             
-            // Re-renderizar páginas visibles con nueva calidad
             renderedPages.clear();
             pageCache.clear();
             checkVisiblePages();
@@ -842,6 +566,7 @@
         function toggleDrawing() {
             isDrawingMode = !isDrawingMode;
             document.getElementById('draw-btn').classList.toggle('active', isDrawingMode);
+            drawingToolbar.classList.toggle('expanded', isDrawingMode);
             annotationCanvas.style.pointerEvents = isDrawingMode ? 'auto' : 'none';
             annotationCanvas.style.cursor = isDrawingMode ? 'crosshair' : 'default';
         }
@@ -852,8 +577,7 @@
                 redrawAllStrokes();
             }
         }
-
-        // Funciones auxiliares
+        
         function debounce(func, wait) {
             let timeout;
             return function executedFunction(...args) {
@@ -872,80 +596,54 @@
             initializePages();
         }
         
-        // Funciones de dibujo mejoradas
         function getCanvasPosition(e) {
             const rect = annotationCanvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { 
-                x: clientX - rect.left, 
-                y: clientY - rect.top + canvasContainer.scrollTop 
-            };
+            return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
         function getRelativeCoords(e) {
-          const pos = getCanvasPosition(e);
-          
-          for (let i = 0; i < pdfPages.length; i++) {
-              const page = pdfPages[i];
-              const pageEl = page.element;
-              const pageTop = pageEl.offsetTop;
-              const pageBottom = pageTop + pageEl.offsetHeight;
-              
-              // 1. Verifica que el cursor esté en la altura de la página
-              if (pos.y >= pageTop && pos.y <= pageBottom) {
-                  const pageCanvas = page.canvas;
-                  if (!pageCanvas || !page.rendered) continue;
-                  
-                  // --- INICIO DE LA NUEVA CORRECCIÓN ---
+            const pos = getCanvasPosition(e);
+            const absoluteY = pos.y + canvasContainer.scrollTop;
 
-                  // 2. Verifica que el cursor esté DENTRO del ancho de la página
-                  if (pos.x >= 0 && pos.x <= pageEl.offsetWidth) {
-                      const relativeY = pos.y - pageTop;
-                      
-                      // pos.x ya es la coordenada X relativa correcta
-                      const x = pos.x / pageCanvas.width;
-                      const y = relativeY / pageCanvas.height;
-                      
-                      return {
-                          pageX: Math.max(0, Math.min(1, x)),
-                          pageY: Math.max(0, Math.min(1, y)),
-                          pageNum: i + 1,
-                          canvasWidth: pageCanvas.width,
-                          canvasHeight: pageCanvas.height
-                      };
-                  }
-                  // Si el cursor no está en el ancho de la página, el 'if' falla
-                  // y la función continuará hasta retornar 'null' al final.
-
-                  // --- FIN DE LA NUEVA CORRECCIÓN ---
-              }
-          }
-          return null; // Devuelve null si no se está sobre ninguna página
-      }
+            for (let i = 0; i < pdfPages.length; i++) {
+                const page = pdfPages[i];
+                const pageEl = page.element;
+                if (absoluteY >= pageEl.offsetTop && absoluteY <= pageEl.offsetTop + pageEl.offsetHeight) {
+                    const canvas = page.canvas;
+                    if (!canvas) return null;
+                    const x = pos.x / canvas.width;
+                    const y = (absoluteY - pageEl.offsetTop) / canvas.height;
+                    return {
+                        pageX: Math.max(0, Math.min(1, x)),
+                        pageY: Math.max(0, Math.min(1, y)),
+                        pageNum: i + 1
+                    };
+                }
+            }
+            return null;
+        }
 
         function startDrawing(e) {
             if (!isDrawingMode || isPinching) return;
-            
             const relativePos = getRelativeCoords(e);
             if (!relativePos) return;
             
             e.preventDefault();
             isDrawing = true;
             
-            // Crear nuevo trazo
-            currentStroke = { 
+            const stroke = { 
                 pageNum: relativePos.pageNum, 
                 color: currentColor, 
-                width: currentStrokeWidth, 
+                width: currentStrokeWidth, // Guarda el grosor actual
                 points: [{ x: relativePos.pageX, y: relativePos.pageY }] 
             };
-            drawingAnnotations.push(currentStroke);
+            drawingAnnotations.push(stroke);
 
-            // Comenzar dibujo visual inmediato
             const pos = getCanvasPosition(e);
             annotationCtx.beginPath();
-            annotationCtx.moveTo(pos.x, pos.y - canvasContainer.scrollTop);
+            annotationCtx.moveTo(pos.x, pos.y);
             annotationCtx.lineWidth = currentStrokeWidth * scale;
             annotationCtx.strokeStyle = currentColor;
             annotationCtx.lineCap = 'round';
@@ -953,33 +651,25 @@
         }
 
         function draw(e) {
-            if (!isDrawing || !isDrawingMode || isPinching || !currentStroke) return;
-            
-            const relativePos = getRelativeCoords(e);
-            if (!relativePos || relativePos.pageNum !== currentStroke.pageNum) return;
-
+            if (!isDrawing || !isDrawingMode || isPinching) return;
             e.preventDefault();
-            
-            // Agregar punto al trazo actual
-            currentStroke.points.push({ x: relativePos.pageX, y: relativePos.pageY });
-            
-            // Dibujo visual inmediato
-            const pos = getCanvasPosition(e);
-            annotationCtx.lineTo(pos.x, pos.y - canvasContainer.scrollTop);
-            annotationCtx.stroke();
+            const relativePos = getRelativeCoords(e);
+            if (!relativePos) return;
+
+            const currentStroke = drawingAnnotations[drawingAnnotations.length - 1];
+            if (currentStroke && currentStroke.pageNum === relativePos.pageNum) {
+                currentStroke.points.push({ x: relativePos.pageX, y: relativePos.pageY });
+                const pos = getCanvasPosition(e);
+                annotationCtx.lineTo(pos.x, pos.y);
+                annotationCtx.stroke();
+            }
         }
 
-        function stopDrawing(e) {
+        function stopDrawing() {
             if (!isDrawing) return;
-            
             isDrawing = false;
-            currentStroke = null;
-            
-            // Redibujar todas las anotaciones para asegurar consistencia
-            setTimeout(() => redrawAllStrokes(), 50);
         }
 
-        // Funciones de zoom táctil
         function getPinchDistance(e) {
             const t1 = e.touches[0];
             const t2 = e.touches[1];
@@ -991,10 +681,6 @@
                 e.preventDefault();
                 isPinching = true;
                 initialPinchDistance = getPinchDistance(e);
-                // Detener cualquier dibujo en curso
-                if (isDrawing) {
-                    stopDrawing(e);
-                }
             } else if (e.touches.length === 1) {
                 startDrawing(e);
             }
@@ -1007,7 +693,7 @@
                 const zoomFactor = newPinchDistance / initialPinchDistance;
                 updateZoom(scale * zoomFactor);
                 initialPinchDistance = newPinchDistance;
-            } else if (e.touches.length === 1 && !isPinching) {
+            } else if (e.touches.length === 1) {
                 draw(e);
             }
         }
@@ -1027,18 +713,14 @@
         document.getElementById('draw-btn').addEventListener('click', toggleDrawing);
         document.getElementById('clear-btn').addEventListener('click', clearAnnotations);
         document.getElementById('quality-btn').addEventListener('click', toggleQuality);
-        
-        document.getElementById('color-picker').addEventListener('input', (e) => { 
-            currentColor = e.target.value;
-            updateStrokeIndicator();
-        });
+        document.getElementById('color-picker').addEventListener('input', (e) => { currentColor = e.target.value; });
         
         strokeWidthSlider.addEventListener('input', (e) => {
-            currentStrokeWidth = parseInt(e.target.value);
-            updateStrokeIndicator();
+            currentStrokeWidth = parseInt(e.target.value, 10);
+            strokeWidthIndicator.textContent = currentStrokeWidth;
         });
-        
-        // Eventos de dibujo (Ratón)
+
+        // Eventos de dibujo
         annotationCanvas.addEventListener('mousedown', startDrawing);
         annotationCanvas.addEventListener('mousemove', draw);
         annotationCanvas.addEventListener('mouseup', stopDrawing);
@@ -1049,20 +731,68 @@
         annotationCanvas.addEventListener('touchmove', handleTouchMove, { passive: false });
         annotationCanvas.addEventListener('touchend', handleTouchEnd);
         annotationCanvas.addEventListener('touchcancel', handleTouchEnd);
+        
+        // Corrección para el dibujo en tiempo real (se dibuja en un canvas temporal)
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.style.position = 'absolute';
+        tempCanvas.style.top = '0';
+        tempCanvas.style.left = '0';
+        tempCanvas.style.pointerEvents = 'none';
+        canvasContainer.appendChild(tempCanvas);
 
-        // Prevenir zoom del navegador en el canvas
-        annotationCanvas.addEventListener('wheel', (e) => {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                updateZoom(scale + delta);
-            }
-        }, { passive: false });
+        function fixDrawingCoordinates() {
+            const originalGetCanvasPos = getCanvasPosition;
+            const originalStartDrawing = startDrawing;
+            const originalDraw = draw;
+            const originalStopDrawing = stopDrawing;
 
-        // Inicializar aplicación
+            let drawingCtx;
+
+            getCanvasPosition = function(e) {
+                return originalGetCanvasPos.call(this, e);
+            };
+
+            startDrawing = function(e) {
+                originalStartDrawing.call(this, e);
+                if (isDrawing) {
+                    tempCanvas.width = annotationCanvas.width;
+                    tempCanvas.height = annotationCanvas.height;
+                    tempCanvas.style.transform = `translateX(-50%)`;
+                    tempCanvas.style.left = '50%';
+                    drawingCtx = tempCanvas.getContext('2d');
+                    drawingCtx.strokeStyle = currentColor;
+                    drawingCtx.lineWidth = currentStrokeWidth * scale;
+                    drawingCtx.lineCap = 'round';
+                    drawingCtx.lineJoin = 'round';
+
+                    const pos = getCanvasPosition(e);
+                    drawingCtx.beginPath();
+                    drawingCtx.moveTo(pos.x, pos.y);
+                }
+            };
+
+            draw = function(e) {
+                if(isDrawing && drawingCtx) {
+                    const pos = getCanvasPosition(e);
+                    drawingCtx.lineTo(pos.x, pos.y);
+                    drawingCtx.stroke();
+                }
+            };
+            
+            stopDrawing = function(e) {
+                if (isDrawing && drawingCtx) {
+                    drawingCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+                }
+                originalStopDrawing.call(this, e);
+                redrawAllStrokes(); // Actualiza el canvas principal
+            };
+        }
+        
+        fixDrawingCoordinates();
+        
+        // Inicializar
         initPdfViewer();
         updateZoomIndicator();
-        updateStrokeIndicator();
     </script>
 </body>
 </html>
