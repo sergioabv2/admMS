@@ -50,7 +50,7 @@
 
         /* Estilos de controles (sin cambios) */
         .controls-left {
-            position: fixed; right: 10px; bottom: 22px; display: flex;
+            position: fixed; right: 10px; bottom: 15px; display: flex;
             align-items: center; gap: 10px; background-color: rgba(0, 0, 0, 0.7);
             color: white; padding: 5px 10px; border-radius: 4px; z-index: 1000;
         }
@@ -133,7 +133,7 @@
             font-weight: bold;
         }
         .page-info {
-            position: fixed; left: 10px; bottom: 22px; background-color: rgba(0, 0, 0, 0.7);
+            position: fixed; left: 10px; bottom: 15px; background-color: rgba(0, 0, 0, 0.7);
             color: white; padding: 5px 10px; border-radius: 4px; z-index: 1000;
         }
         .loading { color: white; text-align: center; margin-top: 50px; font-size: 1.2em; }
@@ -184,7 +184,7 @@
                 </button>
             </div>
         </div>
-        <button id="quality-btn" class="control-btn" title="Alternar calidad de renderizado"><i class="ri-hd-line"></i></button>
+       
     </div>
     
     <div class="page-info" id="page-num">Página: -/-</div>
@@ -209,6 +209,15 @@
         let isDrawing = false, isDrawingMode = false, isPinching = false;
         let pdfPages = [], drawingAnnotations = [], currentColor = '#FF0000', currentStrokeWidth = 5;
         let activeDrawingPage = null;
+
+        if (window.innerWidth < 768) { // 768px es un punto de quiebre común para tablets
+            scale = 0.96; // Establecer zoom al 96%
+            currentStrokeWidth = 2; // Establecer grosor del lápiz a 2
+
+            // Actualizar la UI para que coincida con los nuevos valores por defecto
+            strokeWidthSlider.value = currentStrokeWidth;
+            strokeWidthIndicator.textContent = currentStrokeWidth;
+        }
 
         let initialPinchDistance = null;
         let renderQueue = [], isRendering = false;
@@ -623,11 +632,7 @@
         document.getElementById('zoom-out').addEventListener('click', () => updateZoom(scale - 0.1));
         document.getElementById('draw-btn').addEventListener('click', toggleDrawing);
         document.getElementById('clear-btn').addEventListener('click', clearAnnotations);
-        document.getElementById('quality-btn').addEventListener('click', () => {
-            highQuality = !highQuality;
-            document.getElementById('quality-btn').classList.toggle('active', highQuality);
-            initializePages().then(checkVisiblePages);
-        });
+     
         document.getElementById('color-picker').addEventListener('input', (e) => { currentColor = e.target.value; });
         strokeWidthSlider.addEventListener('input', (e) => {
             currentStrokeWidth = parseInt(e.target.value, 10);
