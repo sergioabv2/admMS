@@ -174,8 +174,8 @@
             </div>
             <div class="toolbar-item">
                 <div class="stroke-width-container">
-                     <input type="range" id="stroke-width-slider" min="1" max="10" value="2" title="Grosor del trazo">
-                     <div id="stroke-width-indicator">2</div>
+                     <input type="range" id="stroke-width-slider" min="1" max="10" value="5" title="Grosor del trazo">
+                     <div id="stroke-width-indicator">5</div>
                 </div>
             </div>
             <div class="toolbar-item">
@@ -205,9 +205,9 @@
         const drawingToolbar = document.getElementById('drawing-toolbar');
 
         // Estado de la aplicación
-        let pdfDoc = null, scale = 1.0;
+        let pdfDoc = null, scale = 0.9;
         let isDrawing = false, isDrawingMode = false, isPinching = false;
-        let pdfPages = [], drawingAnnotations = [], currentColor = '#FF0000', currentStrokeWidth = 2;
+        let pdfPages = [], drawingAnnotations = [], currentColor = '#FF0000', currentStrokeWidth = 5;
         let activeDrawingPage = null;
 
         let initialPinchDistance = null;
