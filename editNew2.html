@@ -520,11 +520,43 @@
             document.getElementById('page-num').textContent = `Página: ${closestPage}/${pdfDoc.numPages}`;
         }
         
-        function updateZoom(newScale) {
-            scale = Math.max(0.5, Math.min(3.0, newScale));
-            document.getElementById('zoom-indicator').textContent = `Zoom: ${Math.round(scale * 100)}%`;
-            initializePages().then(checkVisiblePages);
+        async function updateZoom(newScale) {
+    // 1. Guardar la posición actual antes de redibujar
+    let centerPageInfo = { pageNum: 1, relativeY: 0 };
+    if (pdfPages.length > 0) {
+        const viewCenter = pdfContainer.scrollTop + pdfContainer.clientHeight / 2;
+        
+        // Encontrar qué página está en el centro de la vista
+        for (let i = 0; i < pdfPages.length; i++) {
+            const pageEl = pdfPages[i].element;
+            if (viewCenter >= pageEl.offsetTop && viewCenter <= pageEl.offsetTop + pageEl.offsetHeight) {
+                centerPageInfo.pageNum = i + 1;
+                // Calcular la posición relativa (ej: 0.5 es la mitad de la página)
+                centerPageInfo.relativeY = (viewCenter - pageEl.offsetTop) / pageEl.offsetHeight;
+                break;
+            }
         }
+    }
+
+    // 2. Aplicar el nuevo zoom y actualizar el estado
+    scale = Math.max(0.5, Math.min(3.0, newScale));
+    document.getElementById('zoom-indicator').textContent = `Zoom: ${Math.round(scale * 100)}%`;
+
+    // 3. Reconstruir las páginas con el nuevo zoom
+    await initializePages();
+
+    // 4. Restaurar la posición de scroll
+    const targetPageData = pdfPages[centerPageInfo.pageNum - 1];
+    if (targetPageData) {
+        const newPageEl = targetPageData.element;
+        // Calcular el nuevo scrollTop para que el punto guardado vuelva al centro de la pantalla
+        const newScrollTop = newPageEl.offsetTop + (newPageEl.offsetHeight * centerPageInfo.relativeY) - (pdfContainer.clientHeight / 2);
+        pdfContainer.scrollTop = newScrollTop;
+    }
+
+    // 5. Renderizar las páginas ahora visibles en la nueva posición
+    checkVisiblePages();
+}
         
         function clearAnnotations() {
             if (confirm('¿Estás seguro de que quieres borrar todas las anotaciones?')) {
