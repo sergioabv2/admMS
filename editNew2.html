@@ -4,24 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
-    <title>Visualizador PDF con Anotaciones</title>
+    <title>Visualizador PDF con Anotaciones - Optimizado</title>
     
     <style>
         body {
             margin: 0; padding: 0; font-family: Arial, sans-serif;
             height: 100vh; touch-action: none; overflow: hidden;
-            background-color: #333; /* Fondo oscuro para evitar destellos blancos */
+            background-color: #333;
         }
         .canvas-container {
             position: relative; height: 100%; overflow: auto;
             background-color: #525659; width: 100%;
-            /* Mejora el scroll en iOS */
             -webkit-overflow-scrolling: touch; 
         }
         .pdf-page {
-            display: flex; justify-content: center; margin: 10px auto; /* Añadido margen vertical */
+            display: flex; justify-content: center; margin: 10px auto;
             position: relative;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Sombra para separar páginas */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            min-height: 200px; /* Altura mínima para páginas no cargadas */
+        }
+        .pdf-page.loading {
+            background: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .pdf-page canvas {
+            transition: opacity 0.3s ease;
         }
         #annotation-canvas {
             position: absolute; left: 50%; top: 0;
@@ -73,10 +83,23 @@
             background: rgba(0,0,0,0.7); color: white; padding: 5px 10px;
             border-radius: 4px; font-size: 14px;
         }
+
+        /* Indicador de progreso */
+        .progress-bar {
+            position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+            background: rgba(255,255,255,0.2); z-index: 1001; display: none;
+        }
+        .progress-fill {
+            height: 100%; background: #4CAF50; width: 0%; transition: width 0.3s ease;
+        }
     </style>
 </head>
 
 <body>
+    <div class="progress-bar" id="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+    </div>
+
     <div class="controls-left">
         <div id="zoom-indicator">Zoom: 100%</div>
         <button id="zoom-out" class="control-btn2"><i class="ri-subtract-line"></i></button>
@@ -89,6 +112,7 @@
         </div>
         <button id="draw-btn" class="control-btn" title="Activar/Desactivar lápiz"><i class="ri-edit-2-line"></i></button>
         <button id="clear-btn" class="control-btn" title="Borrar todas las anotaciones"><i class="ri-eraser-line"></i></button>
+        <button id="quality-btn" class="control-btn" title="Alternar calidad de renderizado"><i class="ri-hd-line"></i></button>
     </div>
     
     <div class="page-info" id="page-num">Página: -/-</div>
@@ -110,18 +134,45 @@
         const annotationCanvas = document.getElementById('annotation-canvas');
         const annotationCtx = annotationCanvas.getContext('2d');
         const canvasContainer = document.querySelector('.canvas-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressFill = document.getElementById('progress-fill');
 
         // Estado de la aplicación
         let pdfDoc = null, scale = 1.0;
         let isDrawing = false, isDrawingMode = false, isPinching = false;
         let pdfPages = [], drawingAnnotations = [], currentColor = '#FF0000';
         let initialPinchDistance = null;
+        let renderQueue = [], isRendering = false;
+        let visiblePages = new Set();
+        let highQuality = false;
+        let lastScrollTime = 0;
+        let scrollTimeout = null;
+        let renderedPages = new Set();
+
+        // Cache de páginas renderizadas
+        const pageCache = new Map();
+        const MAX_CACHE_SIZE = 10;
+
+        // Configuración de calidad adaptativa
+        const QUALITY_CONFIG = {
+            low: { scale: 0.5, maxPages: 20 },
+            high: { scale: 1.0, maxPages: 5 }
+        };
 
         function getFileUrl() {
             const params = new URLSearchParams(window.location.search);
             const fileId = params.get("fileId");
-            if (!fileId) return 'https://cdn.mozilla.net/pdfjs/tracemonkey.pdf'; // URL de ejemplo
+            if (!fileId) return 'https://cdn.mozilla.net/pdfjs/tracemonkey.pdf';
             return `https://storage.googleapis.com/mozartacademy-files/pdf/${encodeURIComponent(fileId)}`;
+        }
+
+        function showProgress(show = true) {
+            progressBar.style.display = show ? 'block' : 'none';
+            if (!show) progressFill.style.width = '0%';
+        }
+
+        function updateProgress(percent) {
+            progressFill.style.width = `${percent}%`;
         }
 
         async function initPdfViewer() {
@@ -130,25 +181,57 @@
                 document.getElementById('loading').textContent = 'Error: No se proporcionó un archivo PDF.';
                 return;
             }
+            
             try {
-                const loadingTask = pdfjsLib.getDocument({ url });
+                showProgress(true);
+                updateProgress(10);
+                
+                const loadingTask = pdfjsLib.getDocument({ 
+                    url,
+                    // Configuraciones para mejorar rendimiento
+                    cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.11.338/cmaps/',
+                    cMapPacked: true,
+                    disableAutoFetch: true,
+                    disableStream: false
+                });
+                
+                updateProgress(30);
                 pdfDoc = await loadingTask.promise;
+                updateProgress(50);
+                
                 document.getElementById('loading').style.display = 'none';
-                await renderAllPages();
-                window.addEventListener('resize', renderAllPages);
+                
+                // Determinar calidad inicial basada en número de páginas
+                if (pdfDoc.numPages > QUALITY_CONFIG.high.maxPages) {
+                    highQuality = false;
+                    document.getElementById('quality-btn').style.background = '#ff9800';
+                }
+                
+                await initializePages();
+                updateProgress(100);
+                
+                setTimeout(() => showProgress(false), 500);
+                
+                setupScrollListener();
+                window.addEventListener('resize', debounce(handleResize, 300));
+                
             } catch (error) {
+                showProgress(false);
                 document.getElementById('loading').textContent = `Error al cargar el PDF: ${error.message}`;
                 console.error('Error loading PDF:', error);
             }
         }
 
-        async function renderAllPages() {
-            const currentScrollFraction = canvasContainer.scrollTop / canvasContainer.scrollHeight;
+        async function initializePages() {
             pdfContainer.innerHTML = '';
             pdfPages = [];
+            renderedPages.clear();
+            pageCache.clear();
+            
             const containerWidth = pdfContainer.clientWidth;
+            let totalHeight = 0;
 
-            const renderPromises = [];
+            // Crear estructura de páginas sin renderizar inmediatamente
             for (let i = 1; i <= pdfDoc.numPages; i++) {
                 const page = await pdfDoc.getPage(i);
                 const viewport = page.getViewport({ scale: 1.0 });
@@ -156,38 +239,203 @@
                 const scaledViewport = page.getViewport({ scale: dynamicScale * scale });
 
                 const pageContainer = document.createElement('div');
-                pageContainer.className = 'pdf-page';
-                const canvas = document.createElement('canvas');
-                pageContainer.appendChild(canvas);
-                pdfContainer.appendChild(pageContainer);
-
-                canvas.height = scaledViewport.height;
-                canvas.width = scaledViewport.width;
+                pageContainer.className = 'pdf-page loading';
+                pageContainer.textContent = `Página ${i}`;
+                pageContainer.style.height = `${scaledViewport.height}px`;
+                pageContainer.style.width = `${scaledViewport.width}px`;
+                pageContainer.dataset.pageNum = i;
                 
-                pdfPages[i - 1] = { element: pageContainer, canvas: canvas };
+                pdfContainer.appendChild(pageContainer);
+                pdfPages[i - 1] = { 
+                    element: pageContainer, 
+                    canvas: null, 
+                    rendered: false,
+                    viewport: scaledViewport,
+                    originalViewport: viewport
+                };
+                
+                totalHeight += scaledViewport.height + 20;
+            }
 
-                const renderContext = { canvasContext: canvas.getContext('2d'), viewport: scaledViewport };
-                renderPromises.push(page.render(renderContext).promise);
+            updateAnnotationCanvasSize();
+            updatePageIndicator();
+            
+            // Renderizar páginas visibles inicialmente
+            requestAnimationFrame(() => {
+                checkVisiblePages();
+            });
+        }
+
+        function setupScrollListener() {
+            canvasContainer.addEventListener('scroll', () => {
+                lastScrollTime = Date.now();
+                
+                if (scrollTimeout) clearTimeout(scrollTimeout);
+                
+                // Actualizar indicador inmediatamente
+                updatePageIndicator();
+                
+                // Debounce para renderizado de páginas
+                scrollTimeout = setTimeout(() => {
+                    if (Date.now() - lastScrollTime >= 150) {
+                        checkVisiblePages();
+                    }
+                }, 150);
+            });
+        }
+
+        function checkVisiblePages() {
+            const containerRect = canvasContainer.getBoundingClientRect();
+            const scrollTop = canvasContainer.scrollTop;
+            const containerHeight = canvasContainer.clientHeight;
+            
+            const buffer = containerHeight; // Buffer para pre-cargar páginas cercanas
+            const viewStart = scrollTop - buffer;
+            const viewEnd = scrollTop + containerHeight + buffer;
+            
+            const newVisiblePages = new Set();
+
+            pdfPages.forEach((page, index) => {
+                const pageTop = page.element.offsetTop;
+                const pageBottom = pageTop + page.element.offsetHeight;
+                
+                if (pageBottom >= viewStart && pageTop <= viewEnd) {
+                    newVisiblePages.add(index + 1);
+                }
+            });
+
+            // Renderizar nuevas páginas visibles
+            newVisiblePages.forEach(pageNum => {
+                if (!renderedPages.has(pageNum)) {
+                    queuePageRender(pageNum);
+                }
+            });
+
+            // Limpiar páginas que ya no son visibles (mantener cache limitado)
+            if (pageCache.size > MAX_CACHE_SIZE) {
+                const pagesToRemove = Array.from(renderedPages).filter(
+                    pageNum => !newVisiblePages.has(pageNum)
+                ).slice(0, pageCache.size - MAX_CACHE_SIZE);
+                
+                pagesToRemove.forEach(pageNum => {
+                    unloadPage(pageNum);
+                });
+            }
+
+            visiblePages = newVisiblePages;
+        }
+
+        function queuePageRender(pageNum) {
+            if (renderQueue.includes(pageNum) || renderedPages.has(pageNum)) return;
+            
+            renderQueue.push(pageNum);
+            if (!isRendering) {
+                processRenderQueue();
+            }
+        }
+
+        async function processRenderQueue() {
+            if (renderQueue.length === 0) {
+                isRendering = false;
+                return;
             }
             
-            await Promise.all(renderPromises);
-            updateAnnotationCanvasSize();
-            redrawAllStrokes();
-            updatePageIndicator();
-            // Restaurar posición de scroll
-            canvasContainer.scrollTop = currentScrollFraction * canvasContainer.scrollHeight;
+            isRendering = true;
+            const pageNum = renderQueue.shift();
+            
+            try {
+                await renderPage(pageNum);
+            } catch (error) {
+                console.error(`Error rendering page ${pageNum}:`, error);
+            }
+            
+            // Continuar con la siguiente página después de un pequeño delay
+            setTimeout(() => processRenderQueue(), 10);
+        }
+
+        async function renderPage(pageNum) {
+            if (renderedPages.has(pageNum)) return;
+            
+            const pageData = pdfPages[pageNum - 1];
+            if (!pageData) return;
+
+            // Verificar cache
+            const cacheKey = `${pageNum}-${scale}-${highQuality}`;
+            if (pageCache.has(cacheKey)) {
+                const cachedCanvas = pageCache.get(cacheKey);
+                pageData.element.innerHTML = '';
+                pageData.element.appendChild(cachedCanvas.cloneNode(true));
+                pageData.element.classList.remove('loading');
+                pageData.rendered = true;
+                renderedPages.add(pageNum);
+                return;
+            }
+
+            try {
+                const page = await pdfDoc.getPage(pageNum);
+                const containerWidth = pdfContainer.clientWidth;
+                const dynamicScale = containerWidth / pageData.originalViewport.width;
+                const renderScale = dynamicScale * scale * (highQuality ? 1.0 : 0.7);
+                const viewport = page.getViewport({ scale: renderScale });
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                // Configuración para mejor rendimiento
+                const renderContext = { 
+                    canvasContext: context, 
+                    viewport: viewport,
+                    // Renderizado con menor calidad para mejorar velocidad si es necesario
+                    renderInteractiveForms: false
+                };
+
+                await page.render(renderContext).promise;
+                
+                // Actualizar DOM
+                pageData.element.innerHTML = '';
+                pageData.element.appendChild(canvas);
+                pageData.element.classList.remove('loading');
+                pageData.canvas = canvas;
+                pageData.rendered = true;
+                pageData.viewport = viewport;
+                
+                renderedPages.add(pageNum);
+                
+                // Guardar en cache
+                if (pageCache.size < MAX_CACHE_SIZE) {
+                    pageCache.set(cacheKey, canvas.cloneNode(true));
+                }
+                
+            } catch (error) {
+                console.error(`Error rendering page ${pageNum}:`, error);
+                pageData.element.textContent = `Error cargando página ${pageNum}`;
+            }
+        }
+
+        function unloadPage(pageNum) {
+            const pageData = pdfPages[pageNum - 1];
+            if (!pageData || !pageData.rendered) return;
+            
+            pageData.element.innerHTML = `Página ${pageNum}`;
+            pageData.element.classList.add('loading');
+            pageData.canvas = null;
+            pageData.rendered = false;
+            renderedPages.delete(pageNum);
         }
 
         function updateAnnotationCanvasSize() {
             let totalHeight = 0, maxWidth = 0;
             pdfPages.forEach(p => {
-                totalHeight += p.element.offsetHeight + 20; // +20 por el margin
+                totalHeight += p.element.offsetHeight + 20;
                 maxWidth = Math.max(maxWidth, p.element.offsetWidth);
             });
             annotationCanvas.width = maxWidth;
             annotationCanvas.height = totalHeight;
         }
-        
+
         function updatePageIndicator() {
             if (!pdfDoc) return;
             const { scrollTop, clientHeight } = canvasContainer;
@@ -200,18 +448,22 @@
                     return;
                 }
             }
-             document.getElementById('page-num').textContent = `Página: 1/${pdfDoc.numPages}`;
+            document.getElementById('page-num').textContent = `Página: 1/${pdfDoc.numPages}`;
         }
 
         function redrawAllStrokes() {
             annotationCtx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
+            
+            // Solo redibujar anotaciones de páginas visibles para mejor rendimiento
             drawingAnnotations.forEach(stroke => {
                 if (!stroke.points || stroke.points.length < 1) return;
+                if (!visiblePages.has(stroke.pageNum)) return;
+                
                 const page = pdfPages[stroke.pageNum - 1];
-                if (!page) return;
+                if (!page || !page.rendered) return;
 
                 const pageTopOffset = page.element.offsetTop;
-                const { width, height } = page.canvas;
+                const { width, height } = page.viewport;
 
                 annotationCtx.beginPath();
                 const firstPoint = stroke.points[0];
@@ -233,11 +485,28 @@
         function updateZoom(newScale) {
             scale = Math.max(0.5, Math.min(3.0, newScale));
             updateZoomIndicator();
-            renderAllPages();
+            
+            // Limpiar páginas renderizadas para forzar re-renderizado con nuevo zoom
+            renderedPages.clear();
+            pageCache.clear();
+            
+            initializePages();
         }
 
         function updateZoomIndicator() {
             zoomIndicator.textContent = `Zoom: ${Math.round(scale * 100)}%`;
+        }
+
+        function toggleQuality() {
+            highQuality = !highQuality;
+            const qualityBtn = document.getElementById('quality-btn');
+            qualityBtn.style.background = highQuality ? '#4CAF50' : '#ff9800';
+            qualityBtn.title = `Calidad: ${highQuality ? 'Alta' : 'Baja'}`;
+            
+            // Re-renderizar páginas visibles con nueva calidad
+            renderedPages.clear();
+            pageCache.clear();
+            checkVisiblePages();
         }
 
         function toggleDrawing() {
@@ -253,7 +522,27 @@
                 redrawAllStrokes();
             }
         }
+
+        // Funciones auxiliares
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function handleResize() {
+            renderedPages.clear();
+            pageCache.clear();
+            initializePages();
+        }
         
+        // [Las funciones de dibujo y eventos permanecen igual...]
         function getCanvasPosition(e) {
             const rect = annotationCanvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -267,8 +556,10 @@
                 const page = pdfPages[i];
                 const pageEl = page.element;
                 if (pos.y >= pageEl.offsetTop && pos.y <= pageEl.offsetTop + pageEl.offsetHeight) {
-                    const x = pos.x / page.canvas.width;
-                    const y = (pos.y - pageEl.offsetTop) / page.canvas.height;
+                    const canvas = page.canvas;
+                    if (!canvas) return null;
+                    const x = pos.x / canvas.width;
+                    const y = (pos.y - pageEl.offsetTop) / canvas.height;
                     return {
                         pageX: Math.max(0, Math.min(1, x)),
                         pageY: Math.max(0, Math.min(1, y)),
@@ -287,7 +578,12 @@
             e.preventDefault();
             isDrawing = true;
             
-            const stroke = { pageNum: relativePos.pageNum, color: currentColor, width: 2, points: [{ x: relativePos.pageX, y: relativePos.pageY }] };
+            const stroke = { 
+                pageNum: relativePos.pageNum, 
+                color: currentColor, 
+                width: 2, 
+                points: [{ x: relativePos.pageX, y: relativePos.pageY }] 
+            };
             drawingAnnotations.push(stroke);
 
             const pos = getCanvasPosition(e);
@@ -319,7 +615,6 @@
             isDrawing = false;
         }
 
-        // --- LÓGICA DE ZOOM TÁCTIL ---
         function getPinchDistance(e) {
             const t1 = e.touches[0];
             const t2 = e.touches[1];
@@ -357,27 +652,25 @@
             }
         }
 
-        // --- EVENT LISTENERS ---
+        // Event Listeners
         document.getElementById('zoom-in').addEventListener('click', () => updateZoom(scale + 0.1));
         document.getElementById('zoom-out').addEventListener('click', () => updateZoom(scale - 0.1));
         document.getElementById('draw-btn').addEventListener('click', toggleDrawing);
         document.getElementById('clear-btn').addEventListener('click', clearAnnotations);
+        document.getElementById('quality-btn').addEventListener('click', toggleQuality);
         document.getElementById('color-picker').addEventListener('input', (e) => { currentColor = e.target.value; });
         
-        canvasContainer.addEventListener('scroll', updatePageIndicator);
-        
-        // Eventos de dibujo (Ratón)
+        // Eventos de dibujo
         annotationCanvas.addEventListener('mousedown', startDrawing);
         annotationCanvas.addEventListener('mousemove', draw);
         annotationCanvas.addEventListener('mouseup', stopDrawing);
         annotationCanvas.addEventListener('mouseout', stopDrawing);
         
-        // Eventos táctiles (Dibujo y Zoom)
+        // Eventos táctiles
         annotationCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
         annotationCanvas.addEventListener('touchmove', handleTouchMove, { passive: false });
         annotationCanvas.addEventListener('touchend', handleTouchEnd);
         annotationCanvas.addEventListener('touchcancel', handleTouchEnd);
-
 
         // Inicializar
         initPdfViewer();
