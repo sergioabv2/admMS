@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
-    <title>Visualizador PDF con Anotaciones - Optimizado para Archivos Grandes</title>
+    <title>Visualizador PDF con Anotaciones - Corregido</title>
     
     <style>
         body {
@@ -30,24 +30,29 @@
             justify-content: center;
             color: white;
         }
-        .annotation-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            cursor: crosshair;
-        }
+        
+        /* --- CORRECCIÓN CLAVE CON Z-INDEX --- */
         .pdf-canvas {
             position: absolute;
             top: 0;
             left: 0;
+            z-index: 1; /* Capa del PDF (abajo) */
         }
+        .annotation-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2; /* Capa de anotaciones (arriba) */
+            pointer-events: none;
+            cursor: crosshair;
+        }
+        /* --- FIN DE LA CORRECCIÓN --- */
 
-        /* Estilos de controles */
+        /* Estilos de controles (sin cambios) */
         .controls-left {
             position: fixed; right: 10px; bottom: 22px; display: flex;
             align-items: center; gap: 10px; background-color: rgba(0, 0, 0, 0.7);
-            color: white; padding: 5px 10px; border-radius: 4px; z-index: 100;
+            color: white; padding: 5px 10px; border-radius: 4px; z-index: 1000;
         }
         .control-btn2 {
             width: 32px; height: 32px; border-radius: 6px; background-color: #555;
@@ -129,7 +134,7 @@
         }
         .page-info {
             position: fixed; left: 10px; bottom: 22px; background-color: rgba(0, 0, 0, 0.7);
-            color: white; padding: 5px 10px; border-radius: 4px; z-index: 100;
+            color: white; padding: 5px 10px; border-radius: 4px; z-index: 1000;
         }
         .loading { color: white; text-align: center; margin-top: 50px; font-size: 1.2em; }
         
@@ -209,25 +214,14 @@
         let renderQueue = [], isRendering = false;
         let visiblePages = new Set();
         let highQuality = false;
-        let lastScrollTime = 0;
         let scrollTimeout = null;
         let renderedPages = new Set();
-        const pageCache = new Map();
-        const MAX_CACHE_SIZE = 10;
         
         function getFileUrl() {
             const params = new URLSearchParams(window.location.search);
             const fileId = params.get("fileId");
             if (!fileId) return 'https://cdn.mozilla.net/pdfjs/tracemonkey.pdf';
             return `https://storage.googleapis.com/mozartacademy-files/pdf/${encodeURIComponent(fileId)}`;
-        }
-
-        function showProgress(visible) {
-            document.getElementById('progress-bar').style.display = visible ? 'block' : 'none';
-        }
-
-        function updateProgress(progress) {
-            document.getElementById('progress-fill').style.width = `${progress * 100}%`;
         }
 
         async function initPdfViewer() {
@@ -238,22 +232,13 @@
             }
             
             try {
-                showProgress(true);
-                updateProgress(0);
-                
                 const loadingTask = pdfjsLib.getDocument({
                     url,
                     cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.11.338/cmaps/',
                     cMapPacked: true,
                 });
 
-                loadingTask.onProgress = function(progressData) {
-                    const progress = progressData.loaded / progressData.total;
-                    updateProgress(progress);
-                };
-
                 pdfDoc = await loadingTask.promise;
-                showProgress(false);
                 document.getElementById('loading').style.display = 'none';
                 
                 await initializePages();
@@ -270,7 +255,6 @@
                 pdfContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
                 pdfContainer.addEventListener('touchend', handleTouchEnd);
                 
-                // Iniciar renderizado de páginas visibles
                 checkVisiblePages();
             } catch (error) {
                 document.getElementById('loading').textContent = `Error al cargar el PDF: ${error.message}`;
@@ -282,7 +266,6 @@
             pdfContainer.innerHTML = '';
             pdfPages = [];
             renderedPages.clear();
-            pageCache.clear();
             
             const containerWidth = pdfContainer.clientWidth;
 
@@ -298,13 +281,11 @@
                 pageContainer.style.height = `${scaledViewport.height}px`;
                 pageContainer.dataset.pageNum = i;
                 
-                // Crear canvas para el PDF
                 const pdfCanvas = document.createElement('canvas');
                 pdfCanvas.className = 'pdf-canvas';
                 pdfCanvas.width = scaledViewport.width;
                 pdfCanvas.height = scaledViewport.height;
                 
-                // Crear canvas para anotaciones
                 const annotationCanvas = document.createElement('canvas');
                 annotationCanvas.className = 'annotation-canvas';
                 annotationCanvas.width = scaledViewport.width;
@@ -322,7 +303,7 @@
                     annotationCtx: annotationCanvas.getContext('2d'),
                     rendered: false,
                     viewport: scaledViewport,
-                    page: page // Guardar la referencia a la página PDF
+                    page: page
                 };
             }
             
@@ -336,10 +317,10 @@
         }
 
         function checkVisiblePages() {
-            const newVisiblePages = new Set();
             const viewStart = pdfContainer.scrollTop - pdfContainer.clientHeight;
             const viewEnd = pdfContainer.scrollTop + pdfContainer.clientHeight * 2;
 
+            const newVisiblePages = new Set();
             pdfPages.forEach((page, index) => {
                 const pageTop = page.element.offsetTop;
                 const pageBottom = pageTop + page.element.offsetHeight;
@@ -360,9 +341,8 @@
         }
 
         function queuePageRender(pageNum) {
-            if (!renderQueue.includes(pageNum)) {
-                renderQueue.push(pageNum);
-            }
+            if (renderQueue.includes(pageNum)) return;
+            renderQueue.push(pageNum);
             processRenderQueue();
         }
 
@@ -381,7 +361,7 @@
             isRendering = false;
             
             if (renderQueue.length > 0) {
-                setTimeout(processRenderQueue, 0);
+                requestAnimationFrame(processRenderQueue);
             }
         }
 
@@ -443,8 +423,7 @@
             ctx.moveTo(firstPoint.x * width, firstPoint.y * height);
 
             for (let i = 1; i < stroke.points.length; i++) {
-                const point = stroke.points[i];
-                ctx.lineTo(point.x * width, point.y * height);
+                ctx.lineTo(stroke.points[i].x * width, stroke.points[i].y * height);
             }
             ctx.stroke();
         }
@@ -525,33 +504,26 @@
         }
         
         function updatePageIndicator() {
-            if (pdfPages.length === 0) return;
-            
-            let currentPage = 1;
+            if (!pdfDoc || pdfPages.length === 0) return;
+            const viewCenter = pdfContainer.scrollTop + pdfContainer.clientHeight / 2;
+            let closestPage = 1;
             let minDistance = Infinity;
-            
+
             pdfPages.forEach((page, index) => {
-                const pageTop = page.element.offsetTop;
-                const pageBottom = pageTop + page.element.offsetHeight;
-                const viewCenter = pdfContainer.scrollTop + pdfContainer.clientHeight / 2;
-                
-                const distance = Math.abs(viewCenter - (pageTop + pageBottom) / 2);
+                const pageCenter = page.element.offsetTop + page.element.offsetHeight / 2;
+                const distance = Math.abs(viewCenter - pageCenter);
                 if (distance < minDistance) {
                     minDistance = distance;
-                    currentPage = index + 1;
+                    closestPage = index + 1;
                 }
             });
-            
-            document.getElementById('page-num').textContent = `Página: ${currentPage}/${pdfDoc.numPages}`;
+            document.getElementById('page-num').textContent = `Página: ${closestPage}/${pdfDoc.numPages}`;
         }
         
         function updateZoom(newScale) {
-            if (newScale < 0.5) newScale = 0.5;
-            if (newScale > 3) newScale = 3;
-            
-            scale = newScale;
+            scale = Math.max(0.5, Math.min(3.0, newScale));
             document.getElementById('zoom-indicator').textContent = `Zoom: ${Math.round(scale * 100)}%`;
-            initializePages();
+            initializePages().then(checkVisiblePages);
         }
         
         function clearAnnotations() {
@@ -565,7 +537,6 @@
             if (e.touches.length === 2) {
                 isPinching = true;
                 initialPinchDistance = getDistance(e.touches[0], e.touches[1]);
-                e.preventDefault();
             } else if (isDrawingMode) {
                 startDrawing(e);
             }
@@ -573,20 +544,18 @@
         
         function handleTouchMove(e) {
             if (isPinching && e.touches.length === 2) {
+                e.preventDefault();
                 const currentDistance = getDistance(e.touches[0], e.touches[1]);
                 const zoomFactor = currentDistance / initialPinchDistance;
                 updateZoom(scale * zoomFactor);
                 initialPinchDistance = currentDistance;
-                e.preventDefault();
             } else if (isDrawing) {
                 draw(e);
             }
         }
         
-        function handleTouchEnd(e) {
-            if (e.touches.length === 0) {
-                isPinching = false;
-            }
+        function handleTouchEnd() {
+            isPinching = false;
             if (isDrawing) {
                 stopDrawing();
             }
@@ -609,6 +578,10 @@
                 timeout = setTimeout(later, wait);
             };
         }
+        
+        function handleResize() {
+            initializePages().then(checkVisiblePages);
+        }
 
         // Inicializar
         initPdfViewer();
@@ -621,7 +594,7 @@
         document.getElementById('quality-btn').addEventListener('click', () => {
             highQuality = !highQuality;
             document.getElementById('quality-btn').classList.toggle('active', highQuality);
-            initializePages();
+            initializePages().then(checkVisiblePages);
         });
         document.getElementById('color-picker').addEventListener('input', (e) => { currentColor = e.target.value; });
         strokeWidthSlider.addEventListener('input', (e) => {
