@@ -1,3 +1,4 @@
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
@@ -382,9 +383,88 @@ margin: 0;
     border-color: #4CAF50;    /* Borde verde */
     color: #3c763d;
 }
+
+ .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+   display: flex;
+            font-family: Arial, sans-serif;
+        }
+
+        .loading-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+
+.progress-container {
+            height: 6px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+/* Añade esto */
+@keyframes progressAnimation {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #3498db;
+  animation: progressAnimation 4s linear forwards; /* <- Simulación */
+  border-radius: 3px;
+}
+
 </style>
 
 <div ng-app="companyApp" ng-controller="companyController" class="container">
+  
+  
+     <div class="loading-overlay" ng-if="loading">
+  <div class="loading-container">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Procesando, por favor espere...</div>
+    <div class="progress-container">
+      <div class="progress-bar"></div>
+    </div>
+  </div>
+</div>
+  
+  
   <div class="row">
     <div class="bootcards-list col-sm-6 list-panel">
       <div class="panel panel-default">
@@ -402,9 +482,7 @@ margin: 0;
           <div class="form-group">
          <select class="form-control" ng-model="selectedFilter" ng-change="applyFilter()">
       <option value="active">Activo</option>
-      <option value="now">Ahora</option>
-      <option value="today">Hoy</option>
-      <option value="all">Todos</option>
+      <option value="all">Inactivo</option>
     </select>
     </div>
     </div>
@@ -413,28 +491,32 @@ margin: 0;
   <!-- Fila 2: Botones de ordenamiento -->
   <div class="row" style="margin-top: 10px;">
     <div class="col-xs-12" >
-      <button class="btn btn-default" style="color: black" ng-click="filterByHour()">Presencial</button>
-      <button class="btn btn-default" style="color: black" ng-click="filterByDay()">Online</button>
-      <button class="btn btn-default" style="color: black" ng-click="showAllStudents()">Plataforma</button>
+      <button class="btn btn-default" style="color: black" ng-click="filterByHour()">Ahora</button>
+      <button class="btn btn-default" style="color: black" ng-click="filterByDay()">Hoy</button>
+      <button class="btn btn-default" style="color: black" ng-click="filterByActive()">Todos</button>
+      <div class="pull-right" style="cursor: pointer; margin-top: 10px; margin-right: 17px; font-size: 20px;" ng-click="reload()"><i class="ri-loop-left-fill"></i> </div>
     </div>
+
   </div>
+
+
 </form>
-
-
         </div>
+        
+
         <div class="list-group">
-          <a class="list-group-item" href="#" ng-repeat="company in filteredStudents | filter:searchQuery" ng-click="showCompany(company.name, $event)">
+          <a class="list-group-item" href="#" ng-repeat="company in filteredStudents | filter:{name: searchQuery}" ng-click="showCompany(company.name, $event)">
             <div class="row">
               <div class="col-sm-1">
                 <img style="border-radius: 50%;" ng-src="{{company.photo}}">
               </div>
               <div class="col-sm-5">
                 <h4 class="list-group-item-heading">{{company.name}}</h4>
-                <p class="list-group-item-text">{{company.status}}</p>
+                <p class="list-group-item-text">{{company.level}} - Lección {{company.lsn}}</p>
               </div>
               <div class="col-sm-6">
-                <p class="list-group-item-text">{{company.level}}</p>
-                <p class="list-group-item-text">{{company.classtime}}</p>
+                <p class="list-group-item-text">{{company.classtime[0]}}</p>
+                <p class="list-group-item-text">{{company.classtime[1]}}</p>
               </div>
             </div>
           </a>
@@ -462,22 +544,133 @@ margin: 0;
         <div class="list-group" >
            <div class="list-group-item">
                <img class="pull-left" style="border-radius: 50%; width: 65px; height: 65px; margin-top: 4px; margin-right: 10px;" ng-src="{{company.photo}}">
+                <button class="btn btn-default btnPreview pull-right" ng-if="company.phone != ''"><i class="ri-whatsapp-line" ng-click="sendWhats(company.phone)"></i>Whatsapp</button>
             <h4 class="list-group-item-heading">
              {{company.name}}
               </h4>
-            <p class="list-group-item-text">{{company.mail}}</p>
-             <p class="list-group-item-text">{{company.level}}</p>
+            <p class="list-group-item-text">{{company.mail}} - {{company.phone}}</p>
+             <p class="list-group-item-text" style="font-size: 14px; color: red">Próximo pago: {{company.nextPay}}</p>
      
           </div>
-          
-       <div class="list-group-item" ng-show="activeTab === 'Analytics'" >  
 
-      
-         
-        <div class="panel panel-default" >
+
+
+
+
+          
+     
+            <div class="list-group-item" id="Status" ng-show="activeTab === 'Status'">
+  <div class="panel ">
+   
+    Profesor: {{company.teacher.name}}
+  </div>
+</div> 
+
+
+          
+   <div class="list-group-item" id="Agenda" ng-show="activeTab === 'Agenda'">
+  <div class="panel panel-default">
+   
     <div class="panel-body" style="height: 260px; overflow-y: auto;">
-      <!-- Lista de grabaciones -->
-      <div ng-repeat="lsn in company.currentLsn" class="recording-container">
+      <!-- Lista de mensajes -->
+
+        <div ng-if="company.agenda && company.agenda.length > 0">
+      <div ng-repeat="event in company.agenda" class="message-container" >
+        
+        <!-- Cabecera del mensaje -->
+        <div class="media" style="margin-bottom: -14px !important;">
+          <div class="media-left"  >
+            <span ng-if="" >
+              <i class="ri-check-line fa-2x" style="color: silver; opacity: 0.8; text-shadow: 0 0 10px silver;"></i>
+            </span>
+              <span ng-if="" >
+              <i class="ri-time-line fa-2x"></i>
+            </span>
+          </div>
+          <div class="media-body" >
+            <h5 class="media-heading">{{event.title}}
+              <small class="text-muted pull-right" ng-if="">Finalizada</small>
+               <small class="text-muted pull-right" ng-if="">Faltan </small>
+            </h5>
+            <p style=" font-size: 12px; color: gray; font-weight: 400">{{returnDateFormat(event.start)}}</p>
+          </div>
+        
+        </div>
+        <hr ng-if="!$last">
+      </div>
+        </div>
+
+         <div ng-if="!company.agenda || company.agenda.length === 0" class="text-center" style="padding: 20px;">
+        <i class="fa fa-calendar fa-4x" style="color: #ddd;"></i>
+        <h4>No existen fechas</h4>
+        <p>Aún no hay fechas registradas</p>
+      </div>
+
+
+    </div>
+ <div class="panel-footer">
+    <button class="btn btn-primary btn-block" ng-click="openEditModal(company)">
+       Registrar pago
+      </button>
+    </div>
+  </div>
+</div> 
+          
+
+
+
+           <div class="list-group-item" id="Agenda" ng-show="activeTab === 'Logs'">
+  <div class="panel panel-default">
+   
+    <div class="panel-body" style="height: 260px; overflow-y: auto;">
+      <!-- Lista de mensajes -->
+
+        <div ng-if="company.logs && company.logs.length > 0">
+      <div ng-repeat="log in company.logs" class="message-container" >
+        
+        <!-- Cabecera del mensaje -->
+        <div class="media" style="margin-bottom: -14px !important;">
+          <div class="media-left"  >
+           
+              <span  >
+              <i class="ri-arrow-right-double-line fa-2x"></i>
+            </span>
+          </div>
+          <div class="media-body" >
+            <h5 class="media-heading">{{log.event}}
+      
+            </h5>
+            <p style=" font-size: 12px; color: gray; font-weight: 400">{{returnDateFormat(log.date)}}</p>
+          </div>
+        
+        </div>
+        <hr ng-if="!$last">
+      </div>
+        </div>
+
+         <div ng-if="!company.logs || company.logs.length === 0" class="text-center" style="padding: 20px;">
+        <i class="fa ri-terminal-line fa-4x" style="color: #ddd;"></i>
+        <h4>No existen Logs</h4>
+        <p>Aún no hay eventos registrados</p>
+      </div>
+
+
+    </div>
+ <div class="panel-footer">
+   
+    </div>
+  </div>
+</div> 
+
+
+
+
+
+
+  <div class="list-group-item" ng-show="activeTab === 'Docs'" >  
+        <div class="panel panel-default" >
+    <div class="panel-body" style="height: 220px; overflow-y: auto;">
+      <div ng-repeat="lsn in company.currentLsn" class="recording-container" ng-show="activeContent === 'Student'">
         <div class="media" style="margin-bottom: -14px !important;">
           <div class="media-left" style="cursor: pointer;" ng-click="toggleLsn(lsn)">
             <i class="ri-time-line fa-2x" ng-if="lsn.status != 'Evaluada'"></i>
@@ -504,76 +697,64 @@ margin: 0;
         </div>
         <hr ng-if="!$last">
       </div>
-    </div>
-
-
-
- <div class="panel-footer">
-      <button class="btn btn-primary btn-block" ng-click="openEditModal2(company)">
-       <i class="ri-edit-2-line"></i>Editar
-      </button>
-    </div>
-   
-  </div>
-             </div>
-          
-          
-   <div class="list-group-item" id="Agenda" ng-show="activeTab === 'Agenda'">
-  <div class="panel panel-default">
-   
-    <div class="panel-body" style="height: 260px; overflow-y: auto;">
-      <!-- Lista de mensajes -->
-
-        <div ng-if="company.agenda && company.agenda.length > 0">
-      <div ng-repeat="event in company.agenda" class="message-container" >
-        
-        <!-- Cabecera del mensaje -->
+      <div ng-repeat="rep in company.repertoire" ng-if="company.repertoire && company.repertoire.length > 0" class="recording-container" ng-show="activeContent === 'Teacher'">
         <div class="media" style="margin-bottom: -14px !important;">
-          <div class="media-left" style="cursor: pointer;" ng-click="toggleAttendance(event)">
-             <span ng-if="event.attendance === 1" >
-              <i class="ri-check-line fa-2x" style="color: green; opacity: 0.8; text-shadow: 0 0 10px green;"></i>
-            </span>
-            <span ng-if="event.attendance === 0" >
-              <i class="ri-close-line fa-2x" style="color: red; opacity: 0.8; text-shadow: 0 0 10px red;"></i>
-            </span>
-              <span ng-if="event.attendance === ''" >
-              <i class="ri-subtract-line fa-2x"></i>
-            </span>
+          <div class="media-left">
+            <i class="ri-file-music-line fa-2x" ></i>
           </div>
-          <div class="media-body" >
-            <h5 class="media-heading">{{event.title}}
-              <small class="text-muted pull-right" style="cursor: pointer">Editar</small>
+          <div class="media-body">
+            <h5 class="media-heading">
+              {{rep.title}}
+   
+                <button class="btn btn-default btnPreview pull-right" style="width: 62px;" ng-click="abrirNuevaPestana(rep.pdf);$event.preventDefault();$event.stopPropagation()">
+              Abrir
+            </button>
             </h5>
-            <p style=" font-size: 12px; color: gray; font-weight: 400">{{returnDateFormat(event.start)}}</p>
+            <p style="font-size: 12px; font-weight: 400">
+              <span  class="text-warning">
+                {{rep.grade}}
+              </span>
+            </p>
           </div>
-        
+     
         </div>
         <hr ng-if="!$last">
       </div>
-        </div>
 
-         <div ng-if="!company.agenda || company.agenda.length === 0" class="text-center" style="padding: 20px;">
-        <i class="fa fa-calendar fa-4x" style="color: #ddd;"></i>
-        <h4>No existen fechas</h4>
-        <p>Aún no hay fechas registradas</p>
+       <div ng-if="!company.repertoire || company.repertoire.length === 0" ng-show="activeContent === 'Repertoire'" class="text-center" style="padding: 20px;">
+        <i class="ri-file-close-line fa-4x" style="color: #ddd;"></i>
+        <h4>Sin repertorio</h4>
+        <p>Aún no hay contenido cargado</p>
       </div>
-
-
     </div>
- <div class="panel-footer">
-    <button class="btn btn-primary btn-block" ng-click="openEditModal(company)">
-       <i class="ri-edit-2-line"></i>Editar
+ <div class="btn-group-justified"  style="height: 40px; transform: scale(0.9);">
+    <div class="btn-group">
+      <button class="btn btn-default" ng-click="showCont('Student')">
+      Alumno
+      </button>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-default" ng-click="showCont('Teacher')">
+   Profesor
       </button>
     </div>
   </div>
-</div> 
-          
+ <div class="panel-footer">
+      <button class="btn btn-primary btn-block" ng-click="openEditModal2(company)">
+     Agregar Documento
+      </button>
+    </div>
+  </div>
+ </div>
 
 
 
-<div class="list-group-item" id="Messages" ng-show="activeTab === 'Messages'">
+
+
+
+<div class="list-group-item" id="Messages" ng-show="activeTab === 'Recordings'">
   <div class="panel panel-default">
-    <div class="panel-body" style="height: 260px; overflow-y: auto;">
+    <div class="panel-body" style="height: 210px; overflow-y: auto;">
       <!-- Lista de grabaciones -->
       <div ng-if="company.audios && company.audios.length > 0">
       <div ng-repeat="recording in company.audios" class="recording-container">
@@ -603,6 +784,11 @@ margin: 0;
         <h4>No existen archivos</h4>
         <p>Aún no hay grabaciones registradas</p>
       </div>
+    </div>
+
+
+
+     <div class="panel-footer" style="display: flex; align-items: center; gap: 8px;">
 
     </div>
    
@@ -619,18 +805,31 @@ margin: 0;
     <div class="panel-footer" >
   <div class="btn-group btn-group-justified">
     <div class="btn-group">
-      <button class="btn btn-default" ng-click="showTab('Analytics')">
-       <i class="ri-folder-open-line"></i> Evaluación
+      <button class="btn btn-default" ng-click="showTab('Status')">
+       <i class="ri-award-line"></i> Evaluación
       </button>
     </div>
     <div class="btn-group">
       <button class="btn btn-default" ng-click="showTab('Agenda')">
-        <i class="ri-calendar-line"></i> Agenda
+        <i class="ri-time-line"></i> Sesiones
       </button>
     </div>
     <div class="btn-group">
-      <button class="btn btn-default" ng-click="showTab('Messages')">
-       <i class="ri-record-circle-line"></i> Grabación
+      <button class="btn btn-default" ng-click="showTab('Logs')">
+       <i class="ri-terminal-box-line"></i> Logs
+      </button>
+    </div>
+  </div>
+  <div class="btn-group btn-group-justified">
+
+    <div class="btn-group">
+      <button class="btn btn-default" ng-click="showTab('Docs')">
+        <i class="ri-file-text-line"></i> Documentos
+      </button>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-default" ng-click="showTab('Recordings')">
+       <i class="ri-record-circle-line"></i> Grabaciones
       </button>
     </div>
   </div>
@@ -651,28 +850,10 @@ margin: 0;
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Opciones</h4>
+        <h4 class="modal-title">Nuevo Pago</h4>
       </div>
       <div class="modal-body">
-        <select class="form-control" ng-model="selectedOption">
-          <option value="1">Agregar evento</option>
-          <option value="2">Registrar pago</option>
-        </select>
-        
-        <!-- Contenido dinámico según opción -->
-        <div ng-if="selectedOption == '1'" style="margin-top: 15px;">
-          <div class="form-group">
-            <label>Título del evento</label>
-            <input type="text" class="form-control" ng-model="newEvent.title">
-          </div>
-          <div class="form-group">
-            <label>Fecha y hora</label>
-            <input type="datetime-local" class="form-control" ng-model="newEvent.date">
-          </div>
-        </div>
-        
-        <div ng-if="selectedOption == '2'" style="margin-top: 15px;">
-          
+        <div  style="margin-top: 15px;">
           <div class="form-group">
             <label>Fecha de pago</label>
             <input type="date" class="form-control" ng-model="newPayment" >
@@ -702,7 +883,8 @@ margin: 0;
         <select class="form-control" ng-model="selectedOption2">
           <option value="1">Aprobar todo</option>
           <option value="2">Asignar nivel</option>
-           <option value="3">Agregar documento</option>
+           <option value="3">Agregar pieza a repertorio</option>
+           <option value="4">Agregar documento</option>
         </select>
          
         <!-- Contenido dinámico según opción -->
@@ -734,33 +916,12 @@ margin: 0;
             <option value="9">Lección 9</option>
         </select>
     </div>
-
-         
         </div>
-        
-        <div ng-if="selectedOption2 == '3'" style="margin-top: 15px;">
 
-           <div class="form-group">
-            <label>Nombre del archivo</label>
-            <input type="text" class="form-control"  >
-          </div>
 
-        
-   
- <div class="form-group">
-  <label for="dropZone">Subir archivo PDF</label>
-        <div id="dropZone" class="drop-zone"
-         file-dropzone
-         file-model="selectedPdfFile"
-         on-file-dropped="handleDropzoneFile(file)">
-        Arrastra y suelta tu archivo PDF aquí, o haz clic en el botón de arriba.
-        <br>
-        <small>(Solo archivos PDF)</small>
-    </div>
-       </div>
-
+         <div ng-if="selectedOption2 == '3'" style="margin-top: 15px;">
         <div class="form-group">
-    <label for="leccionSelect">Grado</label>
+    <label for="leccionSelect">Dificultad</label>
         <select class="form-control" id="leccionSelect">
             <option value="0">Preparatorio</option>
             <option value="1">Grado 1</option>
@@ -773,9 +934,69 @@ margin: 0;
             <option value="8">Grado 8</option>
             <option value="9">Profesional</option>
         </select>
-</div>
-         
-        </div>
+      </div>
+      <div class="form-group">
+    <label for="leccionSelect">Lista</label>
+        <select class="form-control" id="leccionSelect">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+        </select>
+      </div>
+      </div>
+
+        
+        <div ng-if="selectedOption2 == '4'" style="margin-top: 15px;">
+          
+ <div class="form-group">
+  <label for="dropZone">Subir archivo PDF</label>
+        <div id="dropZone" class="drop-zone"
+         file-dropzone
+         file-model="selectedPdfFile"
+         on-file-dropped="handleDropzoneFile(file)">
+        Arrastra y suelta tu archivo PDF aquí, o haz clic en el botón de arriba.
+        <br>
+        <small>(Solo archivos PDF)</small>
+    </div>
+       </div>
+
+
+      <div style="display: flex; flex: row; justify-content: center; gap: 12px">
+        <div class="form-group" >
+            <label>Titulo</label>
+            <input type="text" class="form-control"  >
+          </div>
+            <div class="form-group">
+            <label>Autor</label>
+            <input type="text" class="form-control"  style="max-width: 150px">
+          </div>
+          <div class="form-group">
+    <label for="gradeSelect">Dificultad</label>
+        <select class="form-control" id="gradeSelect">
+            <option value="0">Preparatorio</option>
+            <option value="1">Grado 1</option>
+            <option value="2">Grado 2</option>
+            <option value="3">Grado 3</option>
+            <option value="4">Grado 4</option>
+            <option value="5">Grado 5</option>
+            <option value="6">Grado 6</option>
+            <option value="7">Grado 7</option>
+            <option value="8">Grado 8</option>
+            <option value="9">Profesional</option>
+        </select>
+      </div>
+       <div class="form-group">
+            <label for="bars">Barras</label>
+            <input type="number" class="form-control"  style="max-width: 70px"  id="bars">
+          </div>
+      </div>
+
+        
+      </div>
+
+
+
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
@@ -786,6 +1007,12 @@ margin: 0;
 </div>
 
 
+
+
+
+
+
+ 
 
                                  <!-- Player -->
    
@@ -847,11 +1074,13 @@ angular.module('companyApp', [])
   .controller('companyController', ['$http', '$scope', function($http, $scope) {
 
     $scope.companies = [];
+    $scope.loading = true;
 
 
    var requestData = {
-                action: "getAdminData",
-                token: localStorage.getItem('ADtoken')
+                action: "getMozartData",
+                token: "U2FsdGVkX19FIE+E8FpvkMxOZo1u4xby0/CffZfQmhrcIWavhFpXISrp/BBYZzmm"
+     //localStorage.getItem('ADtoken')
               };
 
               var config = {
@@ -860,16 +1089,28 @@ angular.module('companyApp', [])
                 },
                 followRedirects: true
               };
-   
+  
+  $scope.loadData = function(){ 
   $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
     .then(function(response) { 
-      $scope.companies = response.data.students;
+      $scope.companies = response.data;
       $scope.filterByActive()
-    
+      $scope.loading = false;
+    });
+  }
 
-  });
-  
+  $scope.loadData()
+
+  $scope.reload = function(){
+    $scope.loading = true;
+    $scope.loadData()
+  }
  
+
+$scope.sendWhats = function(phone) {
+    var url = "https://wa.me/521" + phone;
+    window.open(url, "_blank");
+  }
 
 
  
@@ -879,7 +1120,8 @@ angular.module('companyApp', [])
     const optionsDate = { 
         weekday: 'long', 
         month: 'long', 
-        day: 'numeric' 
+        day: 'numeric', 
+        year: 'numeric' 
     };
     const optionsTime = {
         hour: '2-digit',
@@ -902,10 +1144,14 @@ angular.module('companyApp', [])
   };
     
     
-    $scope.activeTab = 'Analytics'; // Tab por defecto
-
+    $scope.activeTab = 'Analytics'; 
 $scope.showTab = function(tabName) {
   $scope.activeTab = tabName;
+};
+
+   $scope.activeContent = 'Activity'; 
+$scope.showCont = function(contName) {
+  $scope.activeContent = contName;
 };
     
     $scope.selectedCompany = '';
@@ -974,6 +1220,11 @@ $scope.openEditModal = function(company) {
   $('#editModal').modal('show');
 };
 
+$scope.openMsgModal = function(company) {
+    $scope.currentCompany = company; 
+  $('#msgModal').modal('show');
+};
+
 $scope.processOption = function() {
   if($scope.selectedOption == '1') {
     // Agregar nuevo evento al currentCompany
@@ -1029,6 +1280,100 @@ $scope.processOption2 = function() {
 };
 
 
+
+
+$scope.options = []
+$scope.msgLast = ""
+$scope.updateResp = function() {
+  if ($scope.msgType === 'BPM') {
+    $scope.options = ['35', '40', '45', '50', '55', '60', '70', 'Final'];
+  }else if ($scope.msgType === 'BPM+') {
+    $scope.options = ['+5', '-5', '+10'];
+  } else if ($scope.msgType === 'ready') {
+    $scope.options = ['Solo Derecha', 'Ahora Izquierda', 'Ambas manos', 'Siguiente ejercicio', 'Cambio de pagina', 'Tema concluido'];
+  } else if ($scope.msgType === 'present') {
+     $scope.options = ['Primera', 'Corta'];
+  }   else if ($scope.msgType === 'delete') {
+    text = ""
+  } 
+};
+  
+  
+   $scope.selectMsg = function(){
+    var opt = $scope.msgResp
+    var text = ""
+    if(opt == '+5'){
+      text = "Listo, sube 5 bits más al metrónomo"
+    }else if(opt == '-5'){
+  text = "Por favor, reduce 5 bits menos a la velocidad del metrónomo"
+    }else if(opt == '+10'){
+  text = "Perfecto, sube 10 bits más al metrónomo"
+    }else if(opt == '35'){
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 35 bits"
+    }else if(opt == '40'){
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 40 bits"
+    }else if(opt == '45'){
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 45 bits"
+    }else if(opt == '50'){
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 50 bits"
+    }else if(opt == '55'){
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 55 bits"
+    }else if(opt == '60'){
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 60 bits"
+    }else if(opt == '70'){
+  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 70 bits"
+    }else if(opt == 'Final'){
+  text = "Perfecto, vamos a ajustar la velocidad del metrónomo a la velocidad final que indica el ejercicio"
+    }else if(opt == 'Solo Derecha'){
+  text = "Vamos a comenzar a trabajar la actividad leyendo solo la mano derecha sin metrónomo"
+    }else if(opt == 'Ahora Izquierda'){
+  text = "Listo, ahora vamos a darle un repaso solo a la mano izquierda"
+    }else if(opt == 'Ambas manos'){
+  text = "Ya está, ahora si vamos a leer con ambas manos"
+    }else if(opt == 'Siguiente ejercicio'){
+  text = "Listo ya quedó el ejercicio, vamos a continuar trabajando el siguiente ejercicio"
+    }else if(opt == 'Cambio de pagina'){
+  text = "Perfecto, vamos a cambiar de página y continuar con el siguiente ejercicio"
+    }else if(opt == 'Primera'){
+  text = "Hola buenas tardes, me presento, soy Alicia y seré tu asistente virtual, asistiré al profesor en darte indicaciones cuando él se encuentre ocupado"
+    }else if(opt == 'Corta'){
+  text = "Hola, ¿como estás?, bienvenido"
+    }else if(opt == 'Tema concluido'){
+  text = "Excelente trabajo, puedes tomar un breve descanso de 1 minuto para refrescar la mente y no saturarse de información"
+    }
+ 
+    document.getElementById('msgInput').value = text;
+     $('#msgModal').modal('hide');
+ }
+
+
+
+ $scope.sendMsg = function(student){
+    var msg = document.getElementById('msgInput').value
+    if(msg != ''){
+  
+  /*   
+ var requestData = {
+   action: "msg",
+   mail: student.mail,
+   msg: msg,
+  };
+
+  var config = {
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    followRedirects: true, 
+  };
+     
+$http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
+
+*/
+$scope.msgLast = msg
+    }
+   document.getElementById('msgInput').value = '';
+   $scope.msgResp = ''
+ }
 
 
 
@@ -1144,17 +1489,15 @@ $scope.applyFilter = function() {
 
   $scope.filterByDay = function() {
     $scope.filteredStudents = $scope.companies.filter(function(student) {
-      return student.classtime.split(" ")[0] === $scope.getCurrentDay() && student.status === 'ACTIVO';
+      return ((student.classtime[0].split(" ")[0] === $scope.getCurrentDay()) || (student.classtime[1].split(" ")[0] === $scope.getCurrentDay())) && student.status === 'ACTIVO'
     });
-     $scope.noStudentsMessage = $scope.filteredStudents.length === 0 ? 'No hay alumnos en este instante.' : '';
   };
 
-  
+   
   $scope.filterByHour = function() {
     $scope.filteredStudents = $scope.companies.filter(function(student) {
-      return (student.classtime.split(" ")[0] === $scope.getCurrentDay() && parseInt(student.classtime.split(" ")[2].split(":")[0]) === $scope.getCurrentHour()  && student.status === 'ACTIVO');
+     return student.online == 1;
     });
-    $scope.noStudentsMessage = $scope.filteredStudents.length === 0 ? 'No hay alumnos en este instante.' : '';
   };
   
   
