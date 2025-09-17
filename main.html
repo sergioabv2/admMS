@@ -3013,7 +3013,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
   <ion-nav-bar class="bar-light" >      
         <ion-nav-buttons side="right">
 
-     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 20px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 20px;" ng-if="userData.status == 'ACTIVO'">
+     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 20px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 20px;">
 <i class="ri-gemini-line"></i>
             <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
         <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
@@ -3021,10 +3021,6 @@ width: 200px; /* Ajusta según el tamaño deseado */
 </button> 
           
    
-
- <button  class="upgrade-btn-modern" ng-click="goToPayment()" ng-if="userData.status != 'ACTIVO'">
-            Upgrade
-          </button>
 
 
   <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
@@ -3042,7 +3038,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
 
         <ion-nav-buttons side="left">
           <button class="button button-clear menubtn" ng-click="toggleRight()"><i class="button button-icon ion-navicon"></i>menu</button>
-           
+          
         </ion-nav-buttons>  
 
        
@@ -3059,24 +3055,8 @@ width: 200px; /* Ajusta según el tamaño deseado */
       <i class="ri-user-3-line"></i> Perfil
     </div>
      <div class="dropdown-item" ng-click="goToPayment(); toggleDropdown()">
-      <i class="ri-bank-card-line"></i> Suscripción
-       <div class="pro-badge" ng-if="userData.status == 'ACTIVO'">
-        <i class="ri-vip-crown-fill"></i>
-       <span class="pro-text">        
-      Pro
-      </span>
-     </div>
-
-      <div class="free-badge" ng-if="userData.status != 'ACTIVO'">
-       <span class="free-text">        
-      Free
-      </span>
-      </div>
-
-
-    </div>
-      <div class="dropdown-item" ng-click="goToAgenda(); toggleDropdown()">
-      <i class="ri-calendar-view"></i> Calendario
+      <i class="ri-bank-card-line"></i> Pagos
+      
     </div>
       <div class="dropdown-item" ng-click="logout()">
       <i class="ri-shut-down-line"></i> Cerrar sesión
@@ -3124,10 +3104,14 @@ width: 200px; /* Ajusta según el tamaño deseado */
     </button>
   </div>
 </div>
+
+
+
+        
     </ion-nav-bar>
 
      <ion-content > 
-        <div class="iframe-container"><iframe src="https://app.mozartacademy.mx/recordings" frameborder="0" allowfullscreen></iframe></div>   
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/audios" frameborder="0" allowfullscreen></iframe></div>   
       </ion-content>
      
     </ion-view>
@@ -3366,10 +3350,10 @@ width: 200px; /* Ajusta según el tamaño deseado */
       <script id="livestream.html" type="text/ng-template">
     <ion-view >
  
-      <ion-nav-bar class="bar-light" >      
+    <ion-nav-bar class="bar-light" >      
         <ion-nav-buttons side="right">
 
-     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 20px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 20px;" ng-if="userData.status == 'ACTIVO'">
+     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 20px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 20px;">
 <i class="ri-gemini-line"></i>
             <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
         <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
@@ -3377,10 +3361,6 @@ width: 200px; /* Ajusta según el tamaño deseado */
 </button> 
           
    
-
- <button  class="upgrade-btn-modern" ng-click="goToPayment()" ng-if="userData.status != 'ACTIVO'">
-            Upgrade
-          </button>
 
 
   <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
@@ -3415,24 +3395,8 @@ width: 200px; /* Ajusta según el tamaño deseado */
       <i class="ri-user-3-line"></i> Perfil
     </div>
      <div class="dropdown-item" ng-click="goToPayment(); toggleDropdown()">
-      <i class="ri-bank-card-line"></i> Suscripción
-       <div class="pro-badge" ng-if="userData.status == 'ACTIVO'">
-        <i class="ri-vip-crown-fill"></i>
-       <span class="pro-text">        
-      Pro
-      </span>
-     </div>
-
-      <div class="free-badge" ng-if="userData.status != 'ACTIVO'">
-       <span class="free-text">        
-      Free
-      </span>
-      </div>
-
-
-    </div>
-      <div class="dropdown-item" ng-click="goToAgenda(); toggleDropdown()">
-      <i class="ri-calendar-view"></i> Calendario
+      <i class="ri-bank-card-line"></i> Pagos
+      
     </div>
       <div class="dropdown-item" ng-click="logout()">
       <i class="ri-shut-down-line"></i> Cerrar sesión
@@ -3480,7 +3444,10 @@ width: 200px; /* Ajusta según el tamaño deseado */
     </button>
   </div>
 </div>
- 
+
+
+
+        
     </ion-nav-bar>
 
    <ion-content>
@@ -3618,10 +3585,10 @@ width: 200px; /* Ajusta según el tamaño deseado */
 <script id="reel.html" type="text/ng-template">
   <ion-view>
       
-       <ion-nav-bar class="bar-light" >      
+      <ion-nav-bar class="bar-light" >      
         <ion-nav-buttons side="right">
 
-     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 20px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 20px;" ng-if="userData.status == 'ACTIVO'">
+     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 20px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 20px;">
 <i class="ri-gemini-line"></i>
             <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
         <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
@@ -3629,10 +3596,6 @@ width: 200px; /* Ajusta según el tamaño deseado */
 </button> 
           
    
-
- <button  class="upgrade-btn-modern" ng-click="goToPayment()" ng-if="userData.status != 'ACTIVO'">
-            Upgrade
-          </button>
 
 
   <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
@@ -3650,7 +3613,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
 
         <ion-nav-buttons side="left">
           <button class="button button-clear menubtn" ng-click="toggleRight()"><i class="button button-icon ion-navicon"></i>menu</button>
-         
+          
         </ion-nav-buttons>  
 
        
@@ -3667,24 +3630,8 @@ width: 200px; /* Ajusta según el tamaño deseado */
       <i class="ri-user-3-line"></i> Perfil
     </div>
      <div class="dropdown-item" ng-click="goToPayment(); toggleDropdown()">
-      <i class="ri-bank-card-line"></i> Suscripción
-       <div class="pro-badge" ng-if="userData.status == 'ACTIVO'">
-        <i class="ri-vip-crown-fill"></i>
-       <span class="pro-text">        
-      Pro
-      </span>
-     </div>
-
-      <div class="free-badge" ng-if="userData.status != 'ACTIVO'">
-       <span class="free-text">        
-      Free
-      </span>
-      </div>
-
-
-    </div>
-      <div class="dropdown-item" ng-click="goToAgenda(); toggleDropdown()">
-      <i class="ri-calendar-view"></i> Calendario
+      <i class="ri-bank-card-line"></i> Pagos
+      
     </div>
       <div class="dropdown-item" ng-click="logout()">
       <i class="ri-shut-down-line"></i> Cerrar sesión
@@ -3741,7 +3688,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
 
     <ion-content > 
       <!-- achievements -->
-        <div class="iframe-container"><iframe src="https://app.mozartacademy.mx/comunity" frameborder="0" allowfullscreen ></iframe></div> 
+        <div class="iframe-container"><iframe src="https://admin.mozartacademy.mx/comunity" frameborder="0" allowfullscreen ></iframe></div> 
     </ion-content> 
 
    
@@ -3788,7 +3735,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
      <ion-nav-bar class="bar-light" >      
         <ion-nav-buttons side="right">
 
-     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 20px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 20px;" ng-if="userData.status == 'ACTIVO'">
+     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 20px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 20px;">
 <i class="ri-gemini-line"></i>
             <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
         <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
@@ -3796,10 +3743,6 @@ width: 200px; /* Ajusta según el tamaño deseado */
 </button> 
           
    
-
- <button  class="upgrade-btn-modern" ng-click="goToPayment()" ng-if="userData.status != 'ACTIVO'">
-            Upgrade
-          </button>
 
 
   <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
@@ -3817,7 +3760,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
 
         <ion-nav-buttons side="left">
           <button class="button button-clear menubtn" ng-click="toggleRight()"><i class="button button-icon ion-navicon"></i>menu</button>
-            
+          
         </ion-nav-buttons>  
 
        
@@ -3834,24 +3777,8 @@ width: 200px; /* Ajusta según el tamaño deseado */
       <i class="ri-user-3-line"></i> Perfil
     </div>
      <div class="dropdown-item" ng-click="goToPayment(); toggleDropdown()">
-      <i class="ri-bank-card-line"></i> Suscripción
-       <div class="pro-badge" ng-if="userData.status == 'ACTIVO'">
-        <i class="ri-vip-crown-fill"></i>
-       <span class="pro-text">        
-      Pro
-      </span>
-     </div>
-
-      <div class="free-badge" ng-if="userData.status != 'ACTIVO'">
-       <span class="free-text">        
-      Free
-      </span>
-      </div>
-
-
-    </div>
-      <div class="dropdown-item" ng-click="goToAgenda(); toggleDropdown()">
-      <i class="ri-calendar-view"></i> Calendario
+      <i class="ri-bank-card-line"></i> Pagos
+      
     </div>
       <div class="dropdown-item" ng-click="logout()">
       <i class="ri-shut-down-line"></i> Cerrar sesión
@@ -3907,7 +3834,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
 
 
      <ion-content >
-  <div class="iframe-container2"><iframe src="https://app.mozartacademy.mx/books2" frameborder="0" allowfullscreen ></iframe></div> 
+  <div class="iframe-container2"><iframe src="https://admin.mozartacademy.mx/books" frameborder="0" allowfullscreen ></iframe></div> 
 
    
       </ion-content>
@@ -3937,7 +3864,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
      <ion-nav-bar class="bar-light" >      
         <ion-nav-buttons side="right">
 
-     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 20px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 20px;" ng-if="userData.status == 'ACTIVO'">
+     <button class="button button-clear" ng-click="dropdownChat()" style="font-size: 20px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 20px;">
 <i class="ri-gemini-line"></i>
             <div style="position: absolute; top: -3px; left: 18px; width: 18px; height: 18px; background-color: red; border-radius: 50%; display: flex; justify-content: center; align-items: center;" ng-if="(chats | filter:{read: false}).length && chatCounter">
         <div style="font-size: 13px; color: white;"> {{(chats | filter:{read: false}).length}}</div>
@@ -3945,10 +3872,6 @@ width: 200px; /* Ajusta según el tamaño deseado */
 </button> 
           
    
-
- <button  class="upgrade-btn-modern" ng-click="goToPayment()" ng-if="userData.status != 'ACTIVO'">
-            Upgrade
-          </button>
 
 
   <button class="button button-clear" ng-class="{ 'barImage': btnBar}" ng-click="toggleDropdown()" style="font-size: 18px; font-weight: 550; font-family: 'Poppins', sans-serif; margin-right: 10px;" >
@@ -3966,7 +3889,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
 
         <ion-nav-buttons side="left">
           <button class="button button-clear menubtn" ng-click="toggleRight()"><i class="button button-icon ion-navicon"></i>menu</button>
-            
+          
         </ion-nav-buttons>  
 
        
@@ -3983,24 +3906,8 @@ width: 200px; /* Ajusta según el tamaño deseado */
       <i class="ri-user-3-line"></i> Perfil
     </div>
      <div class="dropdown-item" ng-click="goToPayment(); toggleDropdown()">
-      <i class="ri-bank-card-line"></i> Suscripción
-       <div class="pro-badge" ng-if="userData.status == 'ACTIVO'">
-        <i class="ri-vip-crown-fill"></i>
-       <span class="pro-text">        
-      Pro
-      </span>
-     </div>
-
-      <div class="free-badge" ng-if="userData.status != 'ACTIVO'">
-       <span class="free-text">        
-      Free
-      </span>
-      </div>
-
-
-    </div>
-      <div class="dropdown-item" ng-click="goToAgenda(); toggleDropdown()">
-      <i class="ri-calendar-view"></i> Calendario
+      <i class="ri-bank-card-line"></i> Pagos
+      
     </div>
       <div class="dropdown-item" ng-click="logout()">
       <i class="ri-shut-down-line"></i> Cerrar sesión
@@ -4122,9 +4029,9 @@ app
 
 .factory('SharedState', function($http, $q) {
   var requestData = {
-    action: "getAdminData",
+    action: "getTeacherInfo",
   //   token: localStorage.getItem('ADtoken')
-    token: "U2FsdGVkX1+pTAJ/i/vnElIrTlT7VjKJ6kuzk2FlnAIkGq9xl29aZsKgbGygQIfF"
+    mail: "U2FsdGVkX18gQTcYeMmV6FXiI/x+8g4FGZA+lXZUvwGVBqn/DQj+YLr86M7BV2ss"
   };
 
   var config = {
@@ -4297,15 +4204,10 @@ app
       $scope.dropdownChatVisible = false;
 };
 
-    $scope.loadingProfile = true;
+
   SharedState.getNum().then(function(data) {
        $scope.userData = data.data;
-      var userLvl = JSON.parse($scope.userData.stage)
-       $scope.userLvl = userLvl.lvl;
-       $scope.userPlan = data.data.plan.split(" ")[0];
-      $scope.userNameShort = data.data.name.split(" ")[0];
-      $scope.chats = JSON.parse(data.data.messages);
-      $scope.loadingProfile = false;
+       $scope.chats = JSON.parse($scope.userData.chats)
   }) 
 
      $scope.isDropdownVisible = false;
@@ -4590,33 +4492,11 @@ $scope.installApp = function () {
 
 
   $scope.logout = function() {
-    $('.preloader').fadeIn('slow');
+          localStorage.removeItem('ADtoken');
+          window.location.href = 'https://admin.mozartacademy.mx/';
+  }
 
-    var requestData = {
-      action: "removeToken",
-      token: localStorage.getItem('MStoken')
-    };
 
-    var config = {
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-      followRedirects: true
-    };
-
-    $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
-      .then(function(response) {
-        if (response.data.status === "success") {
-          localStorage.removeItem('MStoken');
-          $('.preloader').css({ 'display': 'none' });
-          window.location.href = 'https://app.mozartacademy.mx/';
-        }
-      })
-      .catch(function(error) {
-        $('.preloader').css({ 'display': 'none' });
-       window.location.href = 'https://app.mozartacademy.mx/';
-      });
-  };
 
  }])
 
@@ -4660,6 +4540,5 @@ $scope.installApp = function () {
 
 
  
-
     </script>
  
