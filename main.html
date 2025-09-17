@@ -3912,87 +3912,7 @@ width: 200px; /* Ajusta según el tamaño deseado */
    
       </ion-content>
       
-     <div id="videoContainer" 
-         class="video-container" 
-         ng-show="showVideo"
-         ng-class="{'fullscreen': isFullscreen, 'dragging': isDragging}">
-      <div class="video-controls">
-        <button class="video-control-btn" ng-click="toggleFullscreen()" title="Pantalla Completa">
-          <i class="fas" ng-class="{'fa-expand': !isFullscreen, 'fa-compress': isFullscreen}"></i>
-        </button>
-        <button class="video-control-btn" ng-click="toggleVideo()" title="Ocultar Video">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <video id="remoteVideo" 
-             class="remote-video" 
-             autoplay 
-             playsinline>
-      </video>
-    </div> 
-
-
-
-
-      <!-- Botones Flotantes -->
-    <div class="floating-buttons" style="margin-bottom: 20px !important">
-      <!-- Botón de Chat -->
-      <button class="button floating-btn chat" 
-              ng-click="openChat()" ng-show="webrtc.connectionStatus !== 'disconnected'">
-        <i class="fas fa-comment-dots"></i>
-        <span class="chat-badge" ng-show="webrtc.unreadMessages > 0">
-          {{webrtc.unreadMessages > 9 ? '9+' : webrtc.unreadMessages}}
-        </span>
-      </button>
-      
-      <!-- Botón de Micrófono -->
-      <button class="button floating-btn mic"
-              ng-class="{'muted': webrtc.isMuted}"
-              ng-click="toggleMicrophone()"
-              ng-show="webrtc.connectionStatus !== 'disconnected'">
-        <i class="fas" ng-class="{'fa-microphone': !webrtc.isMuted, 'fa-microphone-slash': webrtc.isMuted}"></i>
-      </button>
-      
-      <!-- Botón de Video -->
-      <button class="button floating-btn video"
-              ng-click="toggleVideo()"
-              ng-show="webrtc.connectionStatus !== 'disconnected'">
-        <i class="fas" ng-class="{'fa-video': !showVideo, 'fa-video-slash': showVideo}"></i>
-      </button>
-    </div>
-    
-    <!-- Modal de Chat Personalizado -->
-    <div id="chatModal" class="custom-modal" ng-class="{'show': showChatModal}">
-      <div class="modal-content3">
-        <div class="modal-header">
-          <h3><i class="fas fa-comments"></i> Chat con el Profesor</h3>
-          <button class="button button-clear" ng-click="closeChat()">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div id="chatContainer" class="chat-messages">
-            <div ng-repeat="message in webrtc.chatMessages track by $index" 
-                 class="message-item"
-                 ng-class="{'own': message.isOwn, 'other': !message.isOwn}">
-              <div class="message-sender">{{message.sender}}</div>
-              <div class="message-text">{{message.message}}</div>
-              <div class="message-time">{{formatTime(message.timestamp)}}</div>
-            </div>
-          </div>
-          <div class="chat-input">
-            <input type="text" 
-                   ng-model="chatMessage"
-                   placeholder="Escribe tu mensaje..."
-                   ng-keypress="($event.which === 13) && sendMessage()">
-            <button class="button button-positive" ng-click="sendMessage()">
-              <i class="fas fa-paper-plane"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
+  
      
     </ion-view>
   </script>   
@@ -4136,92 +4056,12 @@ width: 200px; /* Ajusta según el tamaño deseado */
 
 
      <ion-content >
-  <div class="iframe-container2"><iframe src="https://app.mozartacademy.mx/books2" frameborder="0" allowfullscreen ></iframe></div> 
+  <div class="iframe-container2"><iframe src="https://sightread.dev/freeplay" frameborder="0" allow="midi; fullscreen" allowfullscreen ></iframe></div> 
 
    
       </ion-content>
       
-     <div id="videoContainer" 
-         class="video-container" 
-         ng-show="showVideo"
-         ng-class="{'fullscreen': isFullscreen, 'dragging': isDragging}">
-      <div class="video-controls">
-        <button class="video-control-btn" ng-click="toggleFullscreen()" title="Pantalla Completa">
-          <i class="fas" ng-class="{'fa-expand': !isFullscreen, 'fa-compress': isFullscreen}"></i>
-        </button>
-        <button class="video-control-btn" ng-click="toggleVideo()" title="Ocultar Video">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <video id="remoteVideo" 
-             class="remote-video" 
-             autoplay 
-             playsinline>
-      </video>
-    </div> 
-
-
-
-
-      <!-- Botones Flotantes -->
-    <div class="floating-buttons" style="margin-bottom: 20px !important">
-      <!-- Botón de Chat -->
-      <button class="button floating-btn chat" 
-              ng-click="openChat()" ng-show="webrtc.connectionStatus !== 'disconnected'">
-        <i class="fas fa-comment-dots"></i>
-        <span class="chat-badge" ng-show="webrtc.unreadMessages > 0">
-          {{webrtc.unreadMessages > 9 ? '9+' : webrtc.unreadMessages}}
-        </span>
-      </button>
-      
-      <!-- Botón de Micrófono -->
-      <button class="button floating-btn mic"
-              ng-class="{'muted': webrtc.isMuted}"
-              ng-click="toggleMicrophone()"
-              ng-show="webrtc.connectionStatus !== 'disconnected'">
-        <i class="fas" ng-class="{'fa-microphone': !webrtc.isMuted, 'fa-microphone-slash': webrtc.isMuted}"></i>
-      </button>
-      
-      <!-- Botón de Video -->
-      <button class="button floating-btn video"
-              ng-click="toggleVideo()"
-              ng-show="webrtc.connectionStatus !== 'disconnected'">
-        <i class="fas" ng-class="{'fa-video': !showVideo, 'fa-video-slash': showVideo}"></i>
-      </button>
-    </div>
     
-    <!-- Modal de Chat Personalizado -->
-    <div id="chatModal" class="custom-modal" ng-class="{'show': showChatModal}">
-      <div class="modal-content3">
-        <div class="modal-header">
-          <h3><i class="fas fa-comments"></i> Chat con el Profesor</h3>
-          <button class="button button-clear" ng-click="closeChat()">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div id="chatContainer" class="chat-messages">
-            <div ng-repeat="message in webrtc.chatMessages track by $index" 
-                 class="message-item"
-                 ng-class="{'own': message.isOwn, 'other': !message.isOwn}">
-              <div class="message-sender">{{message.sender}}</div>
-              <div class="message-text">{{message.message}}</div>
-              <div class="message-time">{{formatTime(message.timestamp)}}</div>
-            </div>
-          </div>
-          <div class="chat-input">
-            <input type="text" 
-                   ng-model="chatMessage"
-                   placeholder="Escribe tu mensaje..."
-                   ng-keypress="($event.which === 13) && sendMessage()">
-            <button class="button button-positive" ng-click="sendMessage()">
-              <i class="fas fa-paper-plane"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
      
     </ion-view>
   </script>   
