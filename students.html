@@ -512,11 +512,11 @@ margin: 0;
               </div>
               <div class="col-sm-5">
                 <h4 class="list-group-item-heading">{{company.name}}</h4>
-                <p class="list-group-item-text">{{company.level}} - Lección {{company.lsn}}</p>
+                <p class="list-group-item-text">{{company.status}}</p>
               </div>
               <div class="col-sm-6">
-                <p class="list-group-item-text">{{company.classtime[0]}}</p>
-                <p class="list-group-item-text">{{company.classtime[1]}}</p>
+                 <p class="list-group-item-text">Próximo pago:</p>
+                <p class="list-group-item-text">{{company.nextPay}}</p>
               </div>
             </div>
           </a>
@@ -548,7 +548,9 @@ margin: 0;
             <h4 class="list-group-item-heading">
              {{company.name}}
               </h4>
-            <p class="list-group-item-text">{{company.mail}} - {{company.phone}}</p>
+            <p class="list-group-item-text">{{company.mail}} </p>
+                 <p class="list-group-item-text">{{company.phone}}</p>
+                 <br>
              <p class="list-group-item-text" style="font-size: 14px; color: red">Próximo pago: {{company.nextPay}}</p>
      
           </div>
@@ -562,64 +564,75 @@ margin: 0;
             <div class="list-group-item" id="Status" ng-show="activeTab === 'Status'">
   <div class="panel ">
    
-    Profesor: {{company.teacher.name}}
+ 
+
+<ul>
+  <li>  Nivel: {{company.stage.lvl}} Lección: {{company.stage.lsn}}  </li> 
+  <li>  Profesor: {{company.teacher.name}}  </li> 
+   <li>   Modalidad: {{company.teacher.program}}  </li> 
+
+  <li>    Horarios: {{company.classtime[0]}} y  {{company.classtime[1]}} </li> 
+  <li>    Plan:  </li> 
+  <li>    Costo: </li> 
+  <li>    Ultimo pago:   </li> 
+  <li>    Prox Pago: {{company.nextPay}} </li> 
+<ul>    
+
+
+
   </div>
 </div> 
 
 
           
-   <div class="list-group-item" id="Agenda" ng-show="activeTab === 'Agenda'">
-  <div class="panel panel-default">
-   
-    <div class="panel-body" style="height: 260px; overflow-y: auto;">
-      <!-- Lista de mensajes -->
-
-        <div ng-if="company.agenda && company.agenda.length > 0">
-      <div ng-repeat="event in company.agenda" class="message-container" >
-        
-        <!-- Cabecera del mensaje -->
-        <div class="media" style="margin-bottom: -14px !important;">
-          <div class="media-left"  >
-            <span ng-if="" >
-              <i class="ri-check-line fa-2x" style="color: silver; opacity: 0.8; text-shadow: 0 0 10px silver;"></i>
-            </span>
-              <span ng-if="" >
-              <i class="ri-time-line fa-2x"></i>
-            </span>
-          </div>
-          <div class="media-body" >
-            <h5 class="media-heading">{{event.title}}
-              <small class="text-muted pull-right" ng-if="">Finalizada</small>
-               <small class="text-muted pull-right" ng-if="">Faltan </small>
-            </h5>
-            <p style=" font-size: 12px; color: gray; font-weight: 400">{{returnDateFormat(event.start)}}</p>
-          </div>
-        
+<div class="list-group-item" id="Agenda" ng-show="activeTab === 'Agenda'">
+    <div class="panel panel-default">
+        <div class="panel-body" style="height: 260px; overflow-y: auto;">
+            <div ng-if="company.agenda && company.agenda.length > 0">
+                <div ng-repeat="event in company.agenda" class="message-container">
+                    <div class="media" style="margin-bottom: -14px !important;">
+                        <div class="media-left">
+                            <span ng-if="isEventPast(event.start) && event.title !== 'Próximo pago'">
+                                <i class="ri-check-line fa-2x" style="color: silver; opacity: 0.8; text-shadow: 0 0 10px silver;"></i>
+                            </span>
+                            <span ng-if="!isEventPast(event.start) && event.title !== 'Próximo pago'">
+                                <i class="ri-time-line fa-2x"></i>
+                            </span>
+                            <span ng-if="event.title === 'Próximo pago'">
+                                <i class="ri-secure-payment-line fa-2x" style="color: green"></i>                         
+                            </span>
+                        </div>
+                        <div class="media-body">
+                            <h5 class="media-heading" ng-style="isEventPast(event.start) && {'text-decoration': 'line-through', 'color': 'silver'}">
+                                {{event.title}}
+                                <small class="text-muted pull-right" ng-if="isEventPast(event.start)">Finalizada</small>
+                                <small class="text-muted pull-right" ng-if="!isEventPast(event.start)">
+                                  {{getRemainingText(event.start)}}
+                              </small>
+                            </h5>
+                            <p style="font-size: 12px; color: gray; font-weight: 400">{{returnDateFormat(event.start)}}</p>
+                        </div>
+                    </div>
+                    <hr ng-if="!$last">
+                </div>
+            </div>
+            <div ng-if="!company.agenda || company.agenda.length === 0" class="text-center" style="padding: 20px;">
+                <i class="fa fa-calendar fa-4x" style="color: #ddd;"></i>
+                <h4>No existen fechas</h4>
+                <p>Aún no hay fechas registradas</p>
+            </div>
         </div>
-        <hr ng-if="!$last">
-      </div>
+        <div class="panel-footer">
+            <button class="btn btn-primary btn-block" ng-click="openEditModal(company)">
+                Registrar pago
+            </button>
         </div>
-
-         <div ng-if="!company.agenda || company.agenda.length === 0" class="text-center" style="padding: 20px;">
-        <i class="fa fa-calendar fa-4x" style="color: #ddd;"></i>
-        <h4>No existen fechas</h4>
-        <p>Aún no hay fechas registradas</p>
-      </div>
-
-
     </div>
- <div class="panel-footer">
-    <button class="btn btn-primary btn-block" ng-click="openEditModal(company)">
-       Registrar pago
-      </button>
-    </div>
-  </div>
-</div> 
-          
+</div>
 
 
 
-           <div class="list-group-item" id="Agenda" ng-show="activeTab === 'Logs'">
+           <div class="list-group-item" id="Logs" ng-show="activeTab === 'Logs'">
   <div class="panel panel-default">
    
     <div class="panel-body" style="height: 260px; overflow-y: auto;">
@@ -631,10 +644,7 @@ margin: 0;
         <!-- Cabecera del mensaje -->
         <div class="media" style="margin-bottom: -14px !important;">
           <div class="media-left"  >
-           
-              <span  >
-              <i class="ri-arrow-right-double-line fa-2x"></i>
-            </span>
+          
           </div>
           <div class="media-body" >
             <h5 class="media-heading">{{log.event}}
@@ -764,7 +774,7 @@ margin: 0;
           </div>
           <div class="media-body" >
             <h5 class="media-heading">
-              {{recording.lesson}}
+              {{recording.title}}
   
                <button class="btn btn-default btnPreview pull-right" style="width: 62px;" ng-click="openPlayer(recording)"><i class="fa fa-play"></i></button>
             </h5>
@@ -881,45 +891,11 @@ margin: 0;
       </div>
       <div class="modal-body">
         <select class="form-control" ng-model="selectedOption2">
-          <option value="1">Aprobar todo</option>
-          <option value="2">Asignar nivel</option>
-           <option value="3">Agregar pieza a repertorio</option>
-           <option value="4">Agregar documento</option>
+           <option value="1">Agregar pieza a repertorio</option>
+           <option value="2">Agregar documento</option>
         </select>
-         
-        <!-- Contenido dinámico según opción -->
-        <div ng-if="selectedOption2 == '2'" style="margin-top: 15px;">
 
-         <div class="form-group">
-        <label for="nivelSelect">Nivel</label>
-        <select class="form-control" id="nivelSelect">
-            <option value="0">Preparatorio</option>
-            <option value="1">Nivel 1</option>
-           <option value="2">Nivel 2</option>
-           <option value="3">Nivel 3</option>
-           <option value="4">Nivel 4</option>
-           <option value="5">Nivel 5</option>
-        </select>
-    </div>
-
-     <div class="form-group">
-        <label for="leccionSelect">Lección</label>
-        <select class="form-control" id="leccionSelect">
-            <option value="1">Lección 1</option>
-            <option value="2">Lección 2</option>
-            <option value="3">Lección 3</option>
-            <option value="4">Lección 4</option>
-            <option value="5">Lección 5</option>
-            <option value="6">Lección 6</option>
-            <option value="7">Lección 7</option>
-            <option value="8">Lección 8</option>
-            <option value="9">Lección 9</option>
-        </select>
-    </div>
-        </div>
-
-
-         <div ng-if="selectedOption2 == '3'" style="margin-top: 15px;">
+         <div ng-if="selectedOption2 == '1'" style="margin-top: 15px;">
         <div class="form-group">
     <label for="leccionSelect">Dificultad</label>
         <select class="form-control" id="leccionSelect">
@@ -946,7 +922,7 @@ margin: 0;
       </div>
 
         
-        <div ng-if="selectedOption2 == '4'" style="margin-top: 15px;">
+        <div ng-if="selectedOption2 == '2'" style="margin-top: 15px;">
           
  <div class="form-group">
   <label for="dropZone">Subir archivo PDF</label>
@@ -990,13 +966,7 @@ margin: 0;
             <input type="number" class="form-control"  style="max-width: 70px"  id="bars">
           </div>
       </div>
-
-        
       </div>
-
-
-
-
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
@@ -1009,8 +979,60 @@ margin: 0;
 
 
 
+                 <!-- Modal3 -->
+<div class="modal fade" id="editModal3" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Evaluación</h4>
+      </div>
+      <div class="modal-body">
+        <select class="form-control" ng-model="selectedOption3">
+          <option value="1">Aprobar todo</option>
+          <option value="2">Asignar nivel</option>
+        </select>
+         
+        <!-- Contenido dinámico según opción -->
+        <div ng-if="selectedOption3 == '2'" style="margin-top: 15px;">
+
+         <div class="form-group">
+        <label for="nivelSelect">Nivel</label>
+        <select class="form-control" id="nivelSelect">
+            <option value="0">Preparatorio</option>
+            <option value="1">Nivel 1</option>
+           <option value="2">Nivel 2</option>
+           <option value="3">Nivel 3</option>
+           <option value="4">Nivel 4</option>
+           <option value="5">Nivel 5</option>
+        </select>
+    </div>
+
+     <div class="form-group">
+        <label for="leccionSelect">Lección</label>
+        <select class="form-control" id="leccionSelect">
+            <option value="1">Lección 1</option>
+            <option value="2">Lección 2</option>
+            <option value="3">Lección 3</option>
+            <option value="4">Lección 4</option>
+            <option value="5">Lección 5</option>
+            <option value="6">Lección 6</option>
+            <option value="7">Lección 7</option>
+            <option value="8">Lección 8</option>
+            <option value="9">Lección 9</option>
+        </select>
+    </div>
+        </div>
 
 
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" ng-click="processOption3()">Continuar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
  
 
@@ -1021,7 +1043,7 @@ margin: 0;
    <div class="ap__inner">
   
       <div class="ap__item ap__item--player">
- <div class="track__title">{{currentRecording.lesson}}</div>
+ <div class="track__title">{{currentRecording.title}}</div>
          <midi-player 
           id="midiPlayer"
           sound-font 
@@ -1078,7 +1100,7 @@ angular.module('companyApp', [])
 
 
    var requestData = {
-                action: "getMozartData",
+                action: "getStudents",
                 token: "U2FsdGVkX19FIE+E8FpvkMxOZo1u4xby0/CffZfQmhrcIWavhFpXISrp/BBYZzmm"
      //localStorage.getItem('ADtoken')
               };
@@ -1113,7 +1135,41 @@ $scope.sendWhats = function(phone) {
   }
 
 
- 
+
+
+
+$scope.isEventPast = function(date) {
+    const eventDate = new Date(date);
+    const now = new Date();
+    return eventDate < now;
+};
+
+$scope.daysRemaining = function(date) {
+    const eventDate = new Date(date);
+    const now = new Date();
+    // Ignoramos las horas/minutos para contar días completos
+    eventDate.setHours(0, 0, 0, 0);
+    now.setHours(0, 0, 0, 0);
+    
+    const diffTime = eventDate.getTime() - now.getTime();
+    if (diffTime < 0) return 0; // Si ya pasó, no faltan días
+    
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+};
+
+$scope.getRemainingText = function(date) {
+    // Reutilizamos la función que ya calcula los días
+    const days = $scope.daysRemaining(date); 
+
+    if (days === 0) {
+        return 'Hoy';
+    } else if (days === 1) {
+        return 'Falta 1 día'; // Manejo del caso singular
+    } else {
+        return 'Faltan ' + days + ' días';
+    }
+};
 
   $scope.returnDateFormat = function(date) {
     const dat = new Date(date);
@@ -1190,21 +1246,6 @@ $scope.showCont = function(contName) {
     };
 
 
-$scope.toggleAttendance = function(event) {
-  if(event.attendance === 1) {
-    event.attendance = 0;
-  } else  {
-    event.attendance = 1;
-  } 
-};
-
-$scope.toggleLsn = function(lsn) {
-  if(lsn.status != 'Evaluada') {
-    lsn.status = 'Evaluada';
-  } else  {
-    lsn.status = 'Pendiente';
-  } 
-};
 
 
 $scope.selectedOption = '1';
@@ -1220,10 +1261,11 @@ $scope.openEditModal = function(company) {
   $('#editModal').modal('show');
 };
 
-$scope.openMsgModal = function(company) {
+$scope.openEditModal2 = function(company) {
     $scope.currentCompany = company; 
-  $('#msgModal').modal('show');
+  $('#editModal2').modal('show');
 };
+
 
 $scope.processOption = function() {
   if($scope.selectedOption == '1') {
@@ -1251,129 +1293,6 @@ $scope.processOption = function() {
 
 
 
-$scope.openEditModal2 = function(company) {
-    $scope.currentCompany2 = company; 
-  $('#editModal2').modal('show');
-};
-
-$scope.processOption2 = function() {
-  if($scope.selectedOption2 == '1') {
-    // Agregar nuevo evento al currentCompany
-    var newEventObj = {
-      title: $scope.newEvent.title,
-      start: new Date($scope.newEvent.date),
-      attendance: ''
-    };
-    
-    if(!$scope.currentCompany2.agenda) {
-      $scope.currentCompany2.agenda = []; // Inicializar array si no existe
-    }
-    
-    $scope.currentCompany2.agenda.push(newEventObj);
-    $scope.newEvent = { title: '', date: '' }; // Limpiar campos
-    
-  } else if($scope.selectedOption2 == '2') {
-    
-  }
-  
-  $('#editModal2').modal('hide');
-};
-
-
-
-
-$scope.options = []
-$scope.msgLast = ""
-$scope.updateResp = function() {
-  if ($scope.msgType === 'BPM') {
-    $scope.options = ['35', '40', '45', '50', '55', '60', '70', 'Final'];
-  }else if ($scope.msgType === 'BPM+') {
-    $scope.options = ['+5', '-5', '+10'];
-  } else if ($scope.msgType === 'ready') {
-    $scope.options = ['Solo Derecha', 'Ahora Izquierda', 'Ambas manos', 'Siguiente ejercicio', 'Cambio de pagina', 'Tema concluido'];
-  } else if ($scope.msgType === 'present') {
-     $scope.options = ['Primera', 'Corta'];
-  }   else if ($scope.msgType === 'delete') {
-    text = ""
-  } 
-};
-  
-  
-   $scope.selectMsg = function(){
-    var opt = $scope.msgResp
-    var text = ""
-    if(opt == '+5'){
-      text = "Listo, sube 5 bits más al metrónomo"
-    }else if(opt == '-5'){
-  text = "Por favor, reduce 5 bits menos a la velocidad del metrónomo"
-    }else if(opt == '+10'){
-  text = "Perfecto, sube 10 bits más al metrónomo"
-    }else if(opt == '35'){
-  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 35 bits"
-    }else if(opt == '40'){
-  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 40 bits"
-    }else if(opt == '45'){
-  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 45 bits"
-    }else if(opt == '50'){
-  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 50 bits"
-    }else if(opt == '55'){
-  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 55 bits"
-    }else if(opt == '60'){
-  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 60 bits"
-    }else if(opt == '70'){
-  text = "Bien, vamos a encender el metrónomo ajustando la velocidad en 70 bits"
-    }else if(opt == 'Final'){
-  text = "Perfecto, vamos a ajustar la velocidad del metrónomo a la velocidad final que indica el ejercicio"
-    }else if(opt == 'Solo Derecha'){
-  text = "Vamos a comenzar a trabajar la actividad leyendo solo la mano derecha sin metrónomo"
-    }else if(opt == 'Ahora Izquierda'){
-  text = "Listo, ahora vamos a darle un repaso solo a la mano izquierda"
-    }else if(opt == 'Ambas manos'){
-  text = "Ya está, ahora si vamos a leer con ambas manos"
-    }else if(opt == 'Siguiente ejercicio'){
-  text = "Listo ya quedó el ejercicio, vamos a continuar trabajando el siguiente ejercicio"
-    }else if(opt == 'Cambio de pagina'){
-  text = "Perfecto, vamos a cambiar de página y continuar con el siguiente ejercicio"
-    }else if(opt == 'Primera'){
-  text = "Hola buenas tardes, me presento, soy Alicia y seré tu asistente virtual, asistiré al profesor en darte indicaciones cuando él se encuentre ocupado"
-    }else if(opt == 'Corta'){
-  text = "Hola, ¿como estás?, bienvenido"
-    }else if(opt == 'Tema concluido'){
-  text = "Excelente trabajo, puedes tomar un breve descanso de 1 minuto para refrescar la mente y no saturarse de información"
-    }
- 
-    document.getElementById('msgInput').value = text;
-     $('#msgModal').modal('hide');
- }
-
-
-
- $scope.sendMsg = function(student){
-    var msg = document.getElementById('msgInput').value
-    if(msg != ''){
-  
-  /*   
- var requestData = {
-   action: "msg",
-   mail: student.mail,
-   msg: msg,
-  };
-
-  var config = {
-    headers: {
-      "Content-Type": "text/plain;charset=utf-8"
-    },
-    followRedirects: true, 
-  };
-     
-$http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
-
-*/
-$scope.msgLast = msg
-    }
-   document.getElementById('msgInput').value = '';
-   $scope.msgResp = ''
- }
 
 
 
@@ -1388,8 +1307,7 @@ $scope.openPlayer = function(recording) {
 
       if ($scope.midiPlayer) {
         $scope.midiPlayer.stop();
-        $scope.midiPlayer.src = recording.midi;
-        console.log('Archivo MIDI asignado:', recording.midi);
+        $scope.midiPlayer.src = recording.url;
       }
     };
     
