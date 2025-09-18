@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="es" ng-app="libraryApp">
 <head>
     <meta charset="UTF-8">
@@ -481,13 +481,36 @@
             background: #e0e0e0;
             border-radius: 16px;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-            max-width: 500px;
-            width: 90%;
+           width: 90vw;   
+  height: 55vh;  
+ 
             color:#2a2a2e;
             overflow: hidden;
             animation: fadeInScale 0.3s ease-out;
             border: 1px solid rgba(255,255,255,0.1);
         }
+        .modal-overlay2 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(1px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay2.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
         .upload-modal-content { padding: 25px; }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #555; }
@@ -846,11 +869,7 @@
    
             </div>
 
-           <div style="position: absolute; margin-top: -5px; right: 15px">
-                         <button class="add-file-btn" ng-click="openUploadModal()">
-                             <i class="fas fa-plus"></i> Agregar Archivo
-                         </button>
-                     </div>
+      
         </div>
 
         <div class="library-content">
@@ -979,8 +998,8 @@
 <div class="right-controls">
   <audio id="metronomeAudio" src="https://dashboard.mozartacademy.mx/media/metronom.mp3" loop style="display: none;"></audio>
   <div class="metronome-control">
-    <button class="tool-btn record-btn" ng-click="recordWav()" ng-class="{'active': isRecording2}">
-   <i class="fa-solid fa-microphone"></i>
+    <button class="tool-btn record-btn" ng-click="openPiano()" >
+   <i class="fa-solid fa-music"></i>
     </button>
     <button class="tool-btn metronome-btn" ng-click="toggleMetronome()" ng-class="{'active': metronomeActive}">
       <i class="fa-solid fa-stopwatch"></i>
@@ -1000,52 +1019,16 @@
             <button class="pdf-viewer-close" ng-click="closePdfViewer()"><i class="fas fa-times"></i></button>
         </div>
 
-     <div class="online-badge-container">
-        <div class="online-badge" ng-if="isRecording2">
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                <div class="status-pulse"></div>
-                <div class="status-ring"></div>
-            </div>
-            <span class="status-text">Grabando...</span>
-        </div>
-      </div>
 
-          <div class="modal-overlay" ng-class="{show: showSaveRecordingModal}">
-    <div class="modal-content2 save-recording-modal" ng-click="$event.stopPropagation()">
-        <div class="upload-modal-header">
-            <h2>Previsualizar y Guardar Grabación</h2>
-            <p>Escucha tu grabación y asigna un nombre antes de guardarla.</p>
-        </div>
-
-        <div class="audio-preview-container">
-            <audio ng-src="{{recording.url}}" controls controlsList="nodownload"></audio>
-        </div>
-
-        <div class="recording-form">
-            <div class="form-group">
-                <label for="rec-name">Nombre del archivo</label>
-                <input type="text" id="rec-name" ng-model="recording.name">
-            </div>
-            <div class="form-group">
-                <label for="rec-author">Autor (Opcional)</label>
-                <input type="text" id="rec-author" ng-model="recording.author" placeholder="Ej: Mi Práctica Diaria">
-            </div>
-            <div class="recording-metadata">
-                <span><i class="fas fa-calendar-alt"></i> <strong>Fecha:</strong> {{ recording.date | date:'dd/MM/yyyy h:mm a' }}</span>
-              
-            </div>
-        </div>
-
-        <div class="modal-actions-upload">
-            <button class="modal-button secondary danger" ng-click="deleteRecording()">
-                <i class="fas fa-trash"></i> Eliminar
-            </button>
-            <button class="modal-button primary" ng-click="saveRecording()">
-                <i class="fas fa-save"></i> Guardar
-            </button>
-        </div>
-    </div>
+       <div class="modal-overlay2" ng-class="{show: showPianoModal}" ng-click="closePiano()">
+  <div class="modal-content2" ng-click="$event.stopPropagation()">
+    <iframe 
+      src="https://sightread.dev/freeplay" 
+      frameborder="0"
+      allow="midi; fullscreen"
+      style="width:100%; height:100%;">
+    </iframe>
+  </div>
 </div>
 
         <iframe ng-src="{{pdfUrl}}" frameborder="0"></iframe>
@@ -1143,9 +1126,9 @@
             ];
 
                 var requestData = {
-          action: "getUserData",
-         token: "U2FsdGVkX1+Rl9mswAGwnB3FBHIDgaN72EKF/6vmMXni7qHalD90fDU2Av6IDMJf"
-        //  token: localStorage.getItem('MStoken')
+          action: "validateAdminToken",
+         token: "U2FsdGVkX18gQTcYeMmV6FXiI/x+8g4FGZA+lXZUvwGVBqn/DQj+YLr86M7BV2ss"
+        //  token: localStorage.getItem('ADtoken')
         };
 
         var config = {
@@ -1155,18 +1138,16 @@
         };
                  
         $http.post('https://script.google.com/macros/s/AKfycbxXD35z5FSf_m_dwBt5qcBwWq2L7IDc7KBrYGfix6hUa4kvJ1TFpjU82NltFXezUroGgQ/exec', requestData, config)
-          .then(function(response) { 
-              var repertoire = JSON.parse(response.data.repertoire);
-              var stage = JSON.parse(response.data.stage);
-
-                 $scope.library.push(repertoire)
-                $scope.lvl = stage.lvl;
-                 $scope.lsn = stage.lsn;
-                 $scope.exe = stage.exes;
+          .then(function(response){ 
+          if(response.data.status == 'success'){
+                $scope.lvl = 5;
+                 $scope.lsn = 10;
+                 $scope.exe = 10;
                  $scope.isLoaded = true;
+                 }
           })  
 
-         
+          //  $scope.library.push(repertoire)
 
             // Formatear segundos a M:SS
             $scope.formatTime = function(seconds) {
@@ -1188,63 +1169,19 @@
                 }
             };
 
+            $scope.showPianoModal = false;
 
-             $scope.openUploadModal = function() {
-        $scope.newPdf = {}; // Resetea el formulario
-        $scope.showUploadModal = true;
-    };
+$scope.openPiano = function() {
+  $scope.showPianoModal = true;
+};
 
-    $scope.closeUploadModal = function() {
-        $scope.showUploadModal = false;
-    };
-    
-    $scope.triggerFileInput = function() {
-        document.getElementById('fileInput').click();
-    };
+$scope.closePiano = function() {
+  $scope.showPianoModal = false;
+};
 
-    $scope.onFileSelect = function(event) {
-        var file = event.target.files[0];
-        if (!file || file.type !== 'application/pdf') {
-            alert("Por favor, selecciona un archivo PDF.");
-            return;
-        }
-        var reader = new FileReader();
-        reader.onload = function(loadEvent) {
-            $scope.$apply(function() {
-                $scope.newPdf.fileData = loadEvent.target.result; // Esto es el Base64
-                $scope.newPdf.fileName = file.name;
-            });
-        };
-        reader.readAsDataURL(file);
-    };
 
-    $scope.saveNewPdf = function() {
-        if (!$scope.newPdf.title || !$scope.newPdf.author || !$scope.newPdf.fileData) {
-            alert("Por favor, completa todos los campos y selecciona un archivo.");
-            return;
-        }
 
-        const newBook = {
-            "title": $scope.newPdf.title,
-            "author": $scope.newPdf.author,
-            "level": $scope.newPdf.grade || "N/A",
-            "coverUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/PDF_file_icon.svg/1200px-PDF_file_icon.svg.png", // Icono genérico de PDF
-            "pdf": $scope.newPdf.fileData,
-            "isUserUploaded": true // Bandera para identificar estos archivos
-        };
-
-        $scope.userPDFs.push(newBook);
-        $scope.closeUploadModal();
-    };
-    
-    // === LÓGICA PARA ELIMINAR ARCHIVOS (NUEVA) ===
-    $scope.deleteUserPdf = function(index, event) {
-        event.stopPropagation(); // Evita que se abra el modal de vista previa
-        if (confirm("¿Estás seguro de que quieres eliminar este archivo?")) {
-            $scope.userPDFs.splice(index, 1);
-        }
-    };
-
+       
 
              $scope.showPreview = function(book, categoryTitle) {
         // Los archivos del usuario nunca están bloqueados
@@ -1365,121 +1302,6 @@ function clearBPMTimers() {
 } 
 
 
- 
-let mediaRecorder;
-        let audioChunks2 = [];
-        let audioContext2;
-        let animationId;
-
-        $scope.showSaveRecordingModal = false;
-$scope.recording = {};
-
-        // Opciones de audio con supresión de ruido y control de ganancia
-        const constraints = {
-            audio: {
-                noiseSuppression: true,
-                autoGainControl: true,
-                echoCancellation: true
-            }
-        };
-
-    async function startRecordingAndOscilloscope() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        mediaRecorder = new MediaRecorder(stream);
-        audioChunks2 = [];
-
-        mediaRecorder.ondataavailable = event => {
-            audioChunks2.push(event.data);
-        };
-
-        // **** ESTA ES LA SECCIÓN MODIFICADA ****
-        mediaRecorder.onstop = () => {
-            cancelAnimationFrame(animationId);
-            if (audioChunks2.length === 0) return;
-
-            const audioBlob = new Blob(audioChunks2, { type: 'audio/wav' });
-            const audioUrl = URL.createObjectURL(audioBlob);
-
-            // Usamos un elemento de audio temporal para leer la duración
-            const tempAudio = document.createElement('audio');
-            tempAudio.src = audioUrl;
-            tempAudio.onloadedmetadata = () => {
-                // Una vez que tenemos la duración, poblamos el scope y mostramos el modal
-                $scope.$apply(() => {
-                    const duration = tempAudio.duration;
-                    const minutes = Math.floor(duration / 60);
-                    const seconds = Math.floor(duration % 60);
-
-                    $scope.recording = {
-                        url: $sce.trustAsResourceUrl(audioUrl), // URL segura para ng-src
-                        blob: audioBlob,
-                        name: "Grabación " + new Date().toLocaleTimeString(),
-                        author: "", // El usuario puede llenarlo
-                        date: new Date(),
-                        duration: `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-                    };
-
-                    $scope.showSaveRecordingModal = true;
-                });
-            };
-        };
-
-        // ... El resto de la función (analyser, mediaRecorder.start) sigue igual
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioContext.createAnalyser();
-        const source = audioContext.createMediaStreamSource(stream);
-        source.connect(analyser);
-        analyser.fftSize = 2048;
-        mediaRecorder.start();
-
-    } catch (err) {
-        console.error('Error al acceder al micrófono:', err);
-    }
-}
-
-// La función recordWav no necesita cambios
-$scope.recordWav = function() {
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
-        mediaRecorder.stop();
-        $scope.isRecording2 = false;
-    } else {
-        startRecordingAndOscilloscope();
-        $scope.isRecording2 = true;
-    }
-};
-
-// --- AGREGA ESTAS NUEVAS FUNCIONES AL FINAL DE TU CONTROLADOR ---
-
-// Cierra el modal y limpia los datos
-$scope.closeSaveModal = function() {
-    // Revoca el Object URL para liberar memoria
-    if ($scope.recording && $scope.recording.url) {
-        URL.revokeObjectURL($scope.recording.url.toString());
-    }
-    $scope.showSaveRecordingModal = false;
-    $scope.recording = {};
-};
-
-// Se ejecuta al hacer clic en "Guardar"
-$scope.saveRecording = function() {
-    if (!$scope.recording.name) {
-        alert("Por favor, asigna un nombre a la grabación.");
-        return;
-    }
-    // Lógica de guardado (como pediste, un alert temporal)
-    alert(`Guardando archivo: \nNombre: ${$scope.recording.name}\nAutor: ${$scope.recording.author || 'N/A'}`);
-    
-    // Aquí iría tu lógica para subir el $scope.recording.blob a tu servidor o base de datos
-    
-    $scope.closeSaveModal();
-};
-
-// Se ejecuta al hacer clic en "Eliminar"
-$scope.deleteRecording = function() {
-    // No se hace nada, solo se cierra el modal y se liberan los recursos
-    $scope.closeSaveModal();
-};
 
         }]);
     </script>
