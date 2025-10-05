@@ -923,117 +923,157 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
     
+// REEMPLAZA TU FUNCIÓN parseMusicXML COMPLETA POR ESTA VERSIÓN FINAL
+
 function parseMusicXML(xmlText) {
-  parsedNotes = [];
-  measureStartTimes = [0];
-  const parser = new DOMParser();
-  const xml = parser.parseFromString(xmlText, 'application/xml');
-  
-  const divisions = parseInt(xml.querySelector('divisions')?.textContent.trim() || '24', 10);
-  const soundTempo = xml.querySelector('direction sound[tempo], sound[tempo]');
-  globalTempo = soundTempo ? parseFloat(soundTempo.getAttribute('tempo')) : 120;
-  updateBpmDisplay();
-  Tone.Transport.bpm.value = globalTempo;
+    parsedNotes = [];
+    measureStartTimes = [0];
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(xmlText, "application/xml");
 
-  // Usamos solo la primera parte, ya que ambas manos están contenidas en ella.
-  const part = xml.querySelector('part');
-  if (!part) return; // Salir si no se encuentra ninguna parte
+    const divisions = parseInt(xml.querySelector("divisions")?.textContent.trim() || "24", 10);
+    const soundTempo = xml.querySelector("direction sound[tempo], sound[tempo]");
+    globalTempo = soundTempo ? parseFloat(soundTempo.getAttribute("tempo")) : 120;
+    updateBpmDisplay();
+    Tone.Transport.bpm.value = globalTempo;
 
-  let currentBeat = 0;
-  const measures = part.querySelectorAll('measure');
-  
-  measures.forEach((measure, measureIndex) => {
-    if (measureIndex > 0) {
-      measureStartTimes.push(currentBeat * (60.0 / globalTempo));
-    }
+    const openTies = new Map(); // Mapa para manejar notas ligadas (pitch -> noteObject)
+    
+    // 1. Itera sobre todas las partes (usualmente 2 en piano)
+    xml.querySelectorAll('part').forEach((part, partIndex) => {
+        let currentBeat = 0;
 
-    const nodes = measure.querySelectorAll('note, backup, forward');
-    nodes.forEach(node => {
-      const durationVal = parseFloat(node.querySelector('duration')?.textContent.trim() || '0');
-      if (node.tagName === 'note') {
-        const isChord = !!node.querySelector('chord');
-        if (!node.querySelector('rest') && node.querySelector('pitch')) {
-          
-          // --- LÓGICA NUEVA Y DEFINITIVA ---
-          // Leemos el número de pentagrama (staff) directamente de la nota.
-          // Staff 1 = mano derecha (treble), Staff 2 = mano izquierda (bass).
-          const staffNumber = parseInt(node.querySelector('staff')?.textContent || '1', 10);
-          const hand = (staffNumber === 1) ? 'treble' : 'bass';
+        // 2. Determina la mano de esta parte una sola vez, basándose en la clave
+        const clefSign = part.querySelector('measure[number="1"] clef sign')?.textContent;
+        const defaultHand = (clefSign === 'F') ? 'bass' : 'treble';
 
-          const step = node.querySelector('step')?.textContent?.trim();
-          const octave = node.querySelector('octave')?.textContent?.trim();
-          const alt = parseInt(node.querySelector('alter')?.textContent?.trim() || '0', 10);
-          const accidental = alt === 1 ? '#' : alt === -1 ? 'b' : '';
-          
-          parsedNotes.push({
-            pitch: `${step}${accidental}${octave}`,
-            startSec: currentBeat * (60.0 / globalTempo),
-            durSec: (durationVal / divisions) * (60.0 / globalTempo),
-            hand: hand // <-- Asignamos la mano correcta basada en el staff
-          });
-        }
-        if (!isChord) currentBeat += (durationVal / divisions);
-      } else if (node.tagName === 'backup') {
-        currentBeat -= (durationVal / divisions);
-      } else if (node.tagName === 'forward') {
-        currentBeat += (durationVal / divisions);
-      }
-    });
-  });
-  
-  parsedNotes.sort((a, b) => a.startSec - b.startSec);
-  
-  const lastNote = parsedNotes[parsedNotes.length - 1];
-  totalDuration = lastNote ? lastNote.startSec + lastNote.durSec : 0;
-  totalTimeSpan.textContent = formatTime(totalDuration); 
-}
+        const measures = part.querySelectorAll('measure');
+        measures.forEach((measure, measureIndex) => {
+            if (partIndex === 0 && measureIndex > 0) {
+                 // Calcula el tiempo de inicio de cada compás (solo para la primera parte)
+                measureStartTimes.push(currentBeat * (60.0 / globalTempo));
+            }
+            
+            const nodes = measure.querySelectorAll('note, backup, forward');
+            nodes.forEach(node => {
+                const durationVal = parseFloat(node.querySelector('duration')?.textContent.trim() || '0');
+                const durationInBeats = durationVal / divisions;
 
-    function scheduleNotesOnTransport() {
-    if (audioPart) audioPart.dispose();
-    if (visualPart) visualPart.dispose();
-    Tone.Transport.cancel();
-    osmd.cursor.reset();
-    osmd.cursor.hide();
+                if (node.tagName === 'note') {
+                    const isChord = !!node.querySelector('chord');
+                    
+                    // Si NO es parte de un acorde, el tiempo avanza. Si es un acorde, usa el tiempo de la nota anterior.
+                    if (!isChord) {
+                        currentBeat += durationInBeats;
+                    }
+                    
+                    if (!node.querySelector('rest') && node.querySelector('pitch')) {
+                        const step = node.querySelector('step')?.textContent?.trim();
+                        const octave = node.querySelector('octave')?.textContent?.trim();
+                        const alt = parseInt(node.querySelector('alter')?.textContent?.trim() || '0', 10);
+                        const accidental = alt === 1 ? '#' : alt === -1 ? 'b' : '';
+                        const pitch = `${step}${accidental}${octave}`;
+                        
+                        // Determina la mano: usa el <staff> de la nota si existe, si no, usa la clave de la parte
+                        const staffNumber = parseInt(node.querySelector('staff')?.textContent);
+                        const hand = !isNaN(staffNumber) ? (staffNumber === 1 ? 'treble' : 'bass') : defaultHand;
 
-    // Aplica el 'playbackRate' a cada nota al momento de programarla
-    const audioEvents = parsedNotes.map(note => ({
-        time: note.startSec / playbackRate, // Se divide el tiempo
-        pitch: note.pitch,
-        duration: note.durSec / playbackRate // Se divide la duración
-    }));
+                        const isTieStart = !!node.querySelector('tie[type="start"]');
+                        const isTieStop = !!node.querySelector('tie[type="stop"]');
 
-    const notesByTime = new Map();
-    parsedNotes.forEach(note => {
-        const time = note.startSec / playbackRate; // Usa el tiempo ajustado
-        if (!notesByTime.has(time)) {
-            notesByTime.set(time, []);
-        }
-        notesByTime.get(time).push({
-            ...note,
-            duration: note.durSec / playbackRate // Guarda la duración ajustada
+                        if (isTieStop && openTies.has(pitch)) {
+                            // ES EL FINAL DE UNA LIGADURA: extiende la duración de la nota original
+                            const existingNote = openTies.get(pitch);
+                            existingNote.durSec += durationInBeats * (60.0 / globalTempo);
+                            if (!isTieStart) {
+                                openTies.delete(pitch); // Cierra la ligadura si no empieza una nueva
+                            }
+                        } else {
+                            // ES UNA NOTA NUEVA (o el inicio de una ligadura)
+                            const noteStartTime = (currentBeat - durationInBeats) * (60.0 / globalTempo);
+                            
+                            const newNote = {
+                                pitch: pitch,
+                                startSec: noteStartTime,
+                                durSec: durationInBeats * (60.0 / globalTempo),
+                                hand: hand,
+                            };
+                            parsedNotes.push(newNote);
+
+                            if (isTieStart) {
+                                openTies.set(pitch, newNote); // Abre una nueva ligadura
+                            }
+                        }
+                    }
+                } else if (node.tagName === 'backup') {
+                    currentBeat -= durationInBeats;
+                } else if (node.tagName === 'forward') {
+                    currentBeat += durationInBeats;
+                }
+            });
         });
     });
 
-    const visualEvents = [];
-    notesByTime.forEach((notes, time) => {
-        visualEvents.push({ time, notes });
+    // Ordenamiento final y cálculo de duración
+    parsedNotes.sort((a, b) => a.startSec - b.startSec);
+    const lastNote = parsedNotes[parsedNotes.length - 1];
+    totalDuration = lastNote ? lastNote.startSec + lastNote.durSec : 0;
+    totalTimeSpan.textContent = formatTime(totalDuration);
+}
+
+// REEMPLAZA LA FUNCIÓN scheduleNotesOnTransport COMPLETA CON ESTA
+function scheduleNotesOnTransport() {
+  if (audioPart) audioPart.dispose();
+  if (visualPart) visualPart.dispose();
+  Tone.Transport.cancel();
+  osmd.cursor.reset();
+  osmd.cursor.hide();
+
+  // Agrupa notas por tiempo de inicio para manejar acordes correctamente
+  const notesByTime = new Map();
+  parsedNotes.forEach(note => {
+    const time = note.startSec / playbackRate;
+    if (!notesByTime.has(time)) {
+      notesByTime.set(time, []);
+    }
+    notesByTime.get(time).push(note);
+  });
+
+  // --- NUEVA LÓGICA PARA EL AUDIO ---
+  const audioEvents = [];
+  notesByTime.forEach((notes, time) => {
+    audioEvents.push({
+      time: time,
+      pitches: notes.map(n => n.pitch), // Agrupa las alturas en un arreglo
+      duration: notes[0].durSec / playbackRate, // Usa la duración de la primera nota
     });
+  });
+  
+  // El Tone.Part ahora recibe un arreglo de notas para los acordes
+  audioPart = new Tone.Part((time, value) => {
+    sampler.triggerAttackRelease(value.pitches, value.duration, time);
+  }, audioEvents).start(0);
 
-    audioPart = new Tone.Part((time, value) => {
-        sampler.triggerAttackRelease(value.pitch, value.duration, time);
-    }, audioEvents).start(0);
 
-visualPart = new Tone.Part((time, value) => {
+  // --- LÓGICA VISUAL (PERMANECE IGUAL PERO USA notesByTime) ---
+  const visualEvents = [];
+  notesByTime.forEach((notes, time) => {
+    visualEvents.push({ time, notes: notes.map(n => ({...n, duration: n.durSec / playbackRate})) });
+  });
+
+  visualPart = new Tone.Part((time, value) => {
     Tone.Draw.schedule(() => {
-        osmd.cursor.next();
-        // MODIFICACIÓN: Pasamos note.hand en lugar de note.partIndex
-        value.notes.forEach(note => highlightKey(note.pitch, note.duration, note.hand));
+      // Avanza el cursor una vez por cada grupo de notas (acorde)
+      if (value.notes.length > 0) {
+          osmd.cursor.next();
+      }
+      value.notes.forEach(note => highlightKey(note.pitch, note.duration, note.hand));
     }, time);
-}, visualEvents).start(0);
-
-    // Ajusta la duración total
-    const newTotalDuration = totalDuration / playbackRate;
-    Tone.Transport.scheduleOnce(() => stopPlayback(), newTotalDuration + 0.5);
+  }, visualEvents).start(0);
+  
+  // Ajusta la duración total
+  const newTotalDuration = totalDuration / playbackRate;
+  Tone.Transport.scheduleOnce(() => stopPlayback(), newTotalDuration + 0.5);
 }
     
 function playFromMeasure(measureIndex) {
