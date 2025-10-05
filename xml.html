@@ -768,10 +768,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const fileId = urlParams.get('file'); // Busca un parámetro llamado 'file'.
 
   if (fileId) {
-    // 2. Si se encontró un 'fileId', construye la URL completa.
-    // OJO: Estoy usando la carpeta /midi/ como en tu ejemplo anterior, no /pdf/.
-    // ¡Asegúrate de que la carpeta sea la correcta!
-    const dynamicUrl = `https://storage.googleapis.com/mozartacademy-files/midi/${encodeURIComponent(fileId)}`;
+
+    const dynamicUrl = `https://storage.googleapis.com/mozartacademy-files/xml/${encodeURIComponent(fileId)}`;
     
     console.log(`Cargando archivo desde URL: ${dynamicUrl}`);
     await loadMusicXMLFromUrl(dynamicUrl);
