@@ -226,8 +226,15 @@
 
 
 
+@media (min-width: 830px) {
+  #osmd-container {
+    width: 85%;
+  }
+}
+
+
 /* Ajustes para Desktop */
-@media (min-width: 980px) {
+@media (min-width: 1100px) {
   #osmd-container {
     width: 70%;
   }
@@ -843,8 +850,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         osmd.EngravingRules.StaffDistance = 3.5;
         osmd.EngravingRules.StaffLineWidth = 0.08;
         osmd.EngravingRules.NoteHeadWidth = 1.0;
-        osmd.zoom = 0.85;
-        currentZoom = 0.85;
+        osmd.zoom = 0.8;
+        currentZoom = 0.8;
       }
       
       updateZoomDisplay();
