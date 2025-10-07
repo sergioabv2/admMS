@@ -570,6 +570,63 @@ display: flex;
   border-radius: 50%;
   flex-shrink: 0;
 }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000; /* Asegura que esté por encima de todo */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+/* Estado visible del modal */
+.modal-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+  text-align: center;
+  max-width: 320px;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.modal-overlay.is-visible .modal-content {
+  transform: scale(1);
+}
+
+#modal-message {
+  font-size: 15px;
+  color: #333;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+#modal-close-btn {
+  background-color: #3498db;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+#modal-close-btn:hover {
+  background-color: #2980b9;
+}
   </style>
 </head>
 <body>
@@ -587,6 +644,10 @@ display: flex;
     </div>
 
     <div class="controls-group">
+      <button id="midi-learn-btn" class="btn" title="Modo Aprendizaje MIDI">
+  <i class="ri-plug-line"></i>
+</button>
+
         <button id="tools-toggle-btn" class="btn" title="Herramientas de Dibujo">
         <i class="ri-edit-2-line"></i>
       </button>
@@ -682,6 +743,14 @@ display: flex;
     <div id="piano-keys"></div>
   </div>
 
+
+    <div id="midi-modal" class="modal-overlay" style="display: none;">
+  <div class="modal-content">
+    <p id="modal-message">Este es un mensaje de prueba.</p>
+    <button id="modal-close-btn" class="btn">Entendido</button>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@latest/build/opensheetmusicdisplay.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.min.js"></script>
 
@@ -718,6 +787,10 @@ const customColorInput = document.getElementById('custom-color-input');
 const eraserBtn = document.getElementById('eraser-btn');
 const cursorBtn = document.getElementById('cursor-btn');
 const fullscreenBtn = document.getElementById('fullscreen-btn');
+const midiModal = document.getElementById('midi-modal');
+const modalMessage = document.getElementById('modal-message');
+const modalCloseBtn = document.getElementById('modal-close-btn');
+
 
     let osmd = null;
     let sampler = null;
@@ -734,6 +807,12 @@ const fullscreenBtn = document.getElementById('fullscreen-btn');
     let activeHighlightTimeouts = [];
     let currentZoom = 1.0;
     let isMobile = window.innerWidth <= 768;
+
+    const midiLearnBtn = document.getElementById('midi-learn-btn');
+let isMidiLearnMode = false;
+let midiAccess = null;
+let expectedNotes = new Set(); 
+let currentLearningIndex = 0; 
 
 
 const annotationCanvas = document.getElementById('annotation-canvas');
@@ -1290,7 +1369,8 @@ progressBar.style.setProperty('--progress', `${progressValue}%`);
     });
 
      
-
+midiLearnBtn.addEventListener('click', toggleMidiLearnMode);
+ modalCloseBtn.addEventListener('click', hideModal);
 
 drawBtn.addEventListener('click', () => {
   isDrawingMode = !isDrawingMode;
@@ -1727,6 +1807,220 @@ function clearAnnotations() {
     textAnnotations = []; // Vaciamos el arreglo de textos
     redrawAllAnnotations(); // Limpiamos y redibujamos el canvas vacío
 }
+
+
+
+function advanceLearningStep() {
+    clearAllHighlights();
+    expectedNotes.clear();
+
+    if (currentLearningIndex >= parsedNotes.length) {
+        alert("¡Felicidades, has completado la pieza!");
+        toggleMidiLearnMode();
+        return;
+    }
+
+    const nextNoteTime = parsedNotes[currentLearningIndex].startSec;
+    const notesInStep = [];
+    
+    while (currentLearningIndex < parsedNotes.length && parsedNotes[currentLearningIndex].startSec === nextNoteTime) {
+        notesInStep.push(parsedNotes[currentLearningIndex]);
+        currentLearningIndex++;
+    }
+
+    if (notesInStep.length > 0) {
+        osmd.cursor.next();
+        const pitchesToPlay = [];
+
+        // Ahora, esta función SOLO prepara lo visual.
+        notesInStep.forEach(note => {
+            expectedNotes.add(note.pitch);
+            highlightKey(note.pitch, note.durSec, note.hand, true); 
+        });
+
+        // La línea que reproducía el sonido (sampler.triggerAttackRelease) se ha eliminado de aquí.
+        
+        console.log("Esperando que toques:", Array.from(expectedNotes));
+    }
+}
+
+function toggleMidiLearnMode() {
+    // Si el usuario hace clic pero no hay MIDI, muestra el mensaje y no hagas nada más.
+    if (isMidiLearnMode === false && (!midiAccess || midiAccess.inputs.size === 0)) {
+        showModal("🎹 No se detectó ningún teclado MIDI. Por favor, conecta uno e inténtalo de nuevo.");
+        initMidiInput(); // Intenta reconectar por si acaso
+        return; // Detiene la función aquí
+    }
+
+    isMidiLearnMode = !isMidiLearnMode;
+    stopPlayback(); 
+
+    if (isMidiLearnMode) {
+        // ... el resto de la función se mantiene igual ...
+        midiLearnBtn.style.background = '#e0e0e0';
+        playBtn.disabled = true;
+        currentLearningIndex = 0;
+        osmd.cursor.show();
+
+        cursorBtn.style.color = '#3498db';
+        Object.assign(osmd.cursor.cursorOptions, {
+            type: 1,
+            alpha: 0.8,
+            color: "rgba(52, 152, 219, 0.8)"
+        });
+        
+        // La llamada a initMidiInput() ya no es necesaria aquí porque se hace al cargar la página
+        
+        advanceLearningStep(); 
+    } else {
+        // ... el resto de la función se mantiene igual ...
+        midiLearnBtn.style.background = 'none';
+        playBtn.disabled = false;
+        clearAllHighlights(); 
+        osmd.cursor.reset();
+        osmd.cursor.hide();
+        
+        cursorBtn.style.color = '#1a1a1a';
+        Object.assign(osmd.cursor.cursorOptions, {
+            type: 3,
+            alpha: 0.45,
+            color: "rgba(52, 152, 219, 0.45)"
+        });
+    }
+}
+
+
+// Script: añade esta nueva función
+function initMidiInput() {
+    if (navigator.requestMIDIAccess) {
+        navigator.requestMIDIAccess()
+            .then(onMIDISuccess, onMIDIFailure);
+    } else {
+        alert("Tu navegador no soporta Web MIDI API. Prueba con Chrome o Edge.");
+    }
+}
+
+function onMIDISuccess(access) {
+    midiAccess = access;
+
+    // ▼▼▼ NUEVO: Escuchamos cambios de estado (conexión/desconexión) ▼▼▼
+    midiAccess.onstatechange = (event) => {
+        const port = event.port;
+        const deviceName = port.name || 'Dispositivo MIDI';
+
+        if (port.state === 'connected' && port.type === 'input') {
+            showModal(`✅ ¡${deviceName} conectado!`, 3000); // Se cierra solo a los 3 seg
+            port.onmidimessage = onMIDIMessage; // Asigna el listener al nuevo dispositivo
+        } else if (port.state === 'disconnected' && port.type === 'input') {
+            showModal(`🔌 ¡${deviceName} desconectado!`, 3000);
+        }
+    };
+
+    // Configuración inicial de los dispositivos ya conectados
+    const inputs = midiAccess.inputs.values();
+    let deviceFound = false;
+    for (const input of inputs) {
+        input.onmidimessage = onMIDIMessage;
+        deviceFound = true;
+    }
+
+    if (!deviceFound) {
+        showModal("Haz clic en 'Modo Aprendizaje' cuando tu teclado MIDI esté conectado.");
+    } else {
+         console.log('Teclado MIDI ya conectado y listo.');
+    }
+}
+
+function onMIDIFailure() {
+    showModal("⚠️ No se pudo acceder a tus dispositivos MIDI. Asegúrate de dar permiso en el navegador.");
+    isMidiLearnMode = false;
+    midiLearnBtn.style.background = 'none';
+    playBtn.disabled = false;
+}
+
+// Script: añade esta nueva función
+function onMIDIMessage(event) {
+    if (!isMidiLearnMode || expectedNotes.size === 0) return;
+
+    const command = event.data[0];
+    const note = event.data[1];
+    const velocity = event.data.length > 2 ? event.data[2] : 0;
+
+    if (command === 144 && velocity > 0) {
+        const pitchName = midiNoteToPitchName(note);
+
+        if (expectedNotes.has(pitchName)) {
+            // ▼▼▼ CAMBIO PRINCIPAL: El sonido se reproduce AQUÍ ▼▼▼
+            // Como recompensa por tocar la nota correcta.
+            sampler.triggerAttackRelease(pitchName, '8n');
+
+            expectedNotes.delete(pitchName);
+            console.log(`¡Correcto! Nota ${pitchName}. Faltan ${expectedNotes.size}.`);
+            
+            if (expectedNotes.size === 0) {
+                setTimeout(() => {
+                    advanceLearningStep();
+                }, 300); 
+            }
+        }
+    }
+}
+
+// Script: añade estas dos funciones de ayuda
+
+function prepareNextExpectedNotes() {
+    expectedNotes.clear();
+    if (currentLearningIndex >= parsedNotes.length) {
+        console.log("¡Felicidades, terminaste la pieza!");
+        toggleMidiLearnMode(); // Desactiva el modo al final
+        return;
+    }
+
+    // Obtenemos el tiempo de la siguiente nota
+    const nextNoteTime = parsedNotes[currentLearningIndex].startSec;
+    
+    // Buscamos todas las notas que suenan en ESE MISMO MOMENTO (acordes)
+    while (currentLearningIndex < parsedNotes.length && parsedNotes[currentLearningIndex].startSec === nextNoteTime) {
+        expectedNotes.add(parsedNotes[currentLearningIndex].pitch);
+        currentLearningIndex++;
+    }
+    
+    // Opcional: Muestra en la consola qué notas se esperan
+    console.log("Esperando notas:", Array.from(expectedNotes));
+}
+
+function midiNoteToPitchName(midiNote) {
+    const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    const octave = Math.floor(midiNote / 12) - 1;
+    const noteName = noteNames[midiNote % 12];
+    return noteName + octave;
+}
+
+// Script: añade estas nuevas funciones de ayuda
+function showModal(message, duration = 0) {
+    modalMessage.textContent = message;
+    midiModal.style.display = 'flex';
+    // Usamos un pequeño timeout para que la transición CSS se active
+    setTimeout(() => {
+        midiModal.classList.add('is-visible');
+    }, 10);
+
+    // Si se especifica una duración, el modal se cierra solo
+    if (duration > 0) {
+        setTimeout(() => {
+            hideModal();
+        }, duration);
+    }
+}
+
+function hideModal() {
+    midiModal.classList.remove('is-visible');
+    // Esperamos a que la transición termine para ocultarlo con display:none
+    setTimeout(() => {
+        midiModal.style.display = 'none';
+    }, 300);
+}
+
 
   </script>
 </body>
