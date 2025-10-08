@@ -226,6 +226,7 @@
 
 
 
+
 @media (min-width: 830px) {
   #osmd-container {
     width: 85%;
@@ -571,6 +572,7 @@ display: flex;
   flex-shrink: 0;
 }
 
+/* === NUEVO: Estilos para el Modal MIDI === */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -647,7 +649,6 @@ display: flex;
       <button id="midi-learn-btn" class="btn" title="Modo Aprendizaje MIDI">
   <i class="ri-plug-line"></i>
 </button>
-
         <button id="tools-toggle-btn" class="btn" title="Herramientas de Dibujo">
         <i class="ri-edit-2-line"></i>
       </button>
@@ -744,7 +745,7 @@ display: flex;
   </div>
 
 
-    <div id="midi-modal" class="modal-overlay" style="display: none;">
+  <div id="midi-modal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
     <p id="modal-message">Este es un mensaje de prueba.</p>
     <button id="modal-close-btn" class="btn">Entendido</button>
@@ -791,7 +792,6 @@ const midiModal = document.getElementById('midi-modal');
 const modalMessage = document.getElementById('modal-message');
 const modalCloseBtn = document.getElementById('modal-close-btn');
 
-
     let osmd = null;
     let sampler = null;
     let parsedNotes = [];
@@ -808,11 +808,12 @@ const modalCloseBtn = document.getElementById('modal-close-btn');
     let currentZoom = 1.0;
     let isMobile = window.innerWidth <= 768;
 
-    const midiLearnBtn = document.getElementById('midi-learn-btn');
+    // Script: al inicio, junto a las otras constantes
+const midiLearnBtn = document.getElementById('midi-learn-btn');
 let isMidiLearnMode = false;
 let midiAccess = null;
-let expectedNotes = new Set(); 
-let currentLearningIndex = 0; 
+let expectedNotes = new Set(); // Almacenará las notas que esperamos que el usuario toque
+let currentLearningIndex = 0; // Para saber en qué nota de la partitura vamos
 
 
 const annotationCanvas = document.getElementById('annotation-canvas');
@@ -834,9 +835,8 @@ let textAnnotations = [];
 let startX, startY;
 
 
-  
 
-document.addEventListener('DOMContentLoaded', async () => {
+   document.addEventListener('DOMContentLoaded', async () => {
   setStatus('Inicializando...');
   initOSMD();
   createPiano88Keys();
@@ -1107,7 +1107,7 @@ function parseMusicXML(xmlText) {
     totalTimeSpan.textContent = formatTime(totalDuration);
 }
 
-// REEMPLAZA LA FUNCIÓN scheduleNotesOnTransport COMPLETA CON ESTA
+ // REEMPLAZA LA FUNCIÓN scheduleNotesOnTransport COMPLETA CON ESTA
 function scheduleNotesOnTransport() {
   if (audioPart) audioPart.dispose();
   if (visualPart) visualPart.dispose();
@@ -1311,6 +1311,8 @@ speedDownBtn.addEventListener('click', () => {
         currentZoom = Math.max(0.5, currentZoom - 0.1);
         applyZoom();
       });
+
+      midiLearnBtn.addEventListener('click', toggleMidiLearnMode);
       
       // Redimensionar ventana
       window.addEventListener('resize', () => {
@@ -1368,9 +1370,8 @@ progressBar.style.setProperty('--progress', `${progressValue}%`);
         secondaryTopBar.classList.toggle('is-visible');
     });
 
-     
-midiLearnBtn.addEventListener('click', toggleMidiLearnMode);
- modalCloseBtn.addEventListener('click', hideModal);
+     modalCloseBtn.addEventListener('click', hideModal);
+
 
 drawBtn.addEventListener('click', () => {
   isDrawingMode = !isDrawingMode;
@@ -1605,23 +1606,58 @@ function toggleFullScreen() {
     }
 
 // Reemplaza tu función highlightKey con esta:
-function highlightKey(noteName, durSec, hand) {
-  const noteId = noteName.replace('b', '#');
-  const el = document.getElementById(noteId);
-  if (!el) return;
-  
-  // Ahora la decisión es más clara: si la mano es 'treble', usa esa clase.
-  const highlightClass = hand === 'treble' ? 'active-treble' : 'active-bass';
+function highlightKey(noteName, durSec, hand, persist = false) {
+    const noteId = noteName.replace('b', '#');
+    const el = document.getElementById(noteId);
+    if (!el) return;
 
-  el.classList.add(highlightClass);
-  const highlightDuration = Math.max(80, durSec * 1000 / currentSpeed);
-  
-  // Aquí usamos la implementación que mantiene las notas en pausa
-  const timeoutId = setTimeout(() => {
-    el.classList.remove(highlightClass);
-    activeHighlightTimeouts = activeHighlightTimeouts.filter(id => id !== timeoutId);
-  }, highlightDuration);
-  activeHighlightTimeouts.push(timeoutId);
+    const highlightClass = hand === 'treble' ? 'active-treble' : 'active-bass';
+    el.classList.add(highlightClass);
+
+    // Si NO es persistente, se apaga después de un tiempo
+    if (!persist) {
+        const highlightDuration = Math.max(80, durSec * 1000 / currentSpeed);
+        const timeoutId = setTimeout(() => {
+            el.classList.remove(highlightClass);
+            activeHighlightTimeouts = activeHighlightTimeouts.filter(id => id !== timeoutId);
+        }, highlightDuration);
+        activeHighlightTimeouts.push(timeoutId);
+    }
+}
+
+// Script: Añade esta nueva función principal de aprendizaje
+function advanceLearningStep() {
+    clearAllHighlights();
+    expectedNotes.clear();
+
+    if (currentLearningIndex >= parsedNotes.length) {
+        alert("¡Felicidades, has completado la pieza!");
+        toggleMidiLearnMode();
+        return;
+    }
+
+    const nextNoteTime = parsedNotes[currentLearningIndex].startSec;
+    const notesInStep = [];
+    
+    while (currentLearningIndex < parsedNotes.length && parsedNotes[currentLearningIndex].startSec === nextNoteTime) {
+        notesInStep.push(parsedNotes[currentLearningIndex]);
+        currentLearningIndex++;
+    }
+
+    if (notesInStep.length > 0) {
+        osmd.cursor.next();
+        const pitchesToPlay = [];
+
+        // Ahora, esta función SOLO prepara lo visual.
+        notesInStep.forEach(note => {
+            expectedNotes.add(note.pitch);
+            highlightKey(note.pitch, note.durSec, note.hand, true); 
+        });
+
+        // La línea que reproducía el sonido (sampler.triggerAttackRelease) se ha eliminado de aquí.
+        
+        console.log("Esperando que toques:", Array.from(expectedNotes));
+    }
 }
 
     function setStatus(text) { 
@@ -1809,41 +1845,7 @@ function clearAnnotations() {
 }
 
 
-
-function advanceLearningStep() {
-    clearAllHighlights();
-    expectedNotes.clear();
-
-    if (currentLearningIndex >= parsedNotes.length) {
-        alert("¡Felicidades, has completado la pieza!");
-        toggleMidiLearnMode();
-        return;
-    }
-
-    const nextNoteTime = parsedNotes[currentLearningIndex].startSec;
-    const notesInStep = [];
-    
-    while (currentLearningIndex < parsedNotes.length && parsedNotes[currentLearningIndex].startSec === nextNoteTime) {
-        notesInStep.push(parsedNotes[currentLearningIndex]);
-        currentLearningIndex++;
-    }
-
-    if (notesInStep.length > 0) {
-        osmd.cursor.next();
-        const pitchesToPlay = [];
-
-        // Ahora, esta función SOLO prepara lo visual.
-        notesInStep.forEach(note => {
-            expectedNotes.add(note.pitch);
-            highlightKey(note.pitch, note.durSec, note.hand, true); 
-        });
-
-        // La línea que reproducía el sonido (sampler.triggerAttackRelease) se ha eliminado de aquí.
-        
-        console.log("Esperando que toques:", Array.from(expectedNotes));
-    }
-}
-
+// Script: añade esta nueva función
 function toggleMidiLearnMode() {
     // Si el usuario hace clic pero no hay MIDI, muestra el mensaje y no hagas nada más.
     if (isMidiLearnMode === false && (!midiAccess || midiAccess.inputs.size === 0)) {
@@ -2021,7 +2023,6 @@ function hideModal() {
     }, 300);
 }
 
-
   </script>
 </body>
-</html>
+</html>   
