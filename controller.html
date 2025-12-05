@@ -1,496 +1,1323 @@
+ 
 <html lang="es">
 <head>   
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master - Piano Academy</title>
+    <title>Panel Profesor - Mozart Academy</title>
     <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.1/simplepeer.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #3a506b;
-            --secondary: #5c80bc;
-            --accent: #ff6b6b;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --success: #4caf50;
-            --warning: #ff9800;
-            --gray: #6c757d;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: var(--dark);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        h1 {
-            font-weight: 300;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .content {
-            padding: 25px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-        }
-
-        @media (max-width: 768px) {
-            .content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .panel {
-            background: var(--light);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-
-        .panel-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary {
-            background: var(--secondary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #4a6db3;
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #43a047;
-        }
-
-        .btn-danger {
-            background: var(--accent);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #ff5252;
-        }
-
-        /* Controles globales de audio/video */
-        .global-controls {
-            margin-top: 20px;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            border-left: 4px solid var(--warning);
-        }
-
-        .global-controls h3 {
-            margin-bottom: 10px;
-            color: var(--primary);
-            font-size: 1rem;
-        }
-
-        .audio-control {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        .btn-audio, .btn-video {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--gray);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            position: relative;
-        }
-
-        .btn-audio:hover, .btn-video:hover {
-            transform: scale(1.05);
-        }
-
-        .btn-audio.active {
-            background: var(--success);
-            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
-        }
-
-        .btn-video.active {
-            background: var(--secondary);
-            box-shadow: 0 0 15px rgba(92, 128, 188, 0.5);
-        }
-
-        .btn-audio.active i {
-            animation: pulse-mic 1.5s infinite;
-        }
-
-        @keyframes pulse-mic {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .broadcast-status {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 0.8rem;
-            color: var(--gray);
-        }
-
-        .broadcast-status.active {
-            color: var(--success);
-            font-weight: bold;
-        }
-
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: 400px;
-        }
-
-        .chat-log {
-            height: 300px;
-            overflow-y: auto;
-            padding: 15px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .message {
-            padding: 10px 15px;
-            border-radius: 18px;
-            max-width: 80%;
-            word-break: break-word;
-        }
-
-        .message.self {
-            align-self: flex-end;
-            background: var(--secondary);
-            color: white;
-        }
-
-        .message.other {
-            align-self: flex-start;
-            background: #e9ecef;
-            color: var(--dark);
-        }
-
-        .message-sender {
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .chat-input {
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 24px;
-            font-size: 1rem;
-        }
-
-        .student-info {
-            margin-top: 20px;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            border-left: 4px solid var(--secondary);
-        }
-
-        .students-list {
-            margin-top: 20px;
-            max-height: 300px;
-            overflow-y: auto;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 15px;
-        }
-
-        .student-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background: white;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .student-item.connected {
-            border-color: var(--success);
-            background: rgba(76, 175, 80, 0.05);
-        }
-
-        .student-item.selected {
-            border-color: var(--secondary);
-            background: rgba(92, 128, 188, 0.1);
-        }
-
-        .student-name {
-            flex: 1;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .student-status {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--gray);
-        }
-
-        .student-status.connected {
-            background: var(--success);
-            box-shadow: 0 0 4px var(--success);
-        }
-
-        .student-actions {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-
-        .student-action-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            cursor: pointer;
-            border: none;
-            color: white;
-            background: var(--gray);
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .student-action-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .student-action-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .student-action-btn.active {
-            box-shadow: 0 0 8px rgba(0,0,0,0.3);
-        }
-
-        /* Colores específicos por acción */
-        .action-connect {
-            background: var(--secondary);
-        }
-
-        .action-microphone {
-            background: var(--success);
-        }
-
-        .action-microphone.active {
-            background: var(--accent);
-        }
-
-        .action-speaker {
-            background: var(--warning);
-        }
-
-        .action-speaker.muted {
-            background: var(--gray);
-        }
-
-        .action-desktop {
-            background: var(--secondary);
-        }
-
-        .action-desktop.active {
-            background: var(--primary);
-        }
-
-        .action-chat {
-            background: var(--secondary);
-        }
-
-        .action-chat.active {
-            background: var(--primary);
-        }
-
-        .action-close {
-            background: var(--accent);
-        }
-
-        .log-container {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            background: #e9ecef;
-            height: 150px;
-            overflow-y: auto;
-            font-size: 0.8rem;
-            color: var(--dark);
-        }
-
-        .log-message {
-            margin-bottom: 5px;
-            line-height: 1.4;
-            color: var(--gray);
-        }
-
-        .tooltip {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s;
-            z-index: 1000;
-        }
-
-        .student-action-btn:hover .tooltip {
-            opacity: 1;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
 </head>
+
+<style>
+    :root {
+    --primary-color: #FF4757;
+    --secondary-color: #2ed573;
+    --bg-light: #f8f9fa;
+    --card-bg: #ffffff;
+    --text-dark: #2f3542;
+    --text-muted: #6c757d;
+    --border-color: #dee2e6;
+    --piano-bg: #1e1e1e;
+    --piano-height: 110px; /* Antes era 150px, lo hacemos más compacto */
+    --key-white-height: 100%; /* Ahora ocuparán todo el alto del contenedor */
+    --key-black-height: 60%;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-light);
+    color: var(--text-dark);
+    overflow: hidden;
+}
+
+.professor-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ==================== HEADER ==================== */
+.professor-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #ff6b81 100%);
+    color: white;
+    padding: 15px 25px;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.2);
+    flex-shrink: 0;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 100%;
+}
+
+.professor-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.midi-status-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.midi-indicator {
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+}
+
+.midi-indicator i {
+    font-size: 8px;
+}
+
+.midi-indicator.connected {
+    background: rgba(46, 213, 115, 0.3);
+}
+
+.midi-indicator.connected i {
+    animation: pulse-midi 1.5s infinite;
+}
+
+@keyframes pulse-midi {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* ==================== MAIN LAYOUT ==================== */
+.main-layout {
+    display: grid;
+    /* CAMBIO AQUÍ: Reduce de 380px a 260px */
+    grid-template-columns: 1fr 290px; 
+    gap: 0;
+    flex: 1;
+    overflow: hidden;
+    height: calc(100vh - 70px);
+}
+
+/* ==================== MAIN CENTER ==================== */
+.main-center {
+    background: white;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+
+.students-section {
+    background: white;
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 0; /* Padding arriba/abajo, 0 a los lados para que el scroll llegue al borde */
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0; 
+}
+
+.section-header {
+    padding: 0 20px; /* Padding solo para el título */
+    margin-bottom: 10px;
+}
+
+.section-header h2 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-header i {
+    color: var(--primary-color);
+}
+
+.student-info-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 8px 16px;
+    background: var(--bg-light);
+    border-radius: 20px;
+}
+
+.student-info-badge.active {
+    background: rgba(46, 213, 115, 0.1);
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+.students-grid {
+    display: flex; /* Flex en fila */
+    flex-direction: row; /* Horizontal */
+    overflow-x: auto; /* Scroll horizontal */
+    overflow-y: hidden;
+    gap: 15px;
+    padding: 10px 20px 20px 20px; /* Espacio para la sombra de abajo */
+    scroll-behavior: smooth;
+    /* Ocultar barra de scroll en Firefox */
+    scrollbar-width: thin; 
+}
+
+.students-grid::-webkit-scrollbar {
+    height: 8px; /* Altura de la barra horizontal */
+}
+.students-grid::-webkit-scrollbar-track {
+    background: transparent;
+}
+.students-grid::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 4px;
+}
+.students-grid::-webkit-scrollbar-thumb:hover {
+    background: #bbb;
+}
+
+.student-item {
+    /* Dimensiones fijas para la tarjeta */
+    min-width: 220px; 
+    width: 220px;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.student-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    border-color: var(--primary-color);
+}
+
+.student-item.connected {
+    border-color: var(--secondary-color);
+    background: linear-gradient(to bottom, #fff 0%, rgba(46, 213, 115, 0.05) 100%);
+}
+
+.student-item.selected {
+    border-color: var(--primary-color);
+    background: linear-gradient(to bottom, #fff 0%, rgba(255, 71, 87, 0.05) 100%);
+    box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.1);
+}
+
+.student-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.student-name {
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-dark);
+}
+
+.student-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+}
+
+.student-status.connected {
+    background: var(--secondary-color);
+    box-shadow: 0 0 8px rgba(46, 213, 115, 0.5);
+    animation: pulse-status 2s infinite;
+}
+
+@keyframes pulse-status {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.card-avatar-container {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.card-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    background: #eee;
+}
+
+.card-status-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 14px;
+    height: 14px;
+    background: #ccc;
+    border: 2px solid white;
+    border-radius: 50%;
+}
+.card-status-dot.connected {
+    background: var(--secondary-color);
+    box-shadow: 0 0 5px rgba(46, 213, 115, 0.6);
+}
+
+/* Info del Estudiante */
+.card-info {
+    text-align: center;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.card-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg-light);
+    padding: 4px 8px;
+    border-radius: 12px;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.card-lesson {
+    font-size: 12px;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.student-actions {
+    margin-top: auto; /* Empuja los botones al final */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--bg-light);
+}
+
+.student-action-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+}
+
+.student-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.student-action-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.action-connect {
+    background: var(--primary-color);
+}
+
+.action-microphone {
+    background: var(--secondary-color);
+}
+
+.action-microphone.active {
+    background: var(--primary-color);
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
+}
+
+.action-speaker {
+    background: #ff9800;
+}
+
+.action-speaker.muted {
+    background: var(--text-muted);
+}
+
+.action-desktop {
+    background: #5c80bc;
+}
+
+.action-desktop.active {
+    background: var(--primary-color);
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
+}
+
+.action-piano {
+    background: #6c5ce7;
+}
+
+.action-piano.active {
+    background: var(--primary-color);
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
+    animation: pulse-piano 1.5s infinite;
+}
+
+@keyframes pulse-piano {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+.action-chat {
+    background: #5c80bc;
+}
+
+.action-chat.active {
+    background: var(--primary-color);
+}
+
+.action-close {
+    background: var(--primary-color);
+}
+
+
+.piano-section {
+    flex: 0 0 auto; 
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px; /* Padding un poco más pequeño */
+    overflow: hidden;
+    background: var(--bg-light);
+    border-top: 1px solid var(--border-color); /* Opcional: separador visual */
+}
+
+.piano-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.piano-header-bar h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.piano-header-bar i {
+    color: var(--primary-color);
+}
+
+.piano-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.transmission-badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    background: var(--text-muted);
+    color: white;
+    border-radius: 20px;
+}
+
+.transmission-badge.active {
+    background: var(--secondary-color);
+    box-shadow: 0 0 15px rgba(46, 213, 115, 0.4);
+    animation: pulse-badge 1.5s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.piano-wrapper {
+    /* flex: 1;  <-- ELIMINA ESTO */
+    height: var(--piano-height, 180px); /* Usa una altura fija */
+    background: var(--piano-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0; /* Evita que se aplaste si falta espacio */
+    margin-top: auto; /* Opcional: para centrarlo visualmente si sobra espacio */
+    margin-bottom: auto;
+}
+
+#piano-top-casing {
+    position: relative;
+    width: 100%;
+    height: 25px;
+    background: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.casing-note-label {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 3px 10px;
+    border-radius: 4px;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 20;
+}
+
+#piano-container {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: #1a1a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 0;
+}
+
+#piano-container::-webkit-scrollbar {
+    height: 8px;
+    background: #222;
+}
+
+#piano-container::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
+}
+
+#piano-keys {
+    position: relative;
+    display: flex;
+    height: 100%;
+    padding: 0 10px; /* Quitamos el padding vertical excesivo */
+    align-items: flex-start; /* IMPORTANTE: Cambia de flex-end a flex-start */
+}
+
+
+.piano-key {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.05s ease;
+    border: 1px solid #999;
+    flex-shrink: 0;
+}
+
+.piano-key.white {
+    width: 18px; /* ANTES: 40px -> AHORA: 18px (Esto permite ver más octavas) */
+    height: 100%;
+    background: linear-gradient(to bottom, #ffffff 0%, #f5f5f5 100%);
+    border-radius: 0 0 3px 3px; /* Bordes más sutiles */
+    z-index: 1;
+    border-right: 1px solid #ccc;
+    box-shadow: inset 0 -2px 5px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.piano-key.white:hover {
+    background: linear-gradient(to bottom, #f8f8f8 0%, #e8e8e8 100%);
+}
+
+.piano-key.white.active {
+    background: var(--primary-color) !important;
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.6), inset 0 2px 5px rgba(0, 0, 0, 0.3);
+    transform: translateY(1px);
+}
+
+.piano-key.black {
+    width: 12px; /* ANTES: 24px -> AHORA: 12px */
+    height: 60%;
+    background: linear-gradient(to bottom, #1a1a1a 0%, #000000 100%);
+    
+    /* Ajuste de márgenes para centrar la tecla negra (mitad del ancho) */
+    margin-left: -6px; 
+    margin-right: -6px;
+    
+    z-index: 2;
+    border-radius: 0 0 2px 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+}
+
+.piano-key.black:hover {
+    background: linear-gradient(to bottom, #2a2a2a 0%, #0a0a0a 100%);
+}
+
+.piano-key.black.active {
+    background: var(--primary-color) !important;
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.6), inset 0 2px 5px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ==================== RIGHT SIDEBAR ==================== */
+.right-sidebar {
+    background: white;
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* TABS */
+.sidebar-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border-color);
+    background: var(--bg-light);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 71, 87, 0.05);
+    color: var(--text-dark);
+}
+
+.tab-btn.active {
+    background: white;
+    color: var(--primary-color);
+    border-bottom: 3px solid var(--primary-color);
+}
+
+.tab-content {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+/* CHAT TAB */
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--bg-light);
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
+
+.message {
+    padding: 12px 16px;
+    border-radius: 16px;
+    max-width: 80%;
+    word-break: break-word;
+    font-size: 14px;
+    line-height: 1.5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.message.self {
+    align-self: flex-end;
+    background: var(--primary-color);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message.other {
+    align-self: flex-start;
+    background: white;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
+    border-bottom-left-radius: 4px;
+}
+
+.message-sender {
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.message.self .message-sender {
+    opacity: 0.9;
+}
+
+.message.other .message-sender {
+    color: var(--primary-color);
+}
+
+.chat-input-container {
+    padding: 15px;
+    background: white;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 10px;
+}
+
+#chatInput {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 24px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+#chatInput:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.1);
+}
+
+#chatInput:disabled {
+    background: var(--bg-light);
+    cursor: not-allowed;
+}
+
+.send-button {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: var(--secondary-color);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(46, 213, 115, 0.3);
+}
+
+.send-button:hover {
+    background: #26d07c;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(46, 213, 115, 0.4);
+}
+
+.send-button:disabled {
+    background: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.5;
+    transform: none;
+    box-shadow: none;
+}
+
+/* FILES TAB */
+.files-upload-zone {
+    padding: 20px;
+    background: white;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.upload-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+    background: #ff3344;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+}
+
+.files-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: var(--bg-light);
+}
+
+.files-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.files-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.file-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.file-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--bg-light);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--primary-color);
+}
+
+.file-info {
+    flex: 1;
+}
+
+.file-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+}
+
+.file-size {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.file-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.file-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    background: var(--bg-light);
+    color: var(--text-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.file-action-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* ==================== TOOLTIP ==================== */
+.tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 1000;
+    font-weight: 600;
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.85);
+}
+
+.student-action-btn:hover .tooltip {
+    opacity: 1;
+}
+
+
+@media (max-width: 768px) {
+    .main-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .right-sidebar {
+        display: none;
+    }
+
+    .students-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+
+}
+
+/* ==================== MODAL DRAGGABLE ==================== */
+/* ==================== MODAL DRAGGABLE (MÚLTIPLES) ==================== */
+.pdf-modal {
+    position: fixed;
+    top: 10%;
+    left: 10%;
+    width: 480px;
+    height: 530px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    display: none;
+    flex-direction: column;
+    z-index: 2000; /* Se incrementará dinámicamente */
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+}
+
+.pdf-modal.active {
+    display: flex;
+}
+
+/* Clase para el modal que está al frente */
+.pdf-modal.focused {
+    z-index: 3000;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.4);
+    border-color: var(--primary-color);
+}
+
+/* Header cambia cuando está enfocado */
+.pdf-modal.focused .pdf-modal-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #ff3344 100%);
+}
+
+.pdf-modal-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #ff6b81 100%);
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+    user-select: none;
+}
+
+.pdf-modal-header h4 {
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.pdf-modal-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.pdf-modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.pdf-modal-body {
+    flex: 1;
+    background: #eee;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.pdf-modal-body iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: none; /* Oculto por defecto, se muestra solo para imágenes/otros */
+}
+
+.pdf-viewer-container {
+    flex: 1;
+    display: none; /* Se muestra solo para PDFs */
+    flex-direction: column;
+    background: #525659;
+    overflow: hidden;
+}
+
+.pdf-viewer-container.active {
+    display: flex;
+}
+
+.pdf-toolbar {
+    background: #2d2d2d;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid #444;
+    flex-shrink: 0;
+}
+
+.pdf-toolbar-left,
+.pdf-toolbar-center,
+.pdf-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pdf-toolbar-center {
+    flex: 1;
+    justify-content: center;
+}
+
+.pdf-tool-btn {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.pdf-tool-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.pdf-tool-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+}
+
+.pdf-tool-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.pdf-page-info {
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0 10px;
+    white-space: nowrap;
+}
+
+.pdf-zoom-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pdf-zoom-display {
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 50px;
+    text-align: center;
+}
+
+.color-picker-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 2px solid white;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.color-picker-input {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.pdf-canvas {
+    display: block;
+    cursor: crosshair;
+}
+
+.annotation-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: crosshair;
+}
+
+.modal-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: none;
+}
+
+.pdf-canvas-container {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    position: relative;
+}
+
+.pdf-canvas-wrapper {
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    background: white;
+}
+
+#pdfCanvas {
+    display: block;
+    cursor: crosshair;
+}
+
+#annotationCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: crosshair;
+}
+
+.annotation-cursor-pen {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="2" fill="black"/></svg>') 10 10, crosshair;
+}
+
+.annotation-cursor-eraser {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect x="5" y="5" width="10" height="10" fill="white" stroke="black"/></svg>') 10 10, crosshair;
+}
+
+/* Overlay oscuro cuando hay modal */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1999;
+    display: none;
+}
+
+.modal-backdrop.active {
+    display: block;
+}
+
+</style>
 <body>
-<div class="container">
-    <header>
-        <h1><i class="fas fa-chalkboard-teacher"></i> Panel del Profesor - Mozart Academy</h1>
-    </header>
-
-    <div class="content">
-        <div class="panel">
-            <h2 class="panel-title"><i class="fas fa-users"></i> Gestión de Estudiantes</h2>
-
-            <div id="studentsContainer" class="students-list">
-                <!-- Los estudiantes se cargarán dinámicamente aquí -->
-            </div>
-
-            <div class="global-controls">
-                <h3><i class="fas fa-broadcast-tower"></i> Transmisión Global</h3>
-                <div class="audio-control">
-                    <button id="toggleAudioBroadcast" class="btn-audio">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                    <button id="toggleScreenBroadcast" class="btn-video">
-                        <i class="fas fa-desktop"></i>
-                    </button>
-                </div>
-                <div id="broadcastStatus" class="broadcast-status">
-                    Audio y pantalla desactivados
+    <div class="professor-container">
+        
+        <!-- HEADER -->
+        <header class="professor-header">
+            <div class="header-content">
+                <h1>
+                    <i class="fas fa-chalkboard-teacher"></i> 
+                   Mozart Academy
+                </h1>
+                <div class="midi-status-header">
+                    <span id="midiHeaderStatus" class="midi-indicator">
+                        <i class="fas fa-circle"></i> Sin piano MIDI
+                    </span>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <div class="panel">
-            <h2 class="panel-title"><i class="fas fa-comments"></i> Chat con el Alumno</h2>
+        <!-- MAIN LAYOUT -->
+        <div class="main-layout">
+            
+            <!-- MAIN CENTER: STUDENTS + PIANO -->
+            <main class="main-center">
+                
+                <!-- STUDENTS SECTION -->
+                <section class="students-section">
+                    <div class="section-header">
+                        <h2>
+                            <i class="fas fa-users"></i> 
+                            Alumnos Conectados
+                        </h2>
+                        <div class="student-info-badge" id="selectedStudentInfo">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Selecciona un alumno para iniciar</span>
+                        </div>
+                    </div>
+                    
+                    <div id="studentsContainer" class="students-grid">
+                        <!-- Los estudiantes se cargarán dinámicamente aquí -->
+                    </div>
+                </section>
 
-            <div id="studentInfo" class="student-info">
-                <p><i class="fas fa-info-circle"></i> Selecciona un alumno para chatear</p>
-            </div>
-
-            <div class="chat-container">
-                <div id="chatLog" class="chat-log">
-                </div>
-
-                <div class="chat-input">
-                    <input id="input" type="text" placeholder="Escribe tu mensaje..." disabled />
-                    <button id="sendBtn" class="btn btn-success" disabled>
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-
-            <h2 class="panel-title" style="margin-top: 20px;"><i class="fas fa-clipboard-list"></i> Log de Eventos</h2>
-            <div id="eventLog" class="log-container">
-            </div>
+                <!-- PIANO SECTION -->
+              <section class="piano-section">
+    <div class="piano-header-bar">
+        <h3><i class="fas fa-piano"></i> Piano Virtual</h3>
+        <div class="piano-controls">
+            <span id="transmissionStatus" class="transmission-badge">
+                Transmisión inactiva
+            </span>
         </div>
     </div>
-</div>
 
-<script>
-  // Configuración Firebase
+    <div class="piano-wrapper">
+        <div id="piano-top-casing"></div>
+        <div id="piano-container">
+            <div id="piano-keys"></div>
+        </div>
+    </div>
+</section>
+                
+            </main>
+            <aside class="right-sidebar">
+                <div class="sidebar-tabs">
+                    <button class="tab-btn active" data-tab="chat">
+                        <i class="fas fa-comments"></i> Chat
+                    </button>
+                    <button class="tab-btn" data-tab="files">
+                        <i class="fas fa-folder"></i> Archivos
+                    </button>
+                </div>
+                <div class="tab-content active" id="chatTab">
+                    <div class="chat-messages" id="chatLog">
+                        <!-- Los mensajes aparecerán aquí -->
+                    </div>
+
+                    <div class="chat-input-container">
+                        <input 
+                            id="chatInput" 
+                            type="text" 
+                            placeholder="Escribe un mensaje..." 
+                            disabled 
+                        />
+                        <button id="sendBtn" class="send-button" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="tab-content" id="filesTab">
+                    <div class="files-upload-zone">
+                        <input type="file" id="fileInput" style="display: none;" multiple>
+                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            Subir Archivos
+                        </button>
+                    </div>
+                    
+                    <div class="files-list" id="filesList">
+                    </div>
+                </div>
+            </aside>
+        </div>
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
+  
+
+
+
+
+    </div>
+
+    <script >
+        // ==================== CONFIGURACIÓN FIREBASE ====================
 const fb_config = {
-    apiKey: "AIzaSyCiYZ-_3zXQCu6DIyOd_HRGLCS3s6bIYiE",
+    apiKey: "AIzaSyCiYZ-_3zXQCu6DIkOd_HRGLCS3s6bIYiE",
     authDomain: "jcubic-webrtc.firebaseapp.com",
     databaseURL: "https://jcubic-webrtc.firebaseio.com",
     projectId: "jcubic-webrtc",
@@ -505,62 +1332,777 @@ const usersRef = db.ref(`${room}/users`);
 const signalsRef = db.ref(`${room}/signals`);
 const chatsRef = db.ref(`${room}/chats`);
 
+// ==================== VARIABLES GLOBALES ====================
 let myId = "profesor-" + Math.floor(Math.random() * 10000);
-let myName = "Profesor " + myId.split('-')[1];
+let myName = "Profesor";
 let localStream = null;
-let screenStream = null;
 let peers = {};
-let studentAudioTracks = {};
 let selectedStudent = null;
 let connectedStudents = {};
-let studentConnections = {}; // Para rastrear el estado de cada conexión
-let globalAudioEnabled = false;
-let globalScreenEnabled = false;
-let individualStreams = {}; // Para streams individuales por estudiante
+let studentConnections = {};
 
-// Event listeners
+// Variables MIDI
+let midiAccess = null;
+let midiInput = null;
+let midiTransmissionEnabled = false;
+let activeMidiStudent = null;
+
+// Variables Piano Visual
+let sampler = null;
+let activeNotes = {};
+
+let individualAudioStreams = {};
+let individualScreenStreams = {};
+
+
+let pdfDoc = null;
+let currentPageNum = 1;
+let totalPagesNum = 0;
+let pdfScale = 0.75;
+let currentTool = 'pen';
+let currentColor = '#FF4757';
+let isDrawing = false;
+let lastX = 0;
+let lastY = 0;
+let annotations = {}; 
+
+let openModals = {}; // { modalId: { element, pdfDoc, annotations, etc. } }
+let modalCounter = 0;
+let highestZIndex = 2000;
+
+// ==================== INICIALIZACIÓN ====================
 document.addEventListener('DOMContentLoaded', function() {
+    // Chat
     document.getElementById("sendBtn").addEventListener("click", sendMessage);
-    document.getElementById("input").addEventListener("keypress", e => {
+    document.getElementById("chatInput").addEventListener("keypress", e => {
         if (e.key === "Enter") sendMessage();
     });
-    document.getElementById("toggleAudioBroadcast").addEventListener("click", toggleGlobalAudio);
-    document.getElementById("toggleScreenBroadcast").addEventListener("click", toggleGlobalScreen);
     
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    // Files
+    document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+
     init();
 });
 
 async function init() {
     try {
-        // Inicializar stream local básico
-        localStream = await navigator.mediaDevices.getUserMedia({ 
-            audio: true, 
-            video: false 
-        });
-        localStream.getAudioTracks().forEach(track => {
-            track.enabled = false; // Inicialmente deshabilitado
+        // Stream básico (silencioso)
+        localStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: false
         });
         
+        localStream.getAudioTracks().forEach(track => {
+            track.enabled = false;
+        });
+
+        // Registrar en Firebase
         usersRef.child(myId).set({ id: myId, role: "master", name: myName });
         usersRef.child(myId).onDisconnect().remove();
 
+        // Listeners
         listenForStudents();
         listenForSignals();
         
-        logEvent('Sistema iniciado. Esperando estudiantes...');
-        updateBroadcastStatus();
+        // Inicializar piano y MIDI
+        await initPianoVisual();
+        await initMIDI();
+        loadSampleFiles();
+        
     } catch (error) {
         console.error("Error al inicializar:", error);
-        logEvent('Error: No se pudo acceder al micrófono.');
+        alert('Error: No se pudo acceder al micrófono.');
     }
 }
 
+
+function loadSampleFiles() {
+    const sampleFiles = [
+        { 
+            name: "Partitura - Nocturno Op.9.pdf", 
+            type: "application/pdf", 
+            size: 1250000,
+            url: "https://storage.googleapis.com/mozartacademy-files/pdf/Level1%20-%20Unit1.pdf"
+        },
+        { 
+            name: "Mikrokosmos Vol1 - Bartok.pdf", 
+            type: "application/pdf", 
+            size: 850000,
+            url: "https://storage.googleapis.com/mozartacademy-files/pdf/Level1%20-%20Unit2.pdf"
+        },
+        { 
+            name: "Lectura de las Claves - Dandelot.pdf", 
+            type: "application/pdf", 
+            size: 1200000,
+            url: "https://dashboard.mozartacademy.mx/media/Lectura%20de%20las%20Claves%20-%20Dandelot.pdf"
+        },
+        { 
+            name: "Diagrama de Acordes", 
+            type: "image/jpeg", 
+            size: 320000,
+            url: "https://i.pinimg.com/originals/3d/8f/3e/3d8f3e3e3f3e3f3e3f3e3f3e3f3e3f3e.jpg"
+        }
+    ];
+    
+    sampleFiles.forEach(file => {
+        addPreloadedFileToList(file.name, file.type, file.size, file.url);
+    });
+}
+
+
+function addPreloadedFileToList(fileName, fileType, fileSize, fileUrl) {
+    const filesList = document.getElementById('filesList');
+    const fileItem = document.createElement('div');
+    fileItem.className = 'file-item';
+
+    const fileIcon = getFileIcon(fileType);
+    const fileSizeFormatted = formatFileSize(fileSize);
+    
+    // Guardar datos del archivo
+    fileItem.dataset.fileName = fileName;
+    fileItem.dataset.fileUrl = fileUrl;
+    fileItem.dataset.fileType = fileType;
+    fileItem.dataset.isPreloaded = 'true'; // Marcar como precargado
+
+    fileItem.innerHTML = `
+        <div class="file-icon">
+            <i class="${fileIcon}"></i>
+        </div>
+        <div class="file-info">
+            <div class="file-name">${fileName}</div>
+            <div class="file-size">${fileSizeFormatted}</div>
+        </div>
+        <div class="file-actions">
+            <button class="file-action-btn" onclick="openFileInModal(this)" title="Ver">
+                <i class="fas fa-eye"></i>
+            </button>
+            <button class="file-action-btn" onclick="removeFile(this)" title="Eliminar">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+
+    filesList.appendChild(fileItem);
+}
+
+// ==================== TABS ====================
+function switchTab(tabName) {
+    // Update buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+    }
+
+    // Update content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    const activeTab = document.getElementById(`${tabName}Tab`);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
+}
+
+// ==================== FILES ====================
+function handleFileUpload(event) {
+    const files = event.target.files;
+    for (let file of files) {
+        addFileToList(file);
+    }
+    event.target.value = ''; // Reset input
+}
+
+function addFileToList(file) {
+    const filesList = document.getElementById('filesList');
+    const fileItem = document.createElement('div');
+    fileItem.className = 'file-item';
+
+    const fileIcon = getFileIcon(file.type);
+    const fileSize = formatFileSize(file.size);
+    
+    // Crear URL temporal para el archivo
+    const fileUrl = URL.createObjectURL(file);
+    
+    // Guardar referencia del archivo
+    fileItem.dataset.fileName = file.name;
+    fileItem.dataset.fileUrl = fileUrl;
+    fileItem.dataset.fileType = file.type;
+
+    fileItem.innerHTML = `
+        <div class="file-icon">
+            <i class="${fileIcon}"></i>
+        </div>
+        <div class="file-info">
+            <div class="file-name">${file.name}</div>
+            <div class="file-size">${fileSize}</div>
+        </div>
+        <div class="file-actions">
+            <button class="file-action-btn" onclick="openFileInModal(this)" title="Ver">
+                <i class="fas fa-eye"></i>
+            </button>
+            <button class="file-action-btn" onclick="removeFile(this)" title="Eliminar">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+
+    filesList.appendChild(fileItem);
+}
+
+function getFileIcon(fileType) {
+    if (fileType.includes('pdf')) return 'fas fa-file-pdf';
+    if (fileType.includes('image')) return 'fas fa-file-image';
+    if (fileType.includes('audio')) return 'fas fa-file-audio';
+    if (fileType.includes('video')) return 'fas fa-file-video';
+    if (fileType.includes('word')) return 'fas fa-file-word';
+    if (fileType.includes('excel') || fileType.includes('spreadsheet')) return 'fas fa-file-excel';
+    return 'fas fa-file';
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// ==================== MODAL DRAGGABLE ====================
+function openFileInModal(btn) {
+    const fileItem = btn.closest('.file-item');
+    const fileName = fileItem.dataset.fileName;
+    const fileUrl = fileItem.dataset.fileUrl;
+    const fileType = fileItem.dataset.fileType;
+    
+    console.log(`📂 Abriendo archivo: ${fileName} (${fileType})`);
+    console.log(`🔗 URL: ${fileUrl}`);
+    
+    // Crear un ID único para este modal
+    const modalId = `modal-${modalCounter++}`;
+    
+    // Crear el modal dinámicamente
+    const modal = createModal(modalId, fileName);
+    document.body.appendChild(modal);
+    
+    console.log(`✅ Modal ${modalId} creado y agregado al DOM`);
+    
+    // Registrar el modal ANTES de configurarlo
+    openModals[modalId] = {
+        element: modal,
+        fileName: fileName,
+        fileType: fileType,
+        pdfDoc: null,
+        currentPage: 1,
+        totalPages: 0,
+        scale: 0.75,
+        annotations: {},
+        currentTool: 'pen',
+        currentColor: '#FF4757',
+        isDrawing: false
+    };
+    
+    // Mostrar modal
+    modal.classList.add('active');
+    focusModal(modalId);
+    
+    // ✅ Esperar un tick para que el navegador renderice el modal
+    setTimeout(() => {
+        // Configurar el modal según el tipo de archivo
+        if (fileType.includes('pdf')) {
+            setupPDFModal(modalId, fileUrl, fileName);
+        } else if (fileType.includes('image')) {
+            setupImageModal(modalId, fileUrl, fileName);
+        } else {
+            setupGenericModal(modalId, fileUrl, fileName);
+        }
+        
+        // Inicializar draggable
+        initModalDraggable(modalId);
+    }, 50);
+}
+
+
+function createModal(modalId, fileName) {
+    const modal = document.createElement('div');
+    modal.className = 'pdf-modal';
+    modal.id = modalId;
+    
+    // Posición inicial escalonada
+    const offset = (Object.keys(openModals).length * 30) % 200;
+    modal.style.top = `${10 + offset}px`;
+    modal.style.left = `${10 + offset}px`;
+    
+    modal.innerHTML = `
+        <div class="pdf-modal-header" data-modal-id="${modalId}">
+            <h4>
+                <i class="fas fa-file-alt"></i>
+                <span class="modal-title">${fileName}</span>
+            </h4>
+            <button class="pdf-modal-close" onclick="closeModalById('${modalId}')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="pdf-modal-body">
+            <!-- Visor PDF -->
+            <div class="pdf-viewer-container">
+                <div class="pdf-toolbar">
+                    <div class="pdf-toolbar-left">
+                        <button class="pdf-tool-btn active tool-pen" onclick="selectToolForModal('${modalId}', 'pen')" title="Lápiz">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button class="pdf-tool-btn tool-highlighter" onclick="selectToolForModal('${modalId}', 'highlighter')" title="Resaltador">
+                            <i class="fas fa-highlighter"></i>
+                        </button>
+                        <button class="pdf-tool-btn tool-eraser" onclick="selectToolForModal('${modalId}', 'eraser')" title="Borrador">
+                            <i class="fas fa-eraser"></i>
+                        </button>
+                        
+                        <div class="color-picker-btn" style="background: #FF4757;" title="Color">
+                            <input type="color" class="color-picker-input" value="#FF4757" onchange="changeColorForModal('${modalId}', this.value)">
+                        </div>
+                        
+                        <button class="pdf-tool-btn" onclick="clearAnnotationsForModal('${modalId}')" title="Limpiar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="pdf-toolbar-center">
+                        <button class="pdf-tool-btn btn-prev" onclick="changePageForModal('${modalId}', -1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span class="pdf-page-info">
+                            <span class="page-current">1</span> de <span class="page-total">1</span>
+                        </span>
+                        <button class="pdf-tool-btn btn-next" onclick="changePageForModal('${modalId}', 1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="pdf-toolbar-right">
+                        <div class="pdf-zoom-control">
+                            <button class="pdf-tool-btn" onclick="changeZoomForModal('${modalId}', -0.25)">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="pdf-tool-btn" onclick="changeZoomForModal('${modalId}', 0.25)">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <span class="pdf-zoom-display">75%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pdf-canvas-container">
+                    <div class="pdf-canvas-wrapper">
+                        <canvas class="pdf-canvas"></canvas>
+                        <canvas class="annotation-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Iframe para otros tipos -->
+            <iframe class="modal-iframe" style="display: none; width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    `;
+    
+    // Click en el modal lo trae al frente
+    modal.addEventListener('mousedown', () => focusModal(modalId));
+    
+    return modal;
+}
+
+
+async function setupPDFModal(modalId, url, fileName) {
+    const modalData = openModals[modalId];
+    const modal = modalData.element;
+    
+    try {
+        // ✅ Mostrar visor PDF y ocultar iframe
+        const pdfContainer = modal.querySelector('.pdf-viewer-container');
+        const iframe = modal.querySelector('.modal-iframe');
+        
+        pdfContainer.style.display = 'flex';
+        iframe.style.display = 'none';
+        
+        // Configurar PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        // Cargar PDF
+        const loadingTask = pdfjsLib.getDocument(url);
+        modalData.pdfDoc = await loadingTask.promise;
+        modalData.totalPages = modalData.pdfDoc.numPages;
+        
+        // Actualizar UI
+        modal.querySelector('.page-total').textContent = modalData.totalPages;
+        modal.querySelector('.page-current').textContent = '1';
+        modal.querySelector('.pdf-zoom-display').textContent = '75%';
+        
+        // Renderizar primera página
+        await renderPageForModal(modalId, 1);
+        
+        // Inicializar canvas de anotaciones
+        initAnnotationCanvasForModal(modalId);
+        
+        console.log(`✅ PDF cargado en ${modalId}:`, fileName);
+        
+    } catch (error) {
+        console.error('❌ Error al cargar PDF:', error);
+        alert('No se pudo cargar el PDF: ' + error.message);
+    }
+}
+
+function setupImageModal(modalId, url, fileName) {
+    const modal = openModals[modalId].element;
+    
+    modal.querySelector('.pdf-viewer-container').style.display = 'none';
+    const iframe = modal.querySelector('.modal-iframe');
+    iframe.style.display = 'block';
+    
+    iframe.srcdoc = `
+        <html>
+            <head>
+                <style>
+                    body { 
+                        margin: 0; 
+                        display: flex; 
+                        justify-content: center; 
+                        align-items: center; 
+                        background: #000; 
+                        height: 100vh;
+                    }
+                    img { 
+                        max-width: 100%; 
+                        max-height: 100vh; 
+                        object-fit: contain;
+                    }
+                </style>
+            </head>
+            <body>
+                <img src="${url}" alt="${fileName}">
+            </body>
+        </html>
+    `;
+}
+
+
+async function renderPageForModal(modalId, pageNum) {
+    const modalData = openModals[modalId];
+    if (!modalData || !modalData.pdfDoc) return;
+    
+    try {
+        const page = await modalData.pdfDoc.getPage(pageNum);
+        const viewport = page.getViewport({ scale: modalData.scale });
+        
+        const modal = modalData.element;
+        const canvas = modal.querySelector('.pdf-canvas');
+        const context = canvas.getContext('2d');
+        
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        
+        await page.render({
+            canvasContext: context,
+            viewport: viewport
+        }).promise;
+        
+        // Actualizar canvas de anotaciones
+        const annotationCanvas = modal.querySelector('.annotation-canvas');
+        annotationCanvas.width = viewport.width;
+        annotationCanvas.height = viewport.height;
+        
+        restoreAnnotationsForModal(modalId, pageNum);
+        updatePageButtonsForModal(modalId);
+        
+    } catch (error) {
+        console.error('Error al renderizar página:', error);
+    }
+}
+
+function updatePageButtonsForModal(modalId) {
+    const modalData = openModals[modalId];
+    const modal = modalData.element;
+    
+    modal.querySelector('.btn-prev').disabled = modalData.currentPage <= 1;
+    modal.querySelector('.btn-next').disabled = modalData.currentPage >= modalData.totalPages;
+}
+
+async function changePageForModal(modalId, delta) {
+    const modalData = openModals[modalId];
+    if (!modalData) return;
+    
+    const newPage = modalData.currentPage + delta;
+    if (newPage < 1 || newPage > modalData.totalPages) return;
+    
+    modalData.currentPage = newPage;
+    modalData.element.querySelector('.page-current').textContent = newPage;
+    
+    await renderPageForModal(modalId, newPage);
+}
+
+async function changeZoomForModal(modalId, delta) {
+    const modalData = openModals[modalId];
+    if (!modalData) return;
+    
+    modalData.scale += delta;
+    if (modalData.scale < 0.5) modalData.scale = 0.5;
+    if (modalData.scale > 3) modalData.scale = 3;
+    
+    modalData.element.querySelector('.pdf-zoom-display').textContent = 
+        Math.round(modalData.scale * 100) + '%';
+    
+    await renderPageForModal(modalId, modalData.currentPage);
+}
+
+function initAnnotationCanvasForModal(modalId) {
+    const modal = openModals[modalId].element;
+    const canvas = modal.querySelector('.annotation-canvas');
+    
+    canvas.addEventListener('mousedown', (e) => startDrawingForModal(modalId, e));
+    canvas.addEventListener('mousemove', (e) => drawForModal(modalId, e));
+    canvas.addEventListener('mouseup', () => stopDrawingForModal(modalId));
+    canvas.addEventListener('mouseleave', () => stopDrawingForModal(modalId));
+}
+
+function startDrawingForModal(modalId, e) {
+    const modalData = openModals[modalId];
+    modalData.isDrawing = true;
+    
+    const rect = e.target.getBoundingClientRect();
+    modalData.lastX = e.clientX - rect.left;
+    modalData.lastY = e.clientY - rect.top;
+}
+
+function drawForModal(modalId, e) {
+    const modalData = openModals[modalId];
+    if (!modalData.isDrawing) return;
+    
+    const modal = modalData.element;
+    const canvas = modal.querySelector('.annotation-canvas');
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    
+    const currentX = e.clientX - rect.left;
+    const currentY = e.clientY - rect.top;
+    
+    ctx.beginPath();
+    ctx.moveTo(modalData.lastX, modalData.lastY);
+    ctx.lineTo(currentX, currentY);
+    
+    if (modalData.currentTool === 'pen') {
+        ctx.strokeStyle = modalData.currentColor;
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.globalCompositeOperation = 'source-over';
+    } else if (modalData.currentTool === 'highlighter') {
+        ctx.strokeStyle = modalData.currentColor;
+        ctx.lineWidth = 15;
+        ctx.lineCap = 'round';
+        ctx.globalAlpha = 0.3;
+        ctx.globalCompositeOperation = 'source-over';
+    } else if (modalData.currentTool === 'eraser') {
+        ctx.lineWidth = 20;
+        ctx.globalCompositeOperation = 'destination-out';
+    }
+    
+    ctx.stroke();
+    ctx.globalAlpha = 1.0;
+    
+    modalData.lastX = currentX;
+    modalData.lastY = currentY;
+    
+    saveAnnotationForModal(modalId);
+}
+
+function stopDrawingForModal(modalId) {
+    if (openModals[modalId]) {
+        openModals[modalId].isDrawing = false;
+    }
+}
+
+function selectToolForModal(modalId, tool) {
+    const modalData = openModals[modalId];
+    modalData.currentTool = tool;
+    
+    const modal = modalData.element;
+    modal.querySelectorAll('.pdf-tool-btn').forEach(btn => btn.classList.remove('active'));
+    modal.querySelector(`.tool-${tool}`).classList.add('active');
+}
+
+function changeColorForModal(modalId, color) {
+    openModals[modalId].currentColor = color;
+}
+
+function saveAnnotationForModal(modalId) {
+    const modalData = openModals[modalId];
+    const canvas = modalData.element.querySelector('.annotation-canvas');
+    
+    if (!modalData.annotations[modalData.currentPage]) {
+        modalData.annotations[modalData.currentPage] = [];
+    }
+    modalData.annotations[modalData.currentPage] = canvas.toDataURL();
+}
+
+function restoreAnnotationsForModal(modalId, pageNum) {
+    const modalData = openModals[modalId];
+    const canvas = modalData.element.querySelector('.annotation-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    if (modalData.annotations[pageNum]) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0);
+        img.src = modalData.annotations[pageNum];
+    }
+}
+
+function clearAnnotationsForModal(modalId) {
+    if (!confirm('¿Borrar todas las anotaciones de esta página?')) return;
+    
+    const modalData = openModals[modalId];
+    const canvas = modalData.element.querySelector('.annotation-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    delete modalData.annotations[modalData.currentPage];
+}
+
+function setupGenericModal(modalId, url, fileName) {
+    const modal = openModals[modalId].element;
+    
+    modal.querySelector('.pdf-viewer-container').style.display = 'none';
+    const iframe = modal.querySelector('.modal-iframe');
+    iframe.style.display = 'block';
+    iframe.src = url;
+}
+
+function focusModal(modalId) {
+    // Remover focus de todos
+    Object.keys(openModals).forEach(id => {
+        const modal = openModals[id].element;
+        modal.classList.remove('focused');
+        modal.style.zIndex = 2000;
+    });
+    
+    // Dar focus al seleccionado
+    highestZIndex += 10;
+    const modal = openModals[modalId].element;
+    modal.style.zIndex = highestZIndex;
+    modal.classList.add('focused');
+}
+
+function closeModalById(modalId) {
+    if (!openModals[modalId]) return;
+    
+    const modal = openModals[modalId].element;
+    
+    // Remover del DOM
+    modal.remove();
+    
+    // Eliminar del registro
+    delete openModals[modalId];
+    
+    // ✅ Ocultar backdrop si no hay más modales
+    if (Object.keys(openModals).length === 0) {
+        const backdrop = document.getElementById('modalBackdrop');
+        backdrop.classList.remove('active');
+    }
+    
+    console.log(`❌ Modal cerrado: ${modalId}`);
+}
+
+function closeAllModals() {
+    Object.keys(openModals).forEach(modalId => {
+        closeModalById(modalId);
+    });
+}
+
+
+function initModalDraggable(modalId) {
+    const modal = openModals[modalId].element;
+    const header = modal.querySelector('.pdf-modal-header');
+
+    let isDragging = false;
+    let startX, startY, initialLeft, initialTop;
+
+    function dragStart(e) {
+        // Evitar arrastrar si se pulsa el botón de cerrar
+        if (e.target.closest('.pdf-modal-close')) return;
+        
+        // Traer al frente
+        focusModal(modalId);
+
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+
+        const rect = modal.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+
+        header.style.cursor = 'grabbing';
+
+        // IMPORTANTE: Añadimos los eventos al documento SOLO al empezar a arrastrar
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+    }
+
+    function dragEnd() {
+        isDragging = false;
+        header.style.cursor = 'move';
+        
+        // IMPORTANTE: Limpiamos los eventos al soltar para no afectar otros modales
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('mouseup', dragEnd);
+    }
+
+    function drag(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        modal.style.left = `${initialLeft + dx}px`;
+        modal.style.top = `${initialTop + dy}px`;
+    }
+
+    // Solo escuchamos el mousedown permanentemente en el header
+    header.addEventListener('mousedown', dragStart);
+}
+
+function downloadFile(btn) {
+    const fileItem = btn.closest('.file-item');
+    const fileName = fileItem.dataset.fileName;
+    const fileUrl = fileItem.dataset.fileUrl;
+    
+    const a = document.createElement('a');
+    a.href = fileUrl;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+function removeFile(btn) {
+    btn.closest('.file-item').remove();
+}
+
+// ==================== GESTIÓN DE ESTUDIANTES ====================
 function listenForStudents() {
     usersRef.on("value", snap => {
         const users = snap.val() || {};
         const studentsContainer = document.getElementById("studentsContainer");
-        
-        // Limpiar contenedor
+
         studentsContainer.innerHTML = '';
         connectedStudents = {};
         
@@ -571,15 +2113,14 @@ function listenForStudents() {
             }
         }
         
-        // Verificar si el estudiante seleccionado sigue conectado
+        // Limpiar selección si el estudiante se desconectó
         if (selectedStudent && !connectedStudents[selectedStudent]) {
             selectedStudent = null;
             updateStudentInfo(null);
-            document.getElementById("input").disabled = true;
-            document.getElementById("sendBtn").disabled = true;
+            disableChat();
         }
         
-        // Eliminar peers de estudiantes que ya no están conectados
+        // Limpiar peers de estudiantes desconectados
         for (let studentId in peers) {
             if (!connectedStudents[studentId]) {
                 cleanupStudentConnection(studentId);
@@ -590,72 +2131,91 @@ function listenForStudents() {
 
 function createStudentUI(studentId, name) {
     const studentsContainer = document.getElementById("studentsContainer");
-    
-    // Verificar si ya existe un elemento para este estudiante
     const existingElement = document.getElementById(`student-${studentId}`);
+    
     if (existingElement) {
         existingElement.remove();
     }
-    
+
+    // Datos simulados (En el futuro, sácalos de snapshot.val())
+    const niveles = ["Principiante", "Intermedio", "Avanzado"];
+    const lecciones = ["Escalas Mayores", "Acordes 7ma", "Nocturno Op.9", "Lectura Rítmica"];
+    // Generamos datos 'random' consistentes basados en el ID para que no cambien al refrescar
+    const randomLvl = niveles[studentId.charCodeAt(0) % 3];
+    const randomLesson = lecciones[studentId.charCodeAt(studentId.length-1) % 4];
+    // Avatar random (usando UI Avatars con el nombre)
+    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=128`;
+
     const isConnected = studentConnections[studentId]?.connected || false;
-    
+    const isSelected = selectedStudent === studentId;
+    const isMidiActive = activeMidiStudent === studentId;
+    const isAudioActive = individualAudioStreams[studentId]?.active || false;
+    const isScreenActive = individualScreenStreams[studentId]?.active || false;
+    const audioMuted = document.getElementById(`audio-${studentId}`)?.muted || false;
+
     const studentItem = document.createElement("div");
-    studentItem.className = `student-item ${isConnected ? 'connected' : ''}`;
+    studentItem.className = `student-item ${isConnected ? 'connected' : ''} ${isSelected ? 'selected' : ''}`;
     studentItem.id = `student-${studentId}`;
-    
+
     studentItem.innerHTML = `
-        <div class="student-name">
-            <div class="student-status ${isConnected ? 'connected' : ''}"></div>
-            ${name}
+        <div class="card-avatar-container">
+            <img src="${avatarUrl}" class="card-avatar" alt="${name}">
+            <div class="card-status-dot ${isConnected ? 'connected' : ''}"></div>
         </div>
+
+        <div class="card-info">
+            <div class="card-name">${name}</div>
+            <div class="card-meta">${randomLvl}</div>
+            <div class="card-lesson"><i class="fas fa-book-open"></i> ${randomLesson}</div>
+        </div>
+
         <div class="student-actions">
             ${!isConnected ? `
-                <button class="student-action-btn action-connect" onclick="connectToStudent('${studentId}')">
+                <button class="student-action-btn action-connect" onclick="connectToStudent('${studentId}')" title="Conectar">
                     <i class="fas fa-plug"></i>
-                    <div class="tooltip">Conectar</div>
                 </button>
             ` : `
-                <button class="student-action-btn action-microphone" onclick="toggleIndividualAudio('${studentId}')">
-                    <i class="fas fa-microphone${individualStreams[studentId] ? '' : '-slash'}"></i>
-                    <div class="tooltip">${individualStreams[studentId] ? 'Detener' : 'Enviar'} audio</div>
+                <button class="student-action-btn action-microphone ${isAudioActive ? 'active' : ''}" onclick="toggleIndividualAudio('${studentId}')" title="Micrófono">
+                    <i class="fas fa-microphone${isAudioActive ? '' : '-slash'}"></i>
                 </button>
-                <button class="student-action-btn action-speaker" onclick="toggleIncomingAudio('${studentId}')">
-                    <i class="fas fa-volume${document.getElementById(`audio-${studentId}`)?.muted ? '-mute' : '-up'}"></i>
-                    <div class="tooltip">${document.getElementById(`audio-${studentId}`)?.muted ? 'Activar' : 'Silenciar'} audio</div>
+                <button class="student-action-btn action-speaker ${audioMuted ? 'muted' : ''}" onclick="toggleIncomingAudio('${studentId}')" title="Audio">
+                    <i class="fas fa-volume${audioMuted ? '-mute' : '-up'}"></i>
                 </button>
-                <button class="student-action-btn action-desktop" onclick="toggleIndividualScreen('${studentId}')">
-                    <i class="fas fa-desktop${individualStreams[studentId]?.getVideoTracks().length > 0 ? '' : '-slash'}"></i>
-                    <div class="tooltip">${individualStreams[studentId]?.getVideoTracks().length > 0 ? 'Detener' : 'Compartir'} pantalla</div>
+                <button class="student-action-btn action-desktop ${isScreenActive ? 'active' : ''}" onclick="toggleIndividualScreen('${studentId}')" title="Pantalla">
+                    <i class="fas fa-desktop"></i>
                 </button>
-                <button class="student-action-btn action-chat ${selectedStudent === studentId ? 'active' : ''}" onclick="selectStudentForChat('${studentId}')">
+                <button class="student-action-btn action-piano ${isMidiActive ? 'active' : ''}" onclick="toggleMidiTransmission('${studentId}')" title="MIDI">
+                    <i class="fas fa-piano"></i>
+                </button>
+                <button class="student-action-btn action-chat ${isSelected ? 'active' : ''}" onclick="selectStudentForChat('${studentId}')" title="Chat">
                     <i class="fas fa-comment"></i>
-                    <div class="tooltip">Chat</div>
                 </button>
-                <button class="student-action-btn action-close" onclick="disconnectStudent('${studentId}')">
+                <button class="student-action-btn action-close" onclick="disconnectStudent('${studentId}')" title="Desconectar">
                     <i class="fas fa-times"></i>
-                    <div class="tooltip">Desconectar</div>
                 </button>
             `}
         </div>
     `;
-    
+
+    // Animación de entrada suave
+    studentItem.style.opacity = '0';
     studentsContainer.appendChild(studentItem);
+    
+    // Pequeño timeout para activar la transición de opacidad
+    setTimeout(() => {
+        studentItem.style.opacity = '1';
+    }, 10);
 }
 
 async function connectToStudent(studentId) {
-    logEvent(`Conectando con ${getStudentName(studentId)}...`);
+    console.log(`Conectando con ${getStudentName(studentId)}...`);
     startPeer(studentId, true);
 }
 
 function disconnectStudent(studentId) {
     cleanupStudentConnection(studentId);
-    
-    // Enviar señal de desconexión
     signalsRef.push({ from: myId, to: studentId, type: 'close' });
-    
-    logEvent(`Desconectado de ${getStudentName(studentId)}`);
-    
-    // Actualizar UI
+    console.log(`Desconectado de ${getStudentName(studentId)}`);
     createStudentUI(studentId, getStudentName(studentId));
 }
 
@@ -665,54 +2225,64 @@ function cleanupStudentConnection(studentId) {
         delete peers[studentId];
     }
     
-    if (studentAudioTracks[studentId]) {
-        studentAudioTracks[studentId].forEach(track => track.stop());
-        delete studentAudioTracks[studentId];
+    // Limpiar streams individuales
+    if (individualAudioStreams[studentId]?.stream) {
+        individualAudioStreams[studentId].stream.getTracks().forEach(track => track.stop());
+        delete individualAudioStreams[studentId];
     }
-    
-    if (individualStreams[studentId]) {
-        individualStreams[studentId].getTracks().forEach(track => track.stop());
-        delete individualStreams[studentId];
+
+    if (individualScreenStreams[studentId]?.stream) {
+        individualScreenStreams[studentId].stream.getTracks().forEach(track => track.stop());
+        delete individualScreenStreams[studentId];
     }
-    
+
     studentConnections[studentId] = { connected: false };
-    
-    // Remover elementos de audio
+
     const audioEl = document.getElementById(`audio-${studentId}`);
     if (audioEl) audioEl.remove();
-    
-    // Si era el estudiante seleccionado, limpiar selección
+
+    // Detener transmisión MIDI si estaba activa
+    if (activeMidiStudent === studentId) {
+        activeMidiStudent = null;
+        midiTransmissionEnabled = false;
+        updateTransmissionStatus();
+    }
+
     if (selectedStudent === studentId) {
         selectedStudent = null;
         updateStudentInfo(null);
-        document.getElementById("input").disabled = true;
-        document.getElementById("sendBtn").disabled = true;
+        disableChat();
     }
 }
 
 function selectStudentForChat(studentId) {
-    // Remover selección previa
     document.querySelectorAll('.student-item').forEach(item => {
         item.classList.remove('selected');
     });
     
-    // Actualizar selección
     selectedStudent = studentId;
-    document.getElementById(`student-${studentId}`).classList.add('selected');
+    
+    const studentElement = document.getElementById(`student-${studentId}`);
+    if (studentElement) {
+        studentElement.classList.add('selected');
+    }
+    
     updateStudentInfo(studentId);
-    
-    // Habilitar chat
-    document.getElementById("input").disabled = false;
-    document.getElementById("sendBtn").disabled = false;
-    
-    // Actualizar botón de chat
+    enableChat();
+
     document.querySelectorAll('.action-chat').forEach(btn => {
         btn.classList.remove('active');
     });
-    document.querySelector(`#student-${studentId} .action-chat`).classList.add('active');
     
-    // Cargar historial de chat
+    const chatBtn = document.querySelector(`#student-${studentId} .action-chat`);
+    if (chatBtn) {
+        chatBtn.classList.add('active');
+    }
+
     loadChatHistory(studentId);
+
+    // Switch to chat tab
+    switchTab('chat');
 }
 
 function loadChatHistory(studentId) {
@@ -721,6 +2291,7 @@ function loadChatHistory(studentId) {
     
     const chatId = [myId, studentId].sort().join('-');
     chatsRef.child(chatId).off();
+    
     chatsRef.child(chatId).on('child_added', snap => {
         const msg = snap.val();
         const senderName = msg.sender === myId ? "Tú" : getStudentName(msg.sender);
@@ -728,290 +2299,159 @@ function loadChatHistory(studentId) {
     });
 }
 
-
-
-async function toggleGlobalScreen() {
-    const btn = document.getElementById("toggleScreenBroadcast");
-
-    if (screenStream) {
-        // Detener compartir pantalla global
-        screenStream.getTracks().forEach(track => track.stop());
-        screenStream = null;
-
-        btn.classList.remove('active');
-        btn.innerHTML = '<i class="fas fa-desktop"></i>';
-        globalScreenEnabled = false;
-        logEvent('Compartir pantalla global detenido');
-
-        // Volver a agregar solo el audio del micrófono
-        const audioTrack = localAudioStream?.getAudioTracks()[0];
-        for (const studentId in peers) {
-            if (peers[studentId] && peers[studentId].connected) {
-                // quitar pantalla
-                const senders = peers[studentId].getSenders();
-                senders.forEach(sender => {
-                    if (sender.track && sender.track.kind === 'video') {
-                        peers[studentId].removeTrack(sender.track, screenStream);
-                    }
-                    if (sender.track && sender.track.kind === 'audio') {
-                        peers[studentId].removeTrack(sender.track, screenStream);
-                    }
-                });
-                // restaurar micrófono
-                if (audioTrack) {
-                    peers[studentId].addTrack(audioTrack, localAudioStream);
-                }
-            }
-        }
-    } else {
-        try {
-            // Capturar pantalla + audio
-            screenStream = await navigator.mediaDevices.getDisplayMedia({
-                video: true,
-                audio: true
-            });
-
-            btn.classList.add('active');
-            btn.innerHTML = '<i class="fas fa-stop"></i>';
-            globalScreenEnabled = true;
-            logEvent('Compartir pantalla global iniciado');
-
-            // Enviar pantalla a todos los estudiantes
-            for (const studentId in peers) {
-                if (peers[studentId] && peers[studentId].connected) {
-                    peers[studentId].addTrack(screenStream.getVideoTracks()[0], screenStream);
-
-                    const screenAudioTrack = screenStream.getAudioTracks()[0];
-                    if (screenAudioTrack) {
-                        peers[studentId].addTrack(screenAudioTrack, screenStream);
-                    }
-                }
-            }
-
-            // Auto-detener cuando el usuario cierra el sharing
-            screenStream.getVideoTracks()[0].onended = () => {
-                toggleGlobalScreen();
-            };
-
-        } catch (error) {
-            console.error("Error al compartir pantalla:", error);
-            logEvent('Error: No se pudo compartir la pantalla');
-        }
-    }
-}
-
-
-
-async function toggleGlobalAudio() {
-    const btn = document.getElementById("toggleAudioBroadcast");
-    if (!localStream) return;
-
-    // Invertir el estado de la transmisión global
-    globalAudioEnabled = !globalAudioEnabled;
-    
-    // Habilitar/deshabilitar el track de audio global
-    localStream.getAudioTracks().forEach(track => {
-        track.enabled = globalAudioEnabled;
-    });
-
-    // Actualizar el estilo del botón
-    btn.classList.toggle('active', globalAudioEnabled);
-    logEvent(`Transmisión de audio global ${globalAudioEnabled ? 'iniciada' : 'detenida'}`);
-
-    updateBroadcastStatus();
-    
-    // La clave: Forzar la renegociación para que los peers reciban el cambio.
-    // Aunque ya lo estás haciendo, asegúrate de que esto se ejecute en el contexto correcto.
-    for (const studentId in peers) {
-        if (peers[studentId] && peers[studentId].connected) {
-            peers[studentId].negotiate();
-        }
-    }
-}
-
-// **Función de audio individual corregida**
+// ==================== CONTROL DE AUDIO INDIVIDUAL ====================
 async function toggleIndividualAudio(studentId) {
-    const btn = document.querySelector(`#student-${studentId} .action-microphone`);
-    const isActive = btn.classList.contains('active');
-
-    if (!peers[studentId] || !peers[studentId].connected) return;
-
-    // Buscar el sender de audio en el peer
-    const sender = peers[studentId]._pc.getSenders().find(s => s.track && s.track.kind === 'audio');
+    if (!peers[studentId] || !peers[studentId].connected) {
+        alert('El alumno no está conectado');
+        return;
+    }
+    
+    const isActive = individualAudioStreams[studentId]?.active || false;
 
     if (!isActive) {
-        // Activar audio individual
         try {
-            if (!individualStreams[studentId]) {
-                individualStreams[studentId] = await navigator.mediaDevices.getUserMedia({ audio: true });
-            }
-
-            const audioTrack = individualStreams[studentId].getAudioTracks()[0];
-            if (audioTrack && sender) {
-                // Reemplazar la pista global por la individual
-                await sender.replaceTrack(audioTrack);
-            }
-            // Si no hay sender, significa que no había stream de audio.
-            // Esto podría ocurrir si toggleGlobalAudio nunca se ha activado.
-            else if (audioTrack) {
-                 peers[studentId].addTrack(audioTrack, individualStreams[studentId]);
-            }
-
-            btn.classList.add('active');
-            btn.querySelector('i').className = 'fas fa-microphone';
-            btn.querySelector('.tooltip').textContent = 'Detener audio';
-            logEvent(`Audio individual activado para ${getStudentName(studentId)}`);
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            
+            individualAudioStreams[studentId] = { stream: stream, active: true };
+            
+            const audioTrack = stream.getAudioTracks()[0];
+            peers[studentId].addTrack(audioTrack, stream);
+            
+            console.log(`🎤 Audio activado para ${getStudentName(studentId)}`);
+            createStudentUI(studentId, getStudentName(studentId));
+            
         } catch (error) {
-            console.error("Error activating individual audio:", error);
-            logEvent(`Error al activar audio para ${getStudentName(studentId)}`);
+            console.error('Error al activar audio:', error);
+            alert('No se pudo acceder al micrófono');
         }
     } else {
-        // Desactivar audio individual
-        if (individualStreams[studentId]) {
-            individualStreams[studentId].getAudioTracks().forEach(track => track.stop());
-            delete individualStreams[studentId];
-        }
-
-        // Si la transmisión global de audio está activa, re-envía esa pista.
-        // De lo contrario, reemplaza el track por null para silenciar.
-        if (sender) {
-            const trackToReplace = globalAudioEnabled ? localStream.getAudioTracks()[0] : null;
-            await sender.replaceTrack(trackToReplace);
-        }
-
-        btn.classList.remove('active');
-        btn.querySelector('i').className = 'fas fa-microphone-slash';
-        btn.querySelector('.tooltip').textContent = 'Enviar audio';
-        logEvent(`Audio individual desactivado para ${getStudentName(studentId)}`);
+        const stream = individualAudioStreams[studentId].stream;
+        
+        const senders = peers[studentId]._pc.getSenders();
+        senders.forEach(sender => {
+            if (sender.track && sender.track.kind === 'audio' && stream.getAudioTracks().includes(sender.track)) {
+                peers[studentId].removeTrack(sender.track, stream);
+            }
+        });
+        
+        stream.getTracks().forEach(track => track.stop());
+        delete individualAudioStreams[studentId];
+        
+        console.log(`🎤 Audio desactivado para ${getStudentName(studentId)}`);
+        createStudentUI(studentId, getStudentName(studentId));
     }
 }
 
-
-function toggleIncomingAudio(studentId) {
-    const btn = document.querySelector(`#student-${studentId} .action-speaker`);
-    const audioEl = document.getElementById(`audio-${studentId}`);
-    
-    if (audioEl) {
-        const isMuted = audioEl.muted;
-        audioEl.muted = !isMuted;
-        
-        if (audioEl.muted) {
-            btn.classList.add('muted');
-            btn.querySelector('i').className = 'fas fa-volume-mute';
-            btn.querySelector('.tooltip').textContent = 'Activar audio';
-        } else {
-            btn.classList.remove('muted');
-            btn.querySelector('i').className = 'fas fa-volume-up';
-            btn.querySelector('.tooltip').textContent = 'Silenciar audio';
-        }
-        
-        logEvent(`Audio de ${getStudentName(studentId)} ${audioEl.muted ? 'silenciado' : 'activado'}`);
-    }
-}
-
+// ==================== CONTROL DE PANTALLA INDIVIDUAL ====================
 async function toggleIndividualScreen(studentId) {
-    const btn = document.querySelector(`#student-${studentId} .action-desktop`);
-    const isActive = btn.classList.contains('active');
-
-    if (!peers[studentId] || !peers[studentId].connected) return;
-
-    // Buscar los senders de video y audio en el peer
-    const videoSender = peers[studentId]._pc.getSenders().find(s => s.track && s.track.kind === 'video');
-    const audioSender = peers[studentId]._pc.getSenders().find(s => s.track && s.track.kind === 'audio' && s.track.label.includes('screen'));
+    if (!peers[studentId] || !peers[studentId].connected) {
+        alert('El alumno no está conectado');
+        return;
+    }
+    
+    const isActive = individualScreenStreams[studentId]?.active || false;
 
     if (!isActive) {
-        // Activar pantalla individual
         try {
-            const individualScreenStream = await navigator.mediaDevices.getDisplayMedia({
-                video: true,
-                audio: true
+            const stream = await navigator.mediaDevices.getDisplayMedia({ 
+                video: true, 
+                audio: true 
             });
-            individualStreams[studentId] = individualScreenStream;
-
-            const videoTrack = individualScreenStream.getVideoTracks()[0];
-            const audioTrack = individualScreenStream.getAudioTracks()[0];
             
-            // Reemplazar los tracks globales por los individuales si existen
-            if (videoSender) { await videoSender.replaceTrack(videoTrack); }
-            if (audioSender) { await audioSender.replaceTrack(audioTrack); }
+            individualScreenStreams[studentId] = { stream: stream, active: true };
             
-            // Agregar nuevos tracks si no había una transmisión previa
-            if (!videoSender) { peers[studentId].addTrack(videoTrack, individualScreenStream); }
-            if (audioTrack && !audioSender) { peers[studentId].addTrack(audioTrack, individualScreenStream); }
-
-            // Manejar el fin de la transmisión por parte del usuario
+            const videoTrack = stream.getVideoTracks()[0];
+            const audioTrack = stream.getAudioTracks()[0];
+            
+            peers[studentId].addTrack(videoTrack, stream);
+            if (audioTrack) {
+                peers[studentId].addTrack(audioTrack, stream);
+            }
+            
             videoTrack.onended = () => {
                 toggleIndividualScreen(studentId);
             };
-
-            btn.classList.add('active');
-            btn.querySelector('.tooltip').textContent = 'Detener pantalla';
-            logEvent(`Pantalla compartida individualmente con ${getStudentName(studentId)}`);
-
+            
+            console.log(`🖥️ Pantalla compartida con ${getStudentName(studentId)}`);
+            createStudentUI(studentId, getStudentName(studentId));
+            
         } catch (error) {
-            console.error("Error sharing individual screen:", error);
-            logEvent(`Error al compartir pantalla con ${getStudentName(studentId)}`);
-        }
-    } else {
-        // Desactivar pantalla individual
-        if (individualStreams[studentId]) {
-            individualStreams[studentId].getTracks().forEach(track => track.stop());
-            delete individualStreams[studentId];
-        }
-
-        // Restablecer el estado del peer a la transmisión global (si está activa)
-        if (videoSender) {
-            const globalVideoTrack = globalScreenEnabled && screenStream ? screenStream.getVideoTracks()[0] : null;
-            await videoSender.replaceTrack(globalVideoTrack);
-        }
-
-        if (audioSender) {
-            const globalAudioTrack = globalScreenEnabled && screenStream ? screenStream.getAudioTracks()[0] : null;
-            await audioSender.replaceTrack(globalAudioTrack);
-        }
-        
-        btn.classList.remove('active');
-        btn.querySelector('.tooltip').textContent = 'Compartir pantalla';
-        logEvent(`Pantalla dejada de compartir con ${getStudentName(studentId)}`);
-    }
-}
-
-function updateAllPeersWithGlobalStream() {
-    for (const studentId in peers) {
-        if (peers[studentId] && peers[studentId].connected) {
-            try {
-                // Re-negociar stream global
-                peers[studentId].removeStream(peers[studentId].streams[0]);
-                peers[studentId].addStream(localStream);
-            } catch (error) {
-                console.error("Error updating peer stream:", error);
+            console.error('Error al compartir pantalla:', error);
+            if (error.name !== 'NotAllowedError') {
+                alert('No se pudo compartir la pantalla');
             }
         }
-    }
-}
-
-function updateBroadcastStatus() {
-    const statusEl = document.getElementById('broadcastStatus');
-    const statuses = [];
-    
-    if (globalAudioEnabled) statuses.push('Audio activo');
-    if (globalScreenEnabled) statuses.push('Pantalla activa');
-    
-    if (statuses.length === 0) {
-        statusEl.textContent = 'Audio y pantalla desactivados';
-        statusEl.classList.remove('active');
     } else {
-        statusEl.textContent = 'Transmitiendo: ' + statuses.join(' + ');
-        statusEl.classList.add('active');
+        const stream = individualScreenStreams[studentId].stream;
+        
+        const senders = peers[studentId]._pc.getSenders();
+        senders.forEach(sender => {
+            if (sender.track && stream.getTracks().includes(sender.track)) {
+                peers[studentId].removeTrack(sender.track, stream);
+            }
+        });
+        
+        stream.getTracks().forEach(track => track.stop());
+        delete individualScreenStreams[studentId];
+        
+        console.log(`🖥️ Compartir pantalla detenido para ${getStudentName(studentId)}`);
+        createStudentUI(studentId, getStudentName(studentId));
     }
 }
 
-// Funciones WebRTC
+function toggleIncomingAudio(studentId) {
+    const audioEl = document.getElementById(`audio-${studentId}`);
+    if (audioEl) {
+        audioEl.muted = !audioEl.muted;
+        createStudentUI(studentId, getStudentName(studentId));
+    }
+}
+
+function updateStudentInfo(studentId) {
+    const infoBox = document.getElementById('selectedStudentInfo');
+    
+    if (studentId) {
+        const isConnected = studentConnections[studentId]?.connected || false;
+        infoBox.innerHTML = `
+            <i class="fas fa-user"></i>
+            <span><strong>${getStudentName(studentId)}</strong> - ${isConnected ? 'Conectado' : 'Desconectado'}</span>
+        `;
+        infoBox.classList.add('active');
+    } else {
+        infoBox.innerHTML = `
+            <i class="fas fa-info-circle"></i>
+            <span>Selecciona un alumno para iniciar</span>
+        `;
+        infoBox.classList.remove('active');
+    }
+}
+
+function getStudentName(studentId) {
+    const student = connectedStudents[studentId];
+    return student ? (student.name || studentId) : studentId;
+}
+
+// ==================== WEBRTC ====================
 function startPeer(targetId, initiator) {
-    const peer = new SimplePeer({ 
-        initiator, 
-        stream: localStream, 
-        trickle: false 
+    const peer = new SimplePeer({
+        initiator,
+        stream: localStream,
+        trickle: false,
+        config: {
+            iceServers: [
+                { urls: "stun:stun.relay.metered.ca:80" },
+                { 
+                    urls: "turn:a.relay.metered.ca:80", 
+                    username: "fad444a63bcf5c8176a3e139", 
+                    credential: "MQm2u8W0l1TCVMm0" 
+                },
+                { 
+                    urls: "turn:a.relay.metered.ca:443", 
+                    username: "fad444a63bcf5c8176a3e139", 
+                    credential: "MQm2u8W0l1TCVMm0" 
+                }
+            ]
+        }
     });
     
     peers[targetId] = peer;
@@ -1023,7 +2463,7 @@ function startPeer(targetId, initiator) {
 
     peer.on("connect", () => {
         studentConnections[targetId].connected = true;
-        logEvent(`Conexión WebRTC establecida con ${getStudentName(targetId)}`);
+        console.log(`✅ Conexión WebRTC con ${getStudentName(targetId)}`);
         createStudentUI(targetId, getStudentName(targetId));
     });
 
@@ -1034,8 +2474,6 @@ function startPeer(targetId, initiator) {
                 if (selectedStudent === targetId) {
                     logChat(getStudentName(targetId), data.text);
                 }
-            } else if (data.type === 'controlResponse') {
-                handleControlResponse(targetId, data);
             }
         } catch (error) {
             console.error("Error parsing peer data:", error);
@@ -1043,9 +2481,8 @@ function startPeer(targetId, initiator) {
     });
 
     peer.on("stream", stream => {
-        logEvent(`Stream recibido de ${getStudentName(targetId)}`);
+        console.log(`Stream recibido de ${getStudentName(targetId)}`);
         
-        // Crear elemento de audio para el stream entrante
         let audioEl = document.getElementById(`audio-${targetId}`);
         if (!audioEl) {
             audioEl = document.createElement('audio');
@@ -1055,22 +2492,16 @@ function startPeer(targetId, initiator) {
             document.body.appendChild(audioEl);
         }
         audioEl.srcObject = stream;
-        
-        // Guardar tracks de audio para control
-        if (stream.getAudioTracks().length > 0) {
-            studentAudioTracks[targetId] = stream.getAudioTracks();
-        }
     });
 
     peer.on("close", () => {
         studentConnections[targetId] = { connected: false };
-        logEvent(`Conexión cerrada con ${getStudentName(targetId)}`);
+        console.log(`Conexión cerrada con ${getStudentName(targetId)}`);
         createStudentUI(targetId, getStudentName(targetId));
     });
 
     peer.on("error", (err) => {
         console.error("Error en peer:", err);
-        logEvent(`Error de conexión con ${getStudentName(targetId)}: ${err.message}`);
         studentConnections[targetId] = { connected: false };
         createStudentUI(targetId, getStudentName(targetId));
     });
@@ -1079,7 +2510,7 @@ function startPeer(targetId, initiator) {
 function listenForSignals() {
     signalsRef.on("child_added", snap => {
         const { from, to, data, type } = snap.val();
-        
+
         if (to === myId) {
             if (type === 'close') {
                 if (peers[from]) {
@@ -1096,36 +2527,20 @@ function listenForSignals() {
             }
         }
         
-        // Remover la señal procesada
         signalsRef.child(snap.key).remove();
     });
 }
 
-function handleControlResponse(studentId, data) {
-    if (data.command === 'toggleAudio') {
-        const btn = document.querySelector(`#student-${studentId} .action-microphone`);
-        if (btn) {
-            if (data.status === 'on') {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        }
-        logEvent(`Micrófono de ${getStudentName(studentId)}: ${data.status}`);
-    }
-}
-
-// Funciones de chat
+// ==================== CHAT ====================
 function sendMessage() {
     if (!selectedStudent) return;
     
-    const input = document.getElementById("input");
+    const input = document.getElementById("chatInput");
     const msg = input.value.trim();
     if (!msg) return;
 
     input.value = "";
-    
-    // Guardar en Firebase
+
     const chatId = [myId, selectedStudent].sort().join('-');
     const messageData = {
         text: msg,
@@ -1134,8 +2549,7 @@ function sendMessage() {
         recipient: selectedStudent
     };
     chatsRef.child(chatId).push(messageData);
-    
-    // Enviar via WebRTC si está conectado
+
     if (peers[selectedStudent] && peers[selectedStudent].connected) {
         peers[selectedStudent].send(JSON.stringify({ 
             type: 'chat', 
@@ -1157,38 +2571,264 @@ function logChat(sender, message) {
     chatLog.scrollTop = chatLog.scrollHeight;
 }
 
-function logEvent(message) {
-    const eventLog = document.getElementById("eventLog");
-    const logElement = document.createElement("div");
-    logElement.className = "log-message";
-    logElement.innerHTML = `
-        <strong>[${new Date().toLocaleTimeString()}]</strong> ${message}
-    `;
-    eventLog.appendChild(logElement);
-    eventLog.scrollTop = eventLog.scrollHeight;
+function enableChat() {
+    document.getElementById("chatInput").disabled = false;
+    document.getElementById("sendBtn").disabled = false;
 }
 
-function getStudentName(studentId) {
-    const student = connectedStudents[studentId];
-    return student ? (student.name || studentId) : studentId;
+function disableChat() {
+    document.getElementById("chatInput").disabled = true;
+    document.getElementById("sendBtn").disabled = true;
 }
 
-function updateStudentInfo(studentId) {
-    const studentInfo = document.getElementById('studentInfo');
-    if (studentId) {
-        const isConnected = studentConnections[studentId]?.connected || false;
-        const status = isConnected ? 
-            '<span style="color: var(--success);">● Conectado</span>' : 
-            '<span style="color: var(--gray);">● Desconectado</span>';
-        
-        studentInfo.innerHTML = `
-            <p><i class="fas fa-user"></i> <strong>Chat con:</strong> ${getStudentName(studentId)}</p>
-            <p><i class="fas fa-signal"></i> <strong>Estado:</strong> ${status}</p>
-        `;
+// ==================== MIDI ====================
+async function initMIDI() {
+    if (navigator.requestMIDIAccess) {
+        try {
+            midiAccess = await navigator.requestMIDIAccess();
+            console.log('✅ MIDI Acceso concedido');
+
+            const inputs = midiAccess.inputs.values();
+            for (let input of inputs) {
+                console.log(`🎹 Piano MIDI: ${input.name}`);
+                midiInput = input;
+                midiInput.onmidimessage = handleMIDIMessage;
+                updateMIDIStatus(true, input.name);
+            }
+
+            if (!midiInput) {
+                console.warn('⚠️ No se detectó piano MIDI');
+                updateMIDIStatus(false);
+            }
+
+            midiAccess.onstatechange = (e) => {
+                if (e.port.type === 'input') {
+                    if (e.port.state === 'connected') {
+                        console.log(`🔌 Piano conectado: ${e.port.name}`);
+                        midiInput = e.port;
+                        midiInput.onmidimessage = handleMIDIMessage;
+                        updateMIDIStatus(true, e.port.name);
+                    } else {
+                        console.log('🔌 Piano desconectado');
+                        updateMIDIStatus(false);
+                        if (midiTransmissionEnabled) {
+                            activeMidiStudent = null;
+                            midiTransmissionEnabled = false;
+                            updateTransmissionStatus();
+                        }
+                    }
+                }
+            };
+
+        } catch (err) {
+            console.error('❌ Error MIDI:', err);
+        }
     } else {
-        studentInfo.innerHTML = `
-            <p><i class="fas fa-info-circle"></i> Selecciona un alumno para chatear</p>
-        `;
+        console.warn('Web MIDI API no soportada');
     }
 }
-  </script>
+
+function updateMIDIStatus(connected, deviceName = '') {
+    const statusEl = document.getElementById('midiHeaderStatus');
+    if (connected) {
+        statusEl.innerHTML = `<i class="fas fa-circle"></i> Piano: ${deviceName}`;
+        statusEl.classList.add('connected');
+    } else {
+        statusEl.innerHTML = '<i class="fas fa-circle"></i> Sin piano MIDI';
+        statusEl.classList.remove('connected');
+    }
+}
+
+function handleMIDIMessage(message) {
+    const [command, note, velocity] = message.data;
+    const noteName = midiNoteToName(note);
+
+    // Reproducir visual local
+    if (command === 144 && velocity > 0) {
+        triggerNoteOn(noteName);
+    } else if (command === 128 || (command === 144 && velocity === 0)) {
+        triggerNoteOff(noteName);
+    }
+
+    // Enviar a alumno si está activo
+    if (midiTransmissionEnabled && activeMidiStudent) {
+        sendMIDIToStudent(activeMidiStudent, command === 144 && velocity > 0 ? 'noteOn' : 'noteOff', noteName, velocity);
+    }
+}
+
+function midiNoteToName(midiNote) {
+    const noteNames = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+    const octave = Math.floor(midiNote / 12) - 1;
+    const noteName = noteNames[midiNote % 12];
+    return `${noteName}${octave}`;
+}
+
+function sendMIDIToStudent(studentId, type, note, velocity) {
+    if (peers[studentId] && peers[studentId].connected) {
+        try {
+            const midiData = {
+                type: 'midi',
+                action: type,
+                note: note,
+                velocity: velocity,
+                timestamp: Date.now()
+            };
+            peers[studentId].send(JSON.stringify(midiData));
+        } catch (error) {
+            console.error('Error sending MIDI:', error);
+        }
+    }
+}
+
+function toggleMidiTransmission(studentId) {
+    if (!midiInput) {
+        alert('No hay piano MIDI conectado');
+        return;
+    }
+    
+    if (!studentConnections[studentId]?.connected) {
+        alert('El alumno no está conectado');
+        return;
+    }
+
+    if (activeMidiStudent === studentId) {
+        activeMidiStudent = null;
+        midiTransmissionEnabled = false;
+        console.log('🎹 Transmisión MIDI detenida');
+    } else {
+        activeMidiStudent = studentId;
+        midiTransmissionEnabled = true;
+        console.log(`🎹 Transmisión MIDI activa → ${getStudentName(studentId)}`);
+    }
+
+    updateTransmissionStatus();
+    createStudentUI(studentId, getStudentName(studentId));
+}
+
+function updateTransmissionStatus() {
+    const statusBadge = document.getElementById('transmissionStatus');
+    if (midiTransmissionEnabled && activeMidiStudent) {
+        statusBadge.textContent = `Transmitiendo a ${getStudentName(activeMidiStudent)}`;
+        statusBadge.classList.add('active');
+    } else {
+        statusBadge.textContent = 'Transmisión inactiva';
+        statusBadge.classList.remove('active');
+    }
+}
+
+// ==================== PIANO VISUAL ====================
+async function initPianoVisual() {
+    await Tone.start();
+    
+    sampler = new Tone.Sampler({
+        urls: {
+            A0: "A0.mp3", C1: "C1.mp3", "D#1": "Ds1.mp3", "F#1": "Fs1.mp3", A1: "A1.mp3",
+            C2: "C2.mp3", "D#2": "Ds2.mp3", "F#2": "Fs2.mp3", A2: "A2.mp3", C3: "C3.mp3",
+            "D#3": "Ds3.mp3", "F#3": "Fs3.mp3", A3: "A3.mp3", C4: "C4.mp3", "D#4": "Ds4.mp3",
+            "F#4": "Fs4.mp3", A4: "A4.mp3", C5: "C5.mp3", "D#5": "Ds5.mp3", "F#5": "Fs5.mp3",
+            A5: "A5.mp3", C6: "C6.mp3", "D#6": "Ds6.mp3", "F#6": "Fs6.mp3", A6: "A6.mp3",
+            C7: "C7.mp3", "D#7": "Ds7.mp3", "F#7": "Fs7.mp3", A7: "A7.mp3", C8: "C8.mp3"
+        },
+        release: 1,
+        baseUrl: "https://tonejs.github.io/audio/salamander/"
+    }).toDestination();
+
+    renderPianoKeys();
+}
+
+function renderPianoKeys() {
+    const container = document.getElementById('piano-keys');
+    if (!container) return;
+    
+    container.innerHTML = '';
+
+    const pattern = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+    const blackKeys = { 'C': 'Db', 'D': 'Eb', 'F': 'Gb', 'G': 'Ab', 'A': 'Bb' };
+
+    // ✅ Orden correcto: Octavas 1 a 7 (ascendente)
+    for (let octave = 1; octave <= 7; octave++) {
+        for (let i = 0; i <= 6; i++) {
+            const note = pattern[i];
+            const noteName = `${note}${octave}`;
+            
+            // Tecla Blanca
+            const whiteKey = document.createElement('div');
+            whiteKey.className = 'piano-key white';
+            whiteKey.dataset.note = noteName;
+            whiteKey.id = `key-${noteName}`;
+            container.appendChild(whiteKey);
+            
+            // Tecla Negra (solo después de C, D, F, G, A)
+            if (blackKeys[note]) {
+                const blackNoteName = `${blackKeys[note]}${octave}`;
+                const blackKey = document.createElement('div');
+                blackKey.className = 'piano-key black';
+                blackKey.dataset.note = blackNoteName;
+                blackKey.id = `key-${blackNoteName}`;
+                container.appendChild(blackKey);
+            }
+        }
+    }
+}
+
+function triggerNoteOn(noteName) {
+    if (activeNotes[noteName]) return;
+    
+    if (sampler && Tone.context.state === 'running') {
+        sampler.triggerAttack(noteName, Tone.now());
+    }
+
+    const key = document.getElementById(`key-${noteName}`);
+    if (key) {
+        key.classList.add('active');
+        createFloatingLabel(noteName, key);
+    }
+
+    activeNotes[noteName] = true;
+}
+
+function triggerNoteOff(noteName) {
+    if (!activeNotes[noteName]) return;
+    
+    if (sampler) {
+        sampler.triggerRelease(noteName);
+    }
+
+    const key = document.getElementById(`key-${noteName}`);
+    if (key) {
+        key.classList.remove('active');
+    }
+
+    removeFloatingLabel(noteName);
+    delete activeNotes[noteName];
+}
+
+function createFloatingLabel(noteName, keyElement) {
+    const casing = document.getElementById('piano-top-casing');
+    if (!casing) return;
+    
+    const keyRect = keyElement.getBoundingClientRect();
+    const casingRect = casing.getBoundingClientRect();
+    const keyCenterX = keyRect.left + (keyRect.width / 2);
+    const relativeX = keyCenterX - casingRect.left;
+
+    const lbl = document.createElement('div');
+    lbl.className = 'casing-note-label';
+    lbl.id = `lbl-${noteName}`;
+    lbl.textContent = noteName.replace(/[0-9]/g, '');
+    lbl.style.left = `${relativeX}px`;
+    casing.appendChild(lbl);
+}
+
+function removeFloatingLabel(noteName) {
+    const lbl = document.getElementById(`lbl-${noteName}`);
+    if (lbl) lbl.remove();
+}
+
+
+
+
+
+    </script>
+</body>
+</html>   
