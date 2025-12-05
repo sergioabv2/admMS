@@ -1,0 +1,1194 @@
+<html lang="es">
+<head>   
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master - Piano Academy</title>
+    <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.1/simplepeer.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3a506b;
+            --secondary: #5c80bc;
+            --accent: #ff6b6b;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --gray: #6c757d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .content {
+            padding: 25px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4a6db3;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #43a047;
+        }
+
+        .btn-danger {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff5252;
+        }
+
+        /* Controles globales de audio/video */
+        .global-controls {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid var(--warning);
+        }
+
+        .global-controls h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .audio-control {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn-audio, .btn-video {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gray);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+        }
+
+        .btn-audio:hover, .btn-video:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-audio.active {
+            background: var(--success);
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+        }
+
+        .btn-video.active {
+            background: var(--secondary);
+            box-shadow: 0 0 15px rgba(92, 128, 188, 0.5);
+        }
+
+        .btn-audio.active i {
+            animation: pulse-mic 1.5s infinite;
+        }
+
+        @keyframes pulse-mic {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .broadcast-status {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .broadcast-status.active {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+        }
+
+        .chat-log {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-break: break-word;
+        }
+
+        .message.self {
+            align-self: flex-end;
+            background: var(--secondary);
+            color: white;
+        }
+
+        .message.other {
+            align-self: flex-start;
+            background: #e9ecef;
+            color: var(--dark);
+        }
+
+        .message-sender {
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            font-size: 1rem;
+        }
+
+        .student-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .students-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
+        }
+
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .student-item.connected {
+            border-color: var(--success);
+            background: rgba(76, 175, 80, 0.05);
+        }
+
+        .student-item.selected {
+            border-color: var(--secondary);
+            background: rgba(92, 128, 188, 0.1);
+        }
+
+        .student-name {
+            flex: 1;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .student-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gray);
+        }
+
+        .student-status.connected {
+            background: var(--success);
+            box-shadow: 0 0 4px var(--success);
+        }
+
+        .student-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .student-action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            color: white;
+            background: var(--gray);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .student-action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .student-action-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .student-action-btn.active {
+            box-shadow: 0 0 8px rgba(0,0,0,0.3);
+        }
+
+        /* Colores específicos por acción */
+        .action-connect {
+            background: var(--secondary);
+        }
+
+        .action-microphone {
+            background: var(--success);
+        }
+
+        .action-microphone.active {
+            background: var(--accent);
+        }
+
+        .action-speaker {
+            background: var(--warning);
+        }
+
+        .action-speaker.muted {
+            background: var(--gray);
+        }
+
+        .action-desktop {
+            background: var(--secondary);
+        }
+
+        .action-desktop.active {
+            background: var(--primary);
+        }
+
+        .action-chat {
+            background: var(--secondary);
+        }
+
+        .action-chat.active {
+            background: var(--primary);
+        }
+
+        .action-close {
+            background: var(--accent);
+        }
+
+        .log-container {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #e9ecef;
+            height: 150px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            color: var(--dark);
+        }
+
+        .log-message {
+            margin-bottom: 5px;
+            line-height: 1.4;
+            color: var(--gray);
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 1000;
+        }
+
+        .student-action-btn:hover .tooltip {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1><i class="fas fa-chalkboard-teacher"></i> Panel del Profesor - Mozart Academy</h1>
+    </header>
+
+    <div class="content">
+        <div class="panel">
+            <h2 class="panel-title"><i class="fas fa-users"></i> Gestión de Estudiantes</h2>
+
+            <div id="studentsContainer" class="students-list">
+                <!-- Los estudiantes se cargarán dinámicamente aquí -->
+            </div>
+
+            <div class="global-controls">
+                <h3><i class="fas fa-broadcast-tower"></i> Transmisión Global</h3>
+                <div class="audio-control">
+                    <button id="toggleAudioBroadcast" class="btn-audio">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button id="toggleScreenBroadcast" class="btn-video">
+                        <i class="fas fa-desktop"></i>
+                    </button>
+                </div>
+                <div id="broadcastStatus" class="broadcast-status">
+                    Audio y pantalla desactivados
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2 class="panel-title"><i class="fas fa-comments"></i> Chat con el Alumno</h2>
+
+            <div id="studentInfo" class="student-info">
+                <p><i class="fas fa-info-circle"></i> Selecciona un alumno para chatear</p>
+            </div>
+
+            <div class="chat-container">
+                <div id="chatLog" class="chat-log">
+                </div>
+
+                <div class="chat-input">
+                    <input id="input" type="text" placeholder="Escribe tu mensaje..." disabled />
+                    <button id="sendBtn" class="btn btn-success" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+            <h2 class="panel-title" style="margin-top: 20px;"><i class="fas fa-clipboard-list"></i> Log de Eventos</h2>
+            <div id="eventLog" class="log-container">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  // Configuración Firebase
+const fb_config = {
+    apiKey: "AIzaSyCiYZ-_3zXQCu6DIyOd_HRGLCS3s6bIYiE",
+    authDomain: "jcubic-webrtc.firebaseapp.com",
+    databaseURL: "https://jcubic-webrtc.firebaseio.com",
+    projectId: "jcubic-webrtc",
+    storageBucket: "jcubic-webrtc.appspot.com",
+    messagingSenderId: "530153588319"
+};
+firebase.initializeApp(fb_config);
+
+const db = firebase.database();
+const room = "piano-class";
+const usersRef = db.ref(`${room}/users`);
+const signalsRef = db.ref(`${room}/signals`);
+const chatsRef = db.ref(`${room}/chats`);
+
+let myId = "profesor-" + Math.floor(Math.random() * 10000);
+let myName = "Profesor " + myId.split('-')[1];
+let localStream = null;
+let screenStream = null;
+let peers = {};
+let studentAudioTracks = {};
+let selectedStudent = null;
+let connectedStudents = {};
+let studentConnections = {}; // Para rastrear el estado de cada conexión
+let globalAudioEnabled = false;
+let globalScreenEnabled = false;
+let individualStreams = {}; // Para streams individuales por estudiante
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById("sendBtn").addEventListener("click", sendMessage);
+    document.getElementById("input").addEventListener("keypress", e => {
+        if (e.key === "Enter") sendMessage();
+    });
+    document.getElementById("toggleAudioBroadcast").addEventListener("click", toggleGlobalAudio);
+    document.getElementById("toggleScreenBroadcast").addEventListener("click", toggleGlobalScreen);
+    
+    init();
+});
+
+async function init() {
+    try {
+        // Inicializar stream local básico
+        localStream = await navigator.mediaDevices.getUserMedia({ 
+            audio: true, 
+            video: false 
+        });
+        localStream.getAudioTracks().forEach(track => {
+            track.enabled = false; // Inicialmente deshabilitado
+        });
+        
+        usersRef.child(myId).set({ id: myId, role: "master", name: myName });
+        usersRef.child(myId).onDisconnect().remove();
+
+        listenForStudents();
+        listenForSignals();
+        
+        logEvent('Sistema iniciado. Esperando estudiantes...');
+        updateBroadcastStatus();
+    } catch (error) {
+        console.error("Error al inicializar:", error);
+        logEvent('Error: No se pudo acceder al micrófono.');
+    }
+}
+
+function listenForStudents() {
+    usersRef.on("value", snap => {
+        const users = snap.val() || {};
+        const studentsContainer = document.getElementById("studentsContainer");
+        
+        // Limpiar contenedor
+        studentsContainer.innerHTML = '';
+        connectedStudents = {};
+        
+        for (let key in users) {
+            if (users[key].role === "user") {
+                connectedStudents[key] = users[key];
+                createStudentUI(key, users[key].name || users[key].id);
+            }
+        }
+        
+        // Verificar si el estudiante seleccionado sigue conectado
+        if (selectedStudent && !connectedStudents[selectedStudent]) {
+            selectedStudent = null;
+            updateStudentInfo(null);
+            document.getElementById("input").disabled = true;
+            document.getElementById("sendBtn").disabled = true;
+        }
+        
+        // Eliminar peers de estudiantes que ya no están conectados
+        for (let studentId in peers) {
+            if (!connectedStudents[studentId]) {
+                cleanupStudentConnection(studentId);
+            }
+        }
+    });
+}
+
+function createStudentUI(studentId, name) {
+    const studentsContainer = document.getElementById("studentsContainer");
+    
+    // Verificar si ya existe un elemento para este estudiante
+    const existingElement = document.getElementById(`student-${studentId}`);
+    if (existingElement) {
+        existingElement.remove();
+    }
+    
+    const isConnected = studentConnections[studentId]?.connected || false;
+    
+    const studentItem = document.createElement("div");
+    studentItem.className = `student-item ${isConnected ? 'connected' : ''}`;
+    studentItem.id = `student-${studentId}`;
+    
+    studentItem.innerHTML = `
+        <div class="student-name">
+            <div class="student-status ${isConnected ? 'connected' : ''}"></div>
+            ${name}
+        </div>
+        <div class="student-actions">
+            ${!isConnected ? `
+                <button class="student-action-btn action-connect" onclick="connectToStudent('${studentId}')">
+                    <i class="fas fa-plug"></i>
+                    <div class="tooltip">Conectar</div>
+                </button>
+            ` : `
+                <button class="student-action-btn action-microphone" onclick="toggleIndividualAudio('${studentId}')">
+                    <i class="fas fa-microphone${individualStreams[studentId] ? '' : '-slash'}"></i>
+                    <div class="tooltip">${individualStreams[studentId] ? 'Detener' : 'Enviar'} audio</div>
+                </button>
+                <button class="student-action-btn action-speaker" onclick="toggleIncomingAudio('${studentId}')">
+                    <i class="fas fa-volume${document.getElementById(`audio-${studentId}`)?.muted ? '-mute' : '-up'}"></i>
+                    <div class="tooltip">${document.getElementById(`audio-${studentId}`)?.muted ? 'Activar' : 'Silenciar'} audio</div>
+                </button>
+                <button class="student-action-btn action-desktop" onclick="toggleIndividualScreen('${studentId}')">
+                    <i class="fas fa-desktop${individualStreams[studentId]?.getVideoTracks().length > 0 ? '' : '-slash'}"></i>
+                    <div class="tooltip">${individualStreams[studentId]?.getVideoTracks().length > 0 ? 'Detener' : 'Compartir'} pantalla</div>
+                </button>
+                <button class="student-action-btn action-chat ${selectedStudent === studentId ? 'active' : ''}" onclick="selectStudentForChat('${studentId}')">
+                    <i class="fas fa-comment"></i>
+                    <div class="tooltip">Chat</div>
+                </button>
+                <button class="student-action-btn action-close" onclick="disconnectStudent('${studentId}')">
+                    <i class="fas fa-times"></i>
+                    <div class="tooltip">Desconectar</div>
+                </button>
+            `}
+        </div>
+    `;
+    
+    studentsContainer.appendChild(studentItem);
+}
+
+async function connectToStudent(studentId) {
+    logEvent(`Conectando con ${getStudentName(studentId)}...`);
+    startPeer(studentId, true);
+}
+
+function disconnectStudent(studentId) {
+    cleanupStudentConnection(studentId);
+    
+    // Enviar señal de desconexión
+    signalsRef.push({ from: myId, to: studentId, type: 'close' });
+    
+    logEvent(`Desconectado de ${getStudentName(studentId)}`);
+    
+    // Actualizar UI
+    createStudentUI(studentId, getStudentName(studentId));
+}
+
+function cleanupStudentConnection(studentId) {
+    if (peers[studentId]) {
+        peers[studentId].destroy();
+        delete peers[studentId];
+    }
+    
+    if (studentAudioTracks[studentId]) {
+        studentAudioTracks[studentId].forEach(track => track.stop());
+        delete studentAudioTracks[studentId];
+    }
+    
+    if (individualStreams[studentId]) {
+        individualStreams[studentId].getTracks().forEach(track => track.stop());
+        delete individualStreams[studentId];
+    }
+    
+    studentConnections[studentId] = { connected: false };
+    
+    // Remover elementos de audio
+    const audioEl = document.getElementById(`audio-${studentId}`);
+    if (audioEl) audioEl.remove();
+    
+    // Si era el estudiante seleccionado, limpiar selección
+    if (selectedStudent === studentId) {
+        selectedStudent = null;
+        updateStudentInfo(null);
+        document.getElementById("input").disabled = true;
+        document.getElementById("sendBtn").disabled = true;
+    }
+}
+
+function selectStudentForChat(studentId) {
+    // Remover selección previa
+    document.querySelectorAll('.student-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+    
+    // Actualizar selección
+    selectedStudent = studentId;
+    document.getElementById(`student-${studentId}`).classList.add('selected');
+    updateStudentInfo(studentId);
+    
+    // Habilitar chat
+    document.getElementById("input").disabled = false;
+    document.getElementById("sendBtn").disabled = false;
+    
+    // Actualizar botón de chat
+    document.querySelectorAll('.action-chat').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`#student-${studentId} .action-chat`).classList.add('active');
+    
+    // Cargar historial de chat
+    loadChatHistory(studentId);
+}
+
+function loadChatHistory(studentId) {
+    const chatLog = document.getElementById("chatLog");
+    chatLog.innerHTML = '';
+    
+    const chatId = [myId, studentId].sort().join('-');
+    chatsRef.child(chatId).off();
+    chatsRef.child(chatId).on('child_added', snap => {
+        const msg = snap.val();
+        const senderName = msg.sender === myId ? "Tú" : getStudentName(msg.sender);
+        logChat(senderName, msg.text);
+    });
+}
+
+
+
+async function toggleGlobalScreen() {
+    const btn = document.getElementById("toggleScreenBroadcast");
+
+    if (screenStream) {
+        // Detener compartir pantalla global
+        screenStream.getTracks().forEach(track => track.stop());
+        screenStream = null;
+
+        btn.classList.remove('active');
+        btn.innerHTML = '<i class="fas fa-desktop"></i>';
+        globalScreenEnabled = false;
+        logEvent('Compartir pantalla global detenido');
+
+        // Volver a agregar solo el audio del micrófono
+        const audioTrack = localAudioStream?.getAudioTracks()[0];
+        for (const studentId in peers) {
+            if (peers[studentId] && peers[studentId].connected) {
+                // quitar pantalla
+                const senders = peers[studentId].getSenders();
+                senders.forEach(sender => {
+                    if (sender.track && sender.track.kind === 'video') {
+                        peers[studentId].removeTrack(sender.track, screenStream);
+                    }
+                    if (sender.track && sender.track.kind === 'audio') {
+                        peers[studentId].removeTrack(sender.track, screenStream);
+                    }
+                });
+                // restaurar micrófono
+                if (audioTrack) {
+                    peers[studentId].addTrack(audioTrack, localAudioStream);
+                }
+            }
+        }
+    } else {
+        try {
+            // Capturar pantalla + audio
+            screenStream = await navigator.mediaDevices.getDisplayMedia({
+                video: true,
+                audio: true
+            });
+
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fas fa-stop"></i>';
+            globalScreenEnabled = true;
+            logEvent('Compartir pantalla global iniciado');
+
+            // Enviar pantalla a todos los estudiantes
+            for (const studentId in peers) {
+                if (peers[studentId] && peers[studentId].connected) {
+                    peers[studentId].addTrack(screenStream.getVideoTracks()[0], screenStream);
+
+                    const screenAudioTrack = screenStream.getAudioTracks()[0];
+                    if (screenAudioTrack) {
+                        peers[studentId].addTrack(screenAudioTrack, screenStream);
+                    }
+                }
+            }
+
+            // Auto-detener cuando el usuario cierra el sharing
+            screenStream.getVideoTracks()[0].onended = () => {
+                toggleGlobalScreen();
+            };
+
+        } catch (error) {
+            console.error("Error al compartir pantalla:", error);
+            logEvent('Error: No se pudo compartir la pantalla');
+        }
+    }
+}
+
+
+
+async function toggleGlobalAudio() {
+    const btn = document.getElementById("toggleAudioBroadcast");
+    if (!localStream) return;
+
+    // Invertir el estado de la transmisión global
+    globalAudioEnabled = !globalAudioEnabled;
+    
+    // Habilitar/deshabilitar el track de audio global
+    localStream.getAudioTracks().forEach(track => {
+        track.enabled = globalAudioEnabled;
+    });
+
+    // Actualizar el estilo del botón
+    btn.classList.toggle('active', globalAudioEnabled);
+    logEvent(`Transmisión de audio global ${globalAudioEnabled ? 'iniciada' : 'detenida'}`);
+
+    updateBroadcastStatus();
+    
+    // La clave: Forzar la renegociación para que los peers reciban el cambio.
+    // Aunque ya lo estás haciendo, asegúrate de que esto se ejecute en el contexto correcto.
+    for (const studentId in peers) {
+        if (peers[studentId] && peers[studentId].connected) {
+            peers[studentId].negotiate();
+        }
+    }
+}
+
+// **Función de audio individual corregida**
+async function toggleIndividualAudio(studentId) {
+    const btn = document.querySelector(`#student-${studentId} .action-microphone`);
+    const isActive = btn.classList.contains('active');
+
+    if (!peers[studentId] || !peers[studentId].connected) return;
+
+    // Buscar el sender de audio en el peer
+    const sender = peers[studentId]._pc.getSenders().find(s => s.track && s.track.kind === 'audio');
+
+    if (!isActive) {
+        // Activar audio individual
+        try {
+            if (!individualStreams[studentId]) {
+                individualStreams[studentId] = await navigator.mediaDevices.getUserMedia({ audio: true });
+            }
+
+            const audioTrack = individualStreams[studentId].getAudioTracks()[0];
+            if (audioTrack && sender) {
+                // Reemplazar la pista global por la individual
+                await sender.replaceTrack(audioTrack);
+            }
+            // Si no hay sender, significa que no había stream de audio.
+            // Esto podría ocurrir si toggleGlobalAudio nunca se ha activado.
+            else if (audioTrack) {
+                 peers[studentId].addTrack(audioTrack, individualStreams[studentId]);
+            }
+
+            btn.classList.add('active');
+            btn.querySelector('i').className = 'fas fa-microphone';
+            btn.querySelector('.tooltip').textContent = 'Detener audio';
+            logEvent(`Audio individual activado para ${getStudentName(studentId)}`);
+        } catch (error) {
+            console.error("Error activating individual audio:", error);
+            logEvent(`Error al activar audio para ${getStudentName(studentId)}`);
+        }
+    } else {
+        // Desactivar audio individual
+        if (individualStreams[studentId]) {
+            individualStreams[studentId].getAudioTracks().forEach(track => track.stop());
+            delete individualStreams[studentId];
+        }
+
+        // Si la transmisión global de audio está activa, re-envía esa pista.
+        // De lo contrario, reemplaza el track por null para silenciar.
+        if (sender) {
+            const trackToReplace = globalAudioEnabled ? localStream.getAudioTracks()[0] : null;
+            await sender.replaceTrack(trackToReplace);
+        }
+
+        btn.classList.remove('active');
+        btn.querySelector('i').className = 'fas fa-microphone-slash';
+        btn.querySelector('.tooltip').textContent = 'Enviar audio';
+        logEvent(`Audio individual desactivado para ${getStudentName(studentId)}`);
+    }
+}
+
+
+function toggleIncomingAudio(studentId) {
+    const btn = document.querySelector(`#student-${studentId} .action-speaker`);
+    const audioEl = document.getElementById(`audio-${studentId}`);
+    
+    if (audioEl) {
+        const isMuted = audioEl.muted;
+        audioEl.muted = !isMuted;
+        
+        if (audioEl.muted) {
+            btn.classList.add('muted');
+            btn.querySelector('i').className = 'fas fa-volume-mute';
+            btn.querySelector('.tooltip').textContent = 'Activar audio';
+        } else {
+            btn.classList.remove('muted');
+            btn.querySelector('i').className = 'fas fa-volume-up';
+            btn.querySelector('.tooltip').textContent = 'Silenciar audio';
+        }
+        
+        logEvent(`Audio de ${getStudentName(studentId)} ${audioEl.muted ? 'silenciado' : 'activado'}`);
+    }
+}
+
+async function toggleIndividualScreen(studentId) {
+    const btn = document.querySelector(`#student-${studentId} .action-desktop`);
+    const isActive = btn.classList.contains('active');
+
+    if (!peers[studentId] || !peers[studentId].connected) return;
+
+    // Buscar los senders de video y audio en el peer
+    const videoSender = peers[studentId]._pc.getSenders().find(s => s.track && s.track.kind === 'video');
+    const audioSender = peers[studentId]._pc.getSenders().find(s => s.track && s.track.kind === 'audio' && s.track.label.includes('screen'));
+
+    if (!isActive) {
+        // Activar pantalla individual
+        try {
+            const individualScreenStream = await navigator.mediaDevices.getDisplayMedia({
+                video: true,
+                audio: true
+            });
+            individualStreams[studentId] = individualScreenStream;
+
+            const videoTrack = individualScreenStream.getVideoTracks()[0];
+            const audioTrack = individualScreenStream.getAudioTracks()[0];
+            
+            // Reemplazar los tracks globales por los individuales si existen
+            if (videoSender) { await videoSender.replaceTrack(videoTrack); }
+            if (audioSender) { await audioSender.replaceTrack(audioTrack); }
+            
+            // Agregar nuevos tracks si no había una transmisión previa
+            if (!videoSender) { peers[studentId].addTrack(videoTrack, individualScreenStream); }
+            if (audioTrack && !audioSender) { peers[studentId].addTrack(audioTrack, individualScreenStream); }
+
+            // Manejar el fin de la transmisión por parte del usuario
+            videoTrack.onended = () => {
+                toggleIndividualScreen(studentId);
+            };
+
+            btn.classList.add('active');
+            btn.querySelector('.tooltip').textContent = 'Detener pantalla';
+            logEvent(`Pantalla compartida individualmente con ${getStudentName(studentId)}`);
+
+        } catch (error) {
+            console.error("Error sharing individual screen:", error);
+            logEvent(`Error al compartir pantalla con ${getStudentName(studentId)}`);
+        }
+    } else {
+        // Desactivar pantalla individual
+        if (individualStreams[studentId]) {
+            individualStreams[studentId].getTracks().forEach(track => track.stop());
+            delete individualStreams[studentId];
+        }
+
+        // Restablecer el estado del peer a la transmisión global (si está activa)
+        if (videoSender) {
+            const globalVideoTrack = globalScreenEnabled && screenStream ? screenStream.getVideoTracks()[0] : null;
+            await videoSender.replaceTrack(globalVideoTrack);
+        }
+
+        if (audioSender) {
+            const globalAudioTrack = globalScreenEnabled && screenStream ? screenStream.getAudioTracks()[0] : null;
+            await audioSender.replaceTrack(globalAudioTrack);
+        }
+        
+        btn.classList.remove('active');
+        btn.querySelector('.tooltip').textContent = 'Compartir pantalla';
+        logEvent(`Pantalla dejada de compartir con ${getStudentName(studentId)}`);
+    }
+}
+
+function updateAllPeersWithGlobalStream() {
+    for (const studentId in peers) {
+        if (peers[studentId] && peers[studentId].connected) {
+            try {
+                // Re-negociar stream global
+                peers[studentId].removeStream(peers[studentId].streams[0]);
+                peers[studentId].addStream(localStream);
+            } catch (error) {
+                console.error("Error updating peer stream:", error);
+            }
+        }
+    }
+}
+
+function updateBroadcastStatus() {
+    const statusEl = document.getElementById('broadcastStatus');
+    const statuses = [];
+    
+    if (globalAudioEnabled) statuses.push('Audio activo');
+    if (globalScreenEnabled) statuses.push('Pantalla activa');
+    
+    if (statuses.length === 0) {
+        statusEl.textContent = 'Audio y pantalla desactivados';
+        statusEl.classList.remove('active');
+    } else {
+        statusEl.textContent = 'Transmitiendo: ' + statuses.join(' + ');
+        statusEl.classList.add('active');
+    }
+}
+
+// Funciones WebRTC
+function startPeer(targetId, initiator) {
+    const peer = new SimplePeer({ 
+        initiator, 
+        stream: localStream, 
+        trickle: false 
+    });
+    
+    peers[targetId] = peer;
+    studentConnections[targetId] = { connected: false };
+
+    peer.on("signal", data => {
+        signalsRef.push({ from: myId, to: targetId, data });
+    });
+
+    peer.on("connect", () => {
+        studentConnections[targetId].connected = true;
+        logEvent(`Conexión WebRTC establecida con ${getStudentName(targetId)}`);
+        createStudentUI(targetId, getStudentName(targetId));
+    });
+
+    peer.on("data", msg => {
+        try {
+            const data = JSON.parse(msg.toString());
+            if (data.type === 'chat') {
+                if (selectedStudent === targetId) {
+                    logChat(getStudentName(targetId), data.text);
+                }
+            } else if (data.type === 'controlResponse') {
+                handleControlResponse(targetId, data);
+            }
+        } catch (error) {
+            console.error("Error parsing peer data:", error);
+        }
+    });
+
+    peer.on("stream", stream => {
+        logEvent(`Stream recibido de ${getStudentName(targetId)}`);
+        
+        // Crear elemento de audio para el stream entrante
+        let audioEl = document.getElementById(`audio-${targetId}`);
+        if (!audioEl) {
+            audioEl = document.createElement('audio');
+            audioEl.id = `audio-${targetId}`;
+            audioEl.autoplay = true;
+            audioEl.style.display = 'none';
+            document.body.appendChild(audioEl);
+        }
+        audioEl.srcObject = stream;
+        
+        // Guardar tracks de audio para control
+        if (stream.getAudioTracks().length > 0) {
+            studentAudioTracks[targetId] = stream.getAudioTracks();
+        }
+    });
+
+    peer.on("close", () => {
+        studentConnections[targetId] = { connected: false };
+        logEvent(`Conexión cerrada con ${getStudentName(targetId)}`);
+        createStudentUI(targetId, getStudentName(targetId));
+    });
+
+    peer.on("error", (err) => {
+        console.error("Error en peer:", err);
+        logEvent(`Error de conexión con ${getStudentName(targetId)}: ${err.message}`);
+        studentConnections[targetId] = { connected: false };
+        createStudentUI(targetId, getStudentName(targetId));
+    });
+}
+
+function listenForSignals() {
+    signalsRef.on("child_added", snap => {
+        const { from, to, data, type } = snap.val();
+        
+        if (to === myId) {
+            if (type === 'close') {
+                if (peers[from]) {
+                    peers[from].destroy();
+                    delete peers[from];
+                }
+                studentConnections[from] = { connected: false };
+                createStudentUI(from, getStudentName(from));
+            } else if (data) {
+                if (!peers[from]) {
+                    startPeer(from, false);
+                }
+                peers[from].signal(data);
+            }
+        }
+        
+        // Remover la señal procesada
+        signalsRef.child(snap.key).remove();
+    });
+}
+
+function handleControlResponse(studentId, data) {
+    if (data.command === 'toggleAudio') {
+        const btn = document.querySelector(`#student-${studentId} .action-microphone`);
+        if (btn) {
+            if (data.status === 'on') {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+        logEvent(`Micrófono de ${getStudentName(studentId)}: ${data.status}`);
+    }
+}
+
+// Funciones de chat
+function sendMessage() {
+    if (!selectedStudent) return;
+    
+    const input = document.getElementById("input");
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    input.value = "";
+    
+    // Guardar en Firebase
+    const chatId = [myId, selectedStudent].sort().join('-');
+    const messageData = {
+        text: msg,
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        sender: myId,
+        recipient: selectedStudent
+    };
+    chatsRef.child(chatId).push(messageData);
+    
+    // Enviar via WebRTC si está conectado
+    if (peers[selectedStudent] && peers[selectedStudent].connected) {
+        peers[selectedStudent].send(JSON.stringify({ 
+            type: 'chat', 
+            text: msg 
+        }));
+    }
+}
+
+function logChat(sender, message) {
+    const chatLog = document.getElementById("chatLog");
+    const messageElement = document.createElement("div");
+    messageElement.classList.add("message");
+    messageElement.classList.add(sender === "Tú" ? "self" : "other");
+    messageElement.innerHTML = `
+        <div class="message-sender">${sender}</div>
+        <div>${message}</div>
+    `;
+    chatLog.appendChild(messageElement);
+    chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function logEvent(message) {
+    const eventLog = document.getElementById("eventLog");
+    const logElement = document.createElement("div");
+    logElement.className = "log-message";
+    logElement.innerHTML = `
+        <strong>[${new Date().toLocaleTimeString()}]</strong> ${message}
+    `;
+    eventLog.appendChild(logElement);
+    eventLog.scrollTop = eventLog.scrollHeight;
+}
+
+function getStudentName(studentId) {
+    const student = connectedStudents[studentId];
+    return student ? (student.name || studentId) : studentId;
+}
+
+function updateStudentInfo(studentId) {
+    const studentInfo = document.getElementById('studentInfo');
+    if (studentId) {
+        const isConnected = studentConnections[studentId]?.connected || false;
+        const status = isConnected ? 
+            '<span style="color: var(--success);">● Conectado</span>' : 
+            '<span style="color: var(--gray);">● Desconectado</span>';
+        
+        studentInfo.innerHTML = `
+            <p><i class="fas fa-user"></i> <strong>Chat con:</strong> ${getStudentName(studentId)}</p>
+            <p><i class="fas fa-signal"></i> <strong>Estado:</strong> ${status}</p>
+        `;
+    } else {
+        studentInfo.innerHTML = `
+            <p><i class="fas fa-info-circle"></i> Selecciona un alumno para chatear</p>
+        `;
+    }
+}
+  </script>
