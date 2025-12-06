@@ -419,15 +419,13 @@ body {
 
 
 .piano-section {
-    /* --- CAMBIO IMPORTANTE --- */
-    flex: 0 0 auto;   /* No crece, mantiene su altura natural */
-    margin-top: auto; /* Se asegura de pegarse al fondo */
-    
+    flex: 0 0 auto;       /* No crece */
+    margin-top: auto;     /* Se empuja al fondo si sobra espacio */
     display: flex;
     flex-direction: column;
     
-    /* Aquí controlas el margen del fondo */
-    padding: 10px 20px 20px 20px; /* El último 20px es el margen inferior */
+    /* CAMBIO AQUÍ: 30px arriba para más aire, 20px en el resto */
+    padding: 30px 20px 20px 20px; 
     
     overflow: hidden;
     background: var(--bg-light);
