@@ -419,13 +419,15 @@ body {
 
 
 .piano-section {
-    flex: 0 0 auto;       /* No crece */
-    margin-top: auto;     /* Se empuja al fondo si sobra espacio */
+    /* --- CAMBIO IMPORTANTE --- */
+    flex: 0 0 auto;   /* No crece, mantiene su altura natural */
+    margin-top: auto; /* Se asegura de pegarse al fondo */
+    
     display: flex;
     flex-direction: column;
     
-    /* CAMBIO AQUÍ: 30px arriba para más aire, 20px en el resto */
-    padding: 30px 20px 20px 20px; 
+    /* Aquí controlas el margen del fondo */
+    padding: 10px 20px 20px 20px; /* El último 20px es el margen inferior */
     
     overflow: hidden;
     background: var(--bg-light);
@@ -481,20 +483,29 @@ body {
 }
 
 .piano-wrapper {
-    height: var(--piano-height, 180px);
+    /* 1. Altura fija suficiente para teclas + márgenes */
+    height: 200px; 
+    
     background: var(--piano-bg);
-    border-radius: 12px 12px 0 0; /* Opcional: Quitar bordes redondeados de abajo para que se vea integrado */
-    overflow: hidden;
-    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.1); /* Sombra hacia arriba */
+    border-radius: 12px;
+    
+    /* 2. Sombra y overflow */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    overflow: hidden; /* Esto recorta lo que sobra */
+    
+    /* 3. Flexbox para organizar el contenido interno */
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    padding-top: 30px; 
     
-    /* CAMBIO CLAVE: "Resorte" hacia abajo */
-    margin-top: auto;    /* Empuja el elemento lo más abajo posible */
-    margin-bottom: 0;    /* Elimina el margen inferior */
+    /* Padding-bottom: Asegura espacio abajo para que no se vea recortado */
+    padding-bottom: 10px; 
+    
+    /* Resortes para ubicación externa (lo que vimos antes) */
+    margin-top: auto;
+    margin-bottom: 0;
 }
-
 #piano-top-casing {
     position: relative;
     width: 100%;
