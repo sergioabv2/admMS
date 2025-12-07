@@ -2297,8 +2297,8 @@ body {
     position: fixed;
     top: 10%;
     left: 10%;
-    width: 480px;
-    height: 530px;
+    width: 490px;
+    height: 610px;
     background: white;
     border-radius: 12px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -2563,6 +2563,116 @@ body {
 
 .modal-backdrop.active {
     display: block;
+}
+
+
+
+/* ==================== BARRA DE ESTADO DE COMPARTIR ==================== */
+.modal-sharing-status {
+    width: 100%;
+    background: #2d2d2d;
+    border-bottom: 1px solid #444;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.sharing-status-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #999;
+    transition: all 0.3s ease;
+}
+
+.modal-sharing-status i {
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+/* Estado: Compartiendo */
+.modal-sharing-status.active {
+    background: linear-gradient(135deg, rgba(46, 213, 115, 0.15) 0%, rgba(46, 213, 115, 0.25) 100%);
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+.modal-sharing-status.active .sharing-status-content {
+    color: var(--secondary-color);
+}
+
+.modal-sharing-status.active i {
+    animation: pulse-sharing 2s infinite;
+}
+
+@keyframes pulse-sharing {
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.6;
+        transform: scale(1.1);
+    }
+}
+
+/* Botón para detener compartir */
+.sharing-stop-btn {
+    margin-left: 12px;
+    padding: 4px 12px;
+    background: rgba(255, 71, 87, 0.2);
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sharing-stop-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.05);
+}
+
+.sharing-stop-btn i {
+    font-size: 10px;
+    animation: none !important;
+}
+
+/* Lista de espectadores (si hay múltiples) */
+.sharing-viewers-list {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 15px;
+    padding-left: 15px;
+    border-left: 1px solid rgba(46, 213, 115, 0.3);
+}
+
+.viewer-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(46, 213, 115, 0.1);
+    border: 1px solid rgba(46, 213, 115, 0.3);
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.viewer-badge i {
+    font-size: 10px;
 }
 
 
@@ -3915,30 +4025,29 @@ function createModal(modalId, fileName) {
                 </div>
             </div>
 
-
-        <!-- Mini Chat -->
-<div class="modal-mini-chat" data-modal="${modalId}">
-    <div class="mini-chat-header">
-        <h4>
-            <i class="fas fa-comments"></i>
-            Chat Rápido
-        </h4>
-        <button class="mini-chat-close" onclick="closeMiniChat('${modalId}')">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div class="mini-chat-messages" id="miniChatMessages-${modalId}">
-        <div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 13px;">
-            Inicia una conversación
-        </div>
-    </div>
-    <div class="mini-chat-input-container">
-        <input type="text" placeholder="Escribe..." id="miniChatInput-${modalId}" onkeypress="if(event.key==='Enter') sendMiniChatMessage('${modalId}')">
-        <button class="mini-chat-send" onclick="sendMiniChatMessage('${modalId}')">
-            <i class="fas fa-paper-plane"></i>
-        </button>
-    </div>
-</div>
+            <!-- Mini Chat -->
+            <div class="modal-mini-chat" data-modal="${modalId}">
+                <div class="mini-chat-header">
+                    <h4>
+                        <i class="fas fa-comments"></i>
+                        Chat Rápido
+                    </h4>
+                    <button class="mini-chat-close" onclick="closeMiniChat('${modalId}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="mini-chat-messages" id="miniChatMessages-${modalId}">
+                    <div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 13px;">
+                        Inicia una conversación
+                    </div>
+                </div>
+                <div class="mini-chat-input-container">
+                    <input type="text" placeholder="Escribe..." id="miniChatInput-${modalId}" onkeypress="if(event.key==='Enter') sendMiniChatMessage('${modalId}')">
+                    <button class="mini-chat-send" onclick="sendMiniChatMessage('${modalId}')">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
 
             <!-- Visor PDF -->
             <div class="pdf-viewer-container">
@@ -3988,6 +4097,14 @@ function createModal(modalId, fileName) {
                     </div>
                 </div>
                 
+                <!-- ✅ NUEVA BARRA DE ESTADO COMPARTIR -->
+                <div class="modal-sharing-status" id="sharingStatus-${modalId}">
+                    <div class="sharing-status-content">
+                        <i class="fas fa-eye-slash"></i>
+                        <span>Sin compartir</span>
+                    </div>
+                </div>
+                
                 <div class="pdf-canvas-container">
                     <div class="pdf-canvas-wrapper">
                         <canvas class="pdf-canvas"></canvas>
@@ -4010,9 +4127,9 @@ function createModal(modalId, fileName) {
                 <button class="media-control-btn btn-screen-share" onclick="toggleModalScreenShare('${modalId}')" title="Compartir pantalla">
                     <i class="fas fa-desktop"></i>
                 </button>
-<button class="media-control-btn btn-chat-modal" onclick="openChatFromModal('${modalId}')" title="Chat">
-    <i class="fas fa-comments"></i>
-</button>
+                <button class="media-control-btn btn-chat-modal" onclick="openChatFromModal('${modalId}')" title="Chat">
+                    <i class="fas fa-comments"></i>
+                </button>
             </div>
         </div>
     `;
@@ -4314,12 +4431,13 @@ function stopScreenShare(studentId) {
     const streamData = individualScreenStreams[studentId];
     if (!streamData) return;
     
+    const modalId = streamData.modalId;
+    
     // Detener animationFrame si existe
     if (streamData.animationFrameId) {
         cancelAnimationFrame(streamData.animationFrameId);
     }
     
-    // Remover track del peer
     if (streamData.sender && peers[studentId]) {
         try {
             peers[studentId].removeTrack(streamData.sender.track, streamData.stream);
@@ -4327,21 +4445,16 @@ function stopScreenShare(studentId) {
             console.error('Error removiendo track:', error);
         }
     }
-    
-    // Detener todos los tracks
     streamData.stream.getTracks().forEach(track => track.stop());
-    
-    // Limpiar canvas temporal si existe
-    const modalData = openModals[streamData.modalId];
+    const modalData = openModals[modalId];
     if (modalData) {
         delete modalData.streamCanvas;
         delete modalData.updateStreamCanvas;
     }
-    
-    // Eliminar del registro
     delete individualScreenStreams[studentId];
-    
-    console.log(`🖥️ Stream detenido para ${getStudentName(studentId)}`);
+    if (openModals[modalId]) {
+        updateSharingStatusBar(modalId, studentId, 'remove');
+    }
 }
 
 /*
@@ -5033,18 +5146,14 @@ async function shareModalWithStudent(studentId, modalId) {
     const modal = modalData.element;
     
     try {
-        // Detener stream anterior si existe
         if (individualScreenStreams[studentId]?.stream) {
             stopScreenShare(studentId);
         }
         
         let stream;
-        
-        // Para PDFs: capturar desde los canvas
         if (modalData.fileType && modalData.fileType.includes('pdf')) {
             stream = await capturePDFCanvas(modalId);
         } 
-        // Para imágenes u otros: capturar iframe
         else {
             const iframe = modal.querySelector('.modal-iframe');
             if (iframe && iframe.style.display !== 'none') {
@@ -5057,31 +5166,19 @@ async function shareModalWithStudent(studentId, modalId) {
         if (!stream || stream.getTracks().length === 0) {
             throw new Error('No se pudo generar el stream de video');
         }
-        
-        // Guardar referencia del stream
         individualScreenStreams[studentId] = { 
             stream: stream, 
             active: true,
             modalId: modalId,
             animationFrameId: null
         };
-        
-        // Agregar tracks al peer
         const videoTrack = stream.getVideoTracks()[0];
         if (videoTrack) {
             const sender = peers[studentId].addTrack(videoTrack, stream);
             individualScreenStreams[studentId].sender = sender;
         }
-        
-        console.log(`🖥️ Modal "${modalData.fileName}" compartido con ${getStudentName(studentId)}`);
-        
-        // Actualizar UI
         createStudentUI(studentId, getStudentName(studentId));
-        
-        // Mostrar notificación
-        showModalNotification(modalId, `Compartiendo con ${getStudentName(studentId)}`);
-        
-        // Listener: si cambia de página en PDF, actualizar stream
+        updateSharingStatusBar(modalId, studentId, 'add');
         if (modalData.fileType && modalData.fileType.includes('pdf')) {
             startPDFStreamUpdates(studentId, modalId);
         }
@@ -5091,6 +5188,82 @@ async function shareModalWithStudent(studentId, modalId) {
         alert('Error al compartir contenido: ' + error.message);
     }
 }
+
+function updateSharingStatusBar(modalId, studentId, action) {
+    const modal = openModals[modalId]?.element;
+    if (!modal) return;
+    
+    const statusBar = modal.querySelector('.modal-sharing-status');
+    if (!statusBar) return;
+    
+    // Obtener lista de estudiantes viendo este modal
+    const viewingStudents = Object.keys(individualScreenStreams).filter(id => 
+        individualScreenStreams[id].active && 
+        individualScreenStreams[id].modalId === modalId
+    );
+    
+    if (action === 'add' || viewingStudents.length > 0) {
+        // Modo: Compartiendo
+        statusBar.classList.add('active');
+        
+        let content = `
+            <i class="fas fa-eye"></i>
+            <span>Compartiendo con:</span>
+        `;
+        
+        // Agregar lista de espectadores
+        if (viewingStudents.length > 0) {
+            content += `<div class="sharing-viewers-list">`;
+            viewingStudents.forEach(id => {
+                content += `
+                    <div class="viewer-badge">
+                        <i class="fas fa-user"></i>
+                        <span>${getStudentName(id)}</span>
+                    </div>
+                `;
+            });
+            content += `</div>`;
+            
+            // Botón para detener todo
+            content += `
+                <button class="sharing-stop-btn" onclick="stopAllSharingForModal('${modalId}')">
+                    <i class="fas fa-stop"></i>
+                    Detener Todo
+                </button>
+            `;
+        }
+        
+        statusBar.querySelector('.sharing-status-content').outerHTML = `
+            <div class="sharing-status-content">
+                ${content}
+            </div>
+        `;
+        
+    } else {
+        // Modo: Sin compartir
+        statusBar.classList.remove('active');
+        statusBar.innerHTML = `
+            <div class="sharing-status-content">
+                <i class="fas fa-eye-slash"></i>
+                <span>Sin compartir</span>
+            </div>
+        `;
+    }
+}
+
+function stopAllSharingForModal(modalId) {
+    if (!confirm('¿Detener compartir con todos los estudiantes?')) return;
+    const viewingStudents = Object.keys(individualScreenStreams).filter(id => 
+        individualScreenStreams[id].active && 
+        individualScreenStreams[id].modalId === modalId
+    );
+    viewingStudents.forEach(studentId => {
+        stopScreenShare(studentId);
+        createStudentUI(studentId, getStudentName(studentId));
+    });
+    updateSharingStatusBar(modalId, null, 'remove');
+}
+
 
 async function capturePDFCanvas(modalId) {
     const modalData = openModals[modalId];
@@ -5196,35 +5369,7 @@ function startPDFStreamUpdates(studentId, modalId) {
     updateFrame();
 }
 
-function showModalNotification(modalId, message) {
-    const modal = openModals[modalId].element;
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: absolute;
-        top: 60px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(46, 213, 115, 0.95);
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-        z-index: 1000;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        animation: slideDown 0.3s ease;
-    `;
-    notification.innerHTML = `
-        <i class="fas fa-share-square" style="margin-right: 8px;"></i>
-        ${message}
-    `;
-    
-    modal.querySelector('.pdf-modal-body').appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.animation = 'slideUp 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
+
 
 function toggleIncomingAudio(studentId) {
     const audioEl = document.getElementById(`audio-${studentId}`);
