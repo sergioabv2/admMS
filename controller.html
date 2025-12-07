@@ -24,7 +24,7 @@
     --text-muted: #6c757d;
     --border-color: #dee2e6;
     --piano-bg: #1e1e1e;
-    --piano-height: 130px; /* Antes era 150px, lo hacemos más compacto */
+    --piano-height: 110px; /* Antes era 150px, lo hacemos más compacto */
     --key-white-height: 100%; /* Ahora ocuparán todo el alto del contenedor */
     --key-black-height: 60%;
 }
@@ -208,6 +208,7 @@ body {
     width: 220px;
     background: white;
     border-radius: 16px;
+    min-height: 240px;
     border: 1px solid var(--border-color);
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     display: flex;
@@ -419,15 +420,13 @@ body {
 
 
 .piano-section {
-    /* --- CAMBIO IMPORTANTE --- */
-    flex: 0 0 auto;   /* No crece, mantiene su altura natural */
-    margin-top: auto; /* Se asegura de pegarse al fondo */
-    
+    flex: 0 0 auto;       /* No crece */
+    margin-top: auto;     /* Se empuja al fondo si sobra espacio */
     display: flex;
     flex-direction: column;
     
-    /* Aquí controlas el margen del fondo */
-    padding: 10px 20px 20px 20px; /* El último 20px es el margen inferior */
+    /* CAMBIO AQUÍ: 30px arriba para más aire, 20px en el resto */
+    padding: 30px 20px 20px 20px; 
     
     overflow: hidden;
     background: var(--bg-light);
@@ -491,12 +490,10 @@ body {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-
-    padding-top: 10px; 
-    padding-bottom: 10px; 
-
+    
+    /* CAMBIO CLAVE: "Resorte" hacia abajo */
     margin-top: auto;    /* Empuja el elemento lo más abajo posible */
-    margin-bottom: 0px;    /* Elimina el margen inferior */
+    margin-bottom: 0;    /* Elimina el margen inferior */
 }
 
 #piano-top-casing {
@@ -2625,6 +2622,51 @@ body {
     z-index: 1;
 }
 
+/* Nuevo estilo para el botón de conectar */
+.btn-connect-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #ff6b81 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px; /* Bordes muy redondeados */
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%; /* Que ocupe todo el ancho de la tarjeta */
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-connect-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 71, 87, 0.4);
+    filter: brightness(1.1);
+}
+
+.btn-connect-primary:disabled {
+    opacity: 0.7;
+    cursor: wait;
+    transform: none;
+    box-shadow: none;
+    background: #a4b0be; /* Gris mientras carga o mantén el gradiente si prefieres */
+}
+
+/* Animación para el icono de carga */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.fa-spinner-animate {
+    animation: spin 1s linear infinite;
+}
+
 /* Botón de micrófono */
 .btn-microphone {
     background: var(--secondary-color);
@@ -2789,6 +2831,29 @@ body {
 @keyframes pulse-audio {
     0%, 100% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
 }
 
 </style>
@@ -4195,10 +4260,7 @@ async function renderPageForModal(modalId, pageNum) {
     try {
         const page = await modalData.pdfDoc.getPage(pageNum);
         
-        // 1. Detectar la densidad de píxeles de la pantalla (Retina/High DPI)
         const outputScale = window.devicePixelRatio || 1;
-        
-        // 2. Calcular el viewport normal
         const viewport = page.getViewport({ scale: modalData.scale });
         
         const modal = modalData.element;
@@ -4206,27 +4268,20 @@ async function renderPageForModal(modalId, pageNum) {
         const context = canvas.getContext('2d');
         const annotationCanvas = modal.querySelector('.annotation-canvas');
 
-        // 3. Ajustar dimensiones físicas del Canvas (multiplicado por la densidad)
-        // Esto hace que la imagen interna tenga alta resolución
         canvas.width = Math.floor(viewport.width * outputScale);
         canvas.height = Math.floor(viewport.height * outputScale);
         
-        // 4. Ajustar dimensiones visuales CSS (tamaño original)
-        // Esto hace que el canvas ocupe el espacio correcto en pantalla
         canvas.style.width = Math.floor(viewport.width) + "px";
         canvas.style.height = Math.floor(viewport.height) + "px";
 
-        // --- Ajustamos también el canvas de anotaciones para que coincida ---
         annotationCanvas.width = canvas.width;
         annotationCanvas.height = canvas.height;
         annotationCanvas.style.width = canvas.style.width;
         annotationCanvas.style.height = canvas.style.height;
         
-        // Necesitamos escalar el contexto de dibujo de las anotaciones también
         const ctxAnn = annotationCanvas.getContext('2d');
         ctxAnn.scale(outputScale, outputScale);
 
-        // 5. Renderizar el PDF aplicando la transformación de escala
         const transform = outputScale !== 1 
             ? [outputScale, 0, 0, outputScale, 0, 0] 
             : null;
@@ -4239,13 +4294,54 @@ async function renderPageForModal(modalId, pageNum) {
         
         await page.render(renderContext).promise;
         
-        // Restaurar anotaciones y actualizar botones
+        // ✅ NUEVO: Actualizar canvas del stream si existe
+        if (modalData.streamCanvas && modalData.updateStreamCanvas) {
+            modalData.streamCanvas.width = canvas.width;
+            modalData.streamCanvas.height = canvas.height;
+            modalData.updateStreamCanvas();
+        }
+        
         restoreAnnotationsForModal(modalId, pageNum);
         updatePageButtonsForModal(modalId);
         
     } catch (error) {
         console.error('Error al renderizar página:', error);
     }
+}
+
+
+function stopScreenShare(studentId) {
+    const streamData = individualScreenStreams[studentId];
+    if (!streamData) return;
+    
+    // Detener animationFrame si existe
+    if (streamData.animationFrameId) {
+        cancelAnimationFrame(streamData.animationFrameId);
+    }
+    
+    // Remover track del peer
+    if (streamData.sender && peers[studentId]) {
+        try {
+            peers[studentId].removeTrack(streamData.sender.track, streamData.stream);
+        } catch (error) {
+            console.error('Error removiendo track:', error);
+        }
+    }
+    
+    // Detener todos los tracks
+    streamData.stream.getTracks().forEach(track => track.stop());
+    
+    // Limpiar canvas temporal si existe
+    const modalData = openModals[streamData.modalId];
+    if (modalData) {
+        delete modalData.streamCanvas;
+        delete modalData.updateStreamCanvas;
+    }
+    
+    // Eliminar del registro
+    delete individualScreenStreams[studentId];
+    
+    console.log(`🖥️ Stream detenido para ${getStudentName(studentId)}`);
 }
 
 /*
@@ -4377,6 +4473,11 @@ function drawForModal(modalId, e) {
     modalData.lastY = currentY;
     
     saveAnnotationForModal(modalId);
+    
+    // ✅ NUEVO: Actualizar stream si está compartiendo
+    if (modalData.updateStreamCanvas) {
+        modalData.updateStreamCanvas();
+    }
 }
 
 function stopDrawingForModal(modalId) {
@@ -4638,28 +4739,22 @@ function createStudentUI(studentId, name) {
 
         <div class="student-actions">
             ${!isConnected ? `
-                <button class="student-action-btn action-connect" onclick="connectToStudent('${studentId}')" title="Conectar">
-                    <i class="fas fa-plug"></i>
-                </button>
+                <button id="btn-connect-${studentId}" class="btn-connect-primary" onclick="handleConnectClick('${studentId}')">
+            <i class="fas fa-plug"></i> 
+            <span>Conectar</span>
+        </button>
+                <br>
             ` : `
-                <button class="student-action-btn action-microphone ${isAudioActive ? 'active' : ''}" onclick="toggleIndividualAudio('${studentId}')" title="Micrófono">
-                    <i class="fas fa-microphone${isAudioActive ? '' : '-slash'}"></i>
-                </button>
-                <button class="student-action-btn action-speaker ${audioMuted ? 'muted' : ''}" onclick="toggleIncomingAudio('${studentId}')" title="Audio">
-                    <i class="fas fa-volume${audioMuted ? '-mute' : '-up'}"></i>
-                </button>
-                <button class="student-action-btn action-desktop ${isScreenActive ? 'active' : ''}" onclick="toggleIndividualScreen('${studentId}')" title="Pantalla">
-                    <i class="fas fa-desktop"></i>
-                </button>
-                <button class="student-action-btn action-piano ${isMidiActive ? 'active' : ''}" onclick="toggleMidiTransmission('${studentId}')" title="MIDI">
-                    <i class="fas fa-piano"></i>
-                </button>
-                <button class="student-action-btn action-chat ${isSelected ? 'active' : ''}" onclick="selectStudentForChat('${studentId}')" title="Chat">
-                    <i class="fas fa-comment"></i>
-                </button>
-                <button class="student-action-btn action-close" onclick="disconnectStudent('${studentId}')" title="Desconectar">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="student-action-btn action-desktop ${isScreenActive ? 'active' : ''}" 
+                onclick="selectModalForScreenShare('${studentId}')" 
+                title="Compartir Modal">
+            <i class="fas fa-window-restore"></i>
+        </button>
+        <button class="student-action-btn action-close" 
+                onclick="disconnectStudent('${studentId}')" 
+                title="Desconectar">
+            <i class="fas fa-times"></i>
+        </button>
             `}
         </div>
     `;
@@ -4672,6 +4767,23 @@ function createStudentUI(studentId, name) {
     setTimeout(() => {
         studentItem.style.opacity = '1';
     }, 10);
+}
+
+
+function handleConnectClick(studentId) {
+    // 1. Obtener el botón específico
+    const btn = document.getElementById(`btn-connect-${studentId}`);
+    
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `
+            <i class="fas fa-circle-notch fa-spinner-animate"></i> 
+            <span>Conectando...</span>
+        `;
+    }
+    setTimeout(() => {
+        connectToStudent(studentId);
+    }, 50);
 }
 
 async function connectToStudent(studentId) {
@@ -4698,9 +4810,9 @@ function cleanupStudentConnection(studentId) {
         delete individualAudioStreams[studentId];
     }
 
-    if (individualScreenStreams[studentId]?.stream) {
-        individualScreenStreams[studentId].stream.getTracks().forEach(track => track.stop());
-        delete individualScreenStreams[studentId];
+    // ✅ USAR LA NUEVA FUNCIÓN
+    if (individualScreenStreams[studentId]) {
+        stopScreenShare(studentId);
     }
 
     studentConnections[studentId] = { connected: false };
@@ -4708,7 +4820,6 @@ function cleanupStudentConnection(studentId) {
     const audioEl = document.getElementById(`audio-${studentId}`);
     if (audioEl) audioEl.remove();
 
-    // Detener transmisión MIDI si estaba activa
     if (activeMidiStudent === studentId) {
         activeMidiStudent = null;
         midiTransmissionEnabled = false;
@@ -4811,44 +4922,10 @@ async function toggleIndividualAudio(studentId) {
 
 // ==================== CONTROL DE PANTALLA INDIVIDUAL ====================
 async function toggleIndividualScreen(studentId) {
-    if (!peers[studentId] || !peers[studentId].connected) {
-        alert('El alumno no está conectado');
-        return;
-    }
-    
+    // Esta función ya no se usa desde el card, pero la mantenemos para uso interno
     const isActive = individualScreenStreams[studentId]?.active || false;
-
-    if (!isActive) {
-        try {
-            const stream = await navigator.mediaDevices.getDisplayMedia({ 
-                video: true, 
-                audio: true 
-            });
-            
-            individualScreenStreams[studentId] = { stream: stream, active: true };
-            
-            const videoTrack = stream.getVideoTracks()[0];
-            const audioTrack = stream.getAudioTracks()[0];
-            
-            peers[studentId].addTrack(videoTrack, stream);
-            if (audioTrack) {
-                peers[studentId].addTrack(audioTrack, stream);
-            }
-            
-            videoTrack.onended = () => {
-                toggleIndividualScreen(studentId);
-            };
-            
-            console.log(`🖥️ Pantalla compartida con ${getStudentName(studentId)}`);
-            createStudentUI(studentId, getStudentName(studentId));
-            
-        } catch (error) {
-            console.error('Error al compartir pantalla:', error);
-            if (error.name !== 'NotAllowedError') {
-                alert('No se pudo compartir la pantalla');
-            }
-        }
-    } else {
+    
+    if (isActive) {
         const stream = individualScreenStreams[studentId].stream;
         
         const senders = peers[studentId]._pc.getSenders();
@@ -4864,6 +4941,289 @@ async function toggleIndividualScreen(studentId) {
         console.log(`🖥️ Compartir pantalla detenido para ${getStudentName(studentId)}`);
         createStudentUI(studentId, getStudentName(studentId));
     }
+}
+
+
+function selectModalForScreenShare(studentId) {
+    if (!peers[studentId] || !peers[studentId].connected) {
+        alert('El alumno no está conectado');
+        return;
+    }
+    
+    const openModalIds = Object.keys(openModals);
+    
+    if (openModalIds.length === 0) {
+        alert('No hay modales abiertos. Abre un archivo primero.');
+        return;
+    }
+    
+    // Si solo hay un modal, compartirlo directamente
+    if (openModalIds.length === 1) {
+        shareModalWithStudent(studentId, openModalIds[0]);
+        return;
+    }
+    
+    // Si hay múltiples modales, mostrar selector
+    showModalSelector(studentId, openModalIds);
+}
+
+function showModalSelector(studentId, modalIds) {
+    const selectorHTML = modalIds.map(modalId => {
+        const modalData = openModals[modalId];
+        return `
+            <div style="padding: 12px; border: 2px solid var(--border-color); border-radius: 8px; 
+                        margin-bottom: 10px; cursor: pointer; transition: all 0.3s ease;"
+                 onmouseover="this.style.borderColor='var(--primary-color)'"
+                 onmouseout="this.style.borderColor='var(--border-color)'"
+                 onclick="shareModalWithStudent('${studentId}', '${modalId}'); closeModalSelector()">
+                <i class="fas fa-file-alt" style="margin-right: 8px; color: var(--primary-color);"></i>
+                <strong>${modalData.fileName}</strong>
+            </div>
+        `;
+    }).join('');
+    
+    const overlay = document.createElement('div');
+    overlay.id = 'modalSelector';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="background: white; padding: 30px; border-radius: 16px; 
+                    max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.4);">
+            <h3 style="margin: 0 0 20px 0; color: var(--text-dark); font-size: 20px;">
+                <i class="fas fa-share-square" style="color: var(--primary-color); margin-right: 10px;"></i>
+                Selecciona el Modal a Compartir
+            </h3>
+            <div style="max-height: 400px; overflow-y: auto;">
+                ${selectorHTML}
+            </div>
+            <button onclick="closeModalSelector()" 
+                    style="margin-top: 20px; width: 100%; padding: 12px; background: var(--text-muted); 
+                           color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Cancelar
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+}
+
+function closeModalSelector() {
+    const selector = document.getElementById('modalSelector');
+    if (selector) selector.remove();
+}
+
+async function shareModalWithStudent(studentId, modalId) {
+    const modalData = openModals[modalId];
+    if (!modalData) {
+        alert('Modal no encontrado');
+        return;
+    }
+    
+    const modal = modalData.element;
+    
+    try {
+        // Detener stream anterior si existe
+        if (individualScreenStreams[studentId]?.stream) {
+            stopScreenShare(studentId);
+        }
+        
+        let stream;
+        
+        // Para PDFs: capturar desde los canvas
+        if (modalData.fileType && modalData.fileType.includes('pdf')) {
+            stream = await capturePDFCanvas(modalId);
+        } 
+        // Para imágenes u otros: capturar iframe
+        else {
+            const iframe = modal.querySelector('.modal-iframe');
+            if (iframe && iframe.style.display !== 'none') {
+                stream = await captureIframeContent(iframe);
+            } else {
+                throw new Error('No se encontró contenido válido para compartir');
+            }
+        }
+        
+        if (!stream || stream.getTracks().length === 0) {
+            throw new Error('No se pudo generar el stream de video');
+        }
+        
+        // Guardar referencia del stream
+        individualScreenStreams[studentId] = { 
+            stream: stream, 
+            active: true,
+            modalId: modalId,
+            animationFrameId: null
+        };
+        
+        // Agregar tracks al peer
+        const videoTrack = stream.getVideoTracks()[0];
+        if (videoTrack) {
+            const sender = peers[studentId].addTrack(videoTrack, stream);
+            individualScreenStreams[studentId].sender = sender;
+        }
+        
+        console.log(`🖥️ Modal "${modalData.fileName}" compartido con ${getStudentName(studentId)}`);
+        
+        // Actualizar UI
+        createStudentUI(studentId, getStudentName(studentId));
+        
+        // Mostrar notificación
+        showModalNotification(modalId, `Compartiendo con ${getStudentName(studentId)}`);
+        
+        // Listener: si cambia de página en PDF, actualizar stream
+        if (modalData.fileType && modalData.fileType.includes('pdf')) {
+            startPDFStreamUpdates(studentId, modalId);
+        }
+        
+    } catch (error) {
+        console.error('Error al compartir modal:', error);
+        alert('Error al compartir contenido: ' + error.message);
+    }
+}
+
+async function capturePDFCanvas(modalId) {
+    const modalData = openModals[modalId];
+    const modal = modalData.element;
+    
+    const pdfCanvas = modal.querySelector('.pdf-canvas');
+    const annotationCanvas = modal.querySelector('.annotation-canvas');
+    
+    if (!pdfCanvas) {
+        throw new Error('No se encontró el canvas del PDF');
+    }
+    
+    // Crear un canvas temporal que combine PDF + anotaciones
+    const combinedCanvas = document.createElement('canvas');
+    combinedCanvas.width = pdfCanvas.width;
+    combinedCanvas.height = pdfCanvas.height;
+    const ctx = combinedCanvas.getContext('2d');
+    
+    // Función para actualizar el canvas combinado
+    function updateCombinedCanvas() {
+        ctx.clearRect(0, 0, combinedCanvas.width, combinedCanvas.height);
+        ctx.drawImage(pdfCanvas, 0, 0);
+        if (annotationCanvas) {
+            ctx.drawImage(annotationCanvas, 0, 0);
+        }
+    }
+    
+    // Actualizar inmediatamente
+    updateCombinedCanvas();
+    
+    // Capturar stream del canvas combinado
+    const stream = combinedCanvas.captureStream(30); // 30 FPS
+    
+    // Guardar función de actualización para usarla después
+    modalData.updateStreamCanvas = updateCombinedCanvas;
+    modalData.streamCanvas = combinedCanvas;
+    
+    return stream;
+}
+
+
+async function captureIframeContent(iframe) {
+    try {
+        // Intentar capturar el contenido del iframe
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        const iframeBody = iframeDoc.body;
+        
+        if (!iframeBody) {
+            throw new Error('No se puede acceder al contenido del iframe');
+        }
+        
+        // Crear canvas para renderizar
+        const canvas = document.createElement('canvas');
+        canvas.width = iframe.offsetWidth || 640;
+        canvas.height = iframe.offsetHeight || 480;
+        
+        const ctx = canvas.getContext('2d');
+        
+        // Usar html2canvas si está disponible, sino alternativa
+        if (typeof html2canvas !== 'undefined') {
+            const rendered = await html2canvas(iframeBody);
+            ctx.drawImage(rendered, 0, 0, canvas.width, canvas.height);
+        } else {
+            // Alternativa: dibujar color sólido con texto
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#333';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Contenido del Archivo', canvas.width / 2, canvas.height / 2);
+        }
+        
+        return canvas.captureStream(15); // 15 FPS para imágenes estáticas
+        
+    } catch (error) {
+        console.error('Error capturando iframe:', error);
+        throw new Error('No se pudo capturar el contenido del archivo');
+    }
+}
+
+
+function startPDFStreamUpdates(studentId, modalId) {
+    const modalData = openModals[modalId];
+    
+    if (!modalData.updateStreamCanvas) return;
+    
+    // Función que se ejecuta en cada frame
+    function updateFrame() {
+        if (!individualScreenStreams[studentId] || 
+            individualScreenStreams[studentId].modalId !== modalId) {
+            return; // Detener si ya no está compartiendo
+        }
+        
+        // Actualizar canvas combinado
+        modalData.updateStreamCanvas();
+        
+        // Continuar en el siguiente frame
+        const frameId = requestAnimationFrame(updateFrame);
+        individualScreenStreams[studentId].animationFrameId = frameId;
+    }
+    
+    // Iniciar el loop
+    updateFrame();
+}
+
+function showModalNotification(modalId, message) {
+    const modal = openModals[modalId].element;
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: absolute;
+        top: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(46, 213, 115, 0.95);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        z-index: 1000;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        animation: slideDown 0.3s ease;
+    `;
+    notification.innerHTML = `
+        <i class="fas fa-share-square" style="margin-right: 8px;"></i>
+        ${message}
+    `;
+    
+    modal.querySelector('.pdf-modal-body').appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideUp 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
 function toggleIncomingAudio(studentId) {
