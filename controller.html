@@ -4369,7 +4369,66 @@ function setupImageModal(modalId, url, fileName) {
 
 
 
+async function renderPageForModal(modalId, pageNum) {
+    const modalData = openModals[modalId];
+    if (!modalData || !modalData.pdfDoc) return;
+    
+    try {
+        const page = await modalData.pdfDoc.getPage(pageNum);
+        
+        // ✅ SEPARAR CALIDAD DE RENDERIZADO VS ZOOM VISUAL
+        const INTERNAL_QUALITY = 2.0; // Siempre alta calidad
+        const userScale = modalData.scale; // Lo que el usuario eligió (0.75, 1.0, etc)
+        
+        // Calcular escala final
+        const renderScale = INTERNAL_QUALITY;
+        const outputScale = window.devicePixelRatio || 1;
+        
+        const viewport = page.getViewport({ scale: renderScale });
+        
+        const modal = modalData.element;
+        const canvas = modal.querySelector('.pdf-canvas');
+        const context = canvas.getContext('2d');
+        const annotationCanvas = modal.querySelector('.annotation-canvas');
 
+        // Dimensiones físicas (alta resolución)
+        canvas.width = Math.floor(viewport.width * outputScale);
+        canvas.height = Math.floor(viewport.height * outputScale);
+        
+        // Dimensiones visuales (según zoom del profesor)
+        const displayWidth = Math.floor(viewport.width * (userScale / INTERNAL_QUALITY));
+        const displayHeight = Math.floor(viewport.height * (userScale / INTERNAL_QUALITY));
+        
+        canvas.style.width = displayWidth + "px";
+        canvas.style.height = displayHeight + "px";
+
+        annotationCanvas.width = canvas.width;
+        annotationCanvas.height = canvas.height;
+        annotationCanvas.style.width = canvas.style.width;
+        annotationCanvas.style.height = canvas.style.height;
+        
+        const ctxAnn = annotationCanvas.getContext('2d');
+        ctxAnn.scale(outputScale * INTERNAL_QUALITY / userScale, outputScale * INTERNAL_QUALITY / userScale);
+
+        const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+
+        await page.render({
+            canvasContext: context,
+            transform: transform,
+            viewport: viewport
+        }).promise;
+        
+        restoreAnnotationsForModal(modalId, pageNum);
+        updatePageButtonsForModal(modalId);
+        
+        console.log(`✨ Renderizado - Interno: ${INTERNAL_QUALITY}x, Visual: ${userScale}x, Display: ${displayWidth}x${displayHeight}`);
+        
+    } catch (error) {
+        console.error('Error al renderizar página:', error);
+    }
+}
+
+/*
 async function renderPageForModal(modalId, pageNum) {
     const modalData = openModals[modalId];
     if (!modalData || !modalData.pdfDoc) return;
@@ -4425,6 +4484,7 @@ async function renderPageForModal(modalId, pageNum) {
         console.error('Error al renderizar página:', error);
     }
 }
+*/
 
 
 function stopScreenShare(studentId) {
