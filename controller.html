@@ -4165,7 +4165,7 @@ async function toggleModalMicrophone(modalId) {
     const btn = modal.querySelector('.btn-microphone');
     const audioIndicator = modal.querySelector('.audio-indicator');
     
-    // ✅ NUEVO: Obtener studentId del modal
+    // Obtener studentId del modal
     const studentId = Object.keys(individualScreenStreams).find(id => 
         individualScreenStreams[id].modalId === modalId
     );
@@ -4177,40 +4177,54 @@ async function toggleModalMicrophone(modalId) {
     
     if (!modalData.micEnabled) {
         try {
-            // Obtener stream de audio
-            if (!modalData.localStream) {
-                modalData.localStream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: true, 
-                    video: false 
-                });
+            // ✅ CRÍTICO: Obtener stream de audio
+            const audioStream = await navigator.mediaDevices.getUserMedia({ 
+                audio: true, 
+                video: false 
+            });
+            
+            const audioTrack = audioStream.getAudioTracks()[0];
+            
+            // ✅ SOLUCIÓN: Agregar el audio al stream existente del PDF
+            const screenStreamData = individualScreenStreams[studentId];
+            if (screenStreamData && screenStreamData.stream) {
+                // Agregar track de audio al stream de video existente
+                screenStreamData.stream.addTrack(audioTrack);
+                
+                console.log(`🎤 Audio agregado al stream de pantalla para ${getStudentName(studentId)}`);
+            } else {
+                // Si no hay stream de pantalla, crear uno nuevo solo con audio
+                modalData.audioSender = peers[studentId].addTrack(audioTrack, audioStream);
             }
             
-            // ✅ CRÍTICO: Enviar track al peer del estudiante
-            const audioTrack = modalData.localStream.getAudioTracks()[0];
-            if (audioTrack) {
-                modalData.audioSender = peers[studentId].addTrack(audioTrack, modalData.localStream);
-            }
+            // Guardar referencia para poder detenerlo después
+            modalData.audioTrack = audioTrack;
+            modalData.audioStream = audioStream;
             
             modalData.micEnabled = true;
             btn.classList.add('active');
             btn.querySelector('i').className = 'fas fa-microphone';
             audioIndicator.classList.add('active');
             
-            console.log(`🎤 Micrófono activado y enviado a ${getStudentName(studentId)}`);
+            console.log(`🎤 Micrófono activado en ${modalId}`);
             
         } catch (error) {
             console.error('Error al activar micrófono:', error);
             alert('No se pudo acceder al micrófono');
         }
     } else {
-        // Desactivar y remover track
-        if (modalData.audioSender && peers[studentId]) {
-            peers[studentId].removeTrack(modalData.audioSender.track, modalData.localStream);
-        }
-        
-        if (modalData.localStream) {
-            modalData.localStream.getAudioTracks().forEach(track => track.stop());
-            modalData.localStream = null;
+        // ✅ Desactivar micrófono
+        if (modalData.audioTrack) {
+            modalData.audioTrack.stop();
+            
+            // Remover del stream de pantalla si existe
+            const screenStreamData = individualScreenStreams[studentId];
+            if (screenStreamData && screenStreamData.stream) {
+                screenStreamData.stream.removeTrack(modalData.audioTrack);
+            }
+            
+            delete modalData.audioTrack;
+            delete modalData.audioStream;
         }
         
         modalData.micEnabled = false;
@@ -5256,15 +5270,17 @@ async function shareModalWithStudent(studentId, modalId) {
     const modal = modalData.element;
     
     try {
+        // Detener stream anterior si existe
         if (individualScreenStreams[studentId]?.stream) {
             stopScreenShare(studentId);
         }
         
         let stream;
+        
+        // Capturar según tipo de archivo
         if (modalData.fileType && modalData.fileType.includes('pdf')) {
             stream = await capturePDFCanvas(modalId);
-        } 
-        else {
+        } else {
             const iframe = modal.querySelector('.modal-iframe');
             if (iframe && iframe.style.display !== 'none') {
                 stream = await captureIframeContent(iframe);
@@ -5276,22 +5292,46 @@ async function shareModalWithStudent(studentId, modalId) {
         if (!stream || stream.getTracks().length === 0) {
             throw new Error('No se pudo generar el stream de video');
         }
+        
+        // ✅ NUEVO: Si ya hay audio activo, agregarlo al stream
+        if (modalData.micEnabled && modalData.audioTrack) {
+            stream.addTrack(modalData.audioTrack);
+            console.log('🎤 Audio del micrófono agregado al stream inicial');
+        }
+        
+        // Guardar referencia
         individualScreenStreams[studentId] = { 
             stream: stream, 
             active: true,
             modalId: modalId,
             animationFrameId: null
         };
+        
+        // Enviar track al peer
         const videoTrack = stream.getVideoTracks()[0];
         if (videoTrack) {
             const sender = peers[studentId].addTrack(videoTrack, stream);
             individualScreenStreams[studentId].sender = sender;
         }
+        
+        // Si hay audio, enviarlo también
+        const audioTracks = stream.getAudioTracks();
+        if (audioTracks.length > 0) {
+            audioTracks.forEach(audioTrack => {
+                peers[studentId].addTrack(audioTrack, stream);
+            });
+        }
+        
         createStudentUI(studentId, getStudentName(studentId));
         updateSharingStatusBar(modalId, studentId, 'add');
+        updateModalControls(modalId, studentId);
+        
+        // Iniciar actualizaciones si es PDF
         if (modalData.fileType && modalData.fileType.includes('pdf')) {
             startPDFStreamUpdates(studentId, modalId);
         }
+        
+        console.log(`✅ Modal compartido con ${getStudentName(studentId)}`);
         
     } catch (error) {
         console.error('Error al compartir modal:', error);
