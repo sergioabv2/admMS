@@ -4177,55 +4177,59 @@ async function toggleModalMicrophone(modalId) {
     
     if (!modalData.micEnabled) {
         try {
-            // ✅ CRÍTICO: Obtener stream de audio
+            // ✅ Obtener stream de audio
             const audioStream = await navigator.mediaDevices.getUserMedia({ 
-                audio: true, 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                }, 
                 video: false 
             });
             
             const audioTrack = audioStream.getAudioTracks()[0];
             
-            // ✅ SOLUCIÓN: Agregar el audio al stream existente del PDF
-            const screenStreamData = individualScreenStreams[studentId];
-            if (screenStreamData && screenStreamData.stream) {
-                // Agregar track de audio al stream de video existente
-                screenStreamData.stream.addTrack(audioTrack);
-                
-                console.log(`🎤 Audio agregado al stream de pantalla para ${getStudentName(studentId)}`);
-            } else {
-                // Si no hay stream de pantalla, crear uno nuevo solo con audio
-                modalData.audioSender = peers[studentId].addTrack(audioTrack, audioStream);
-            }
+            // ✅ CRÍTICO: Agregar track directamente al peer
+            const sender = peers[studentId].addTrack(audioTrack, audioStream);
             
-            // Guardar referencia para poder detenerlo después
+            // Guardar referencias
             modalData.audioTrack = audioTrack;
             modalData.audioStream = audioStream;
+            modalData.audioSender = sender; // Importante para removerlo después
             
             modalData.micEnabled = true;
             btn.classList.add('active');
             btn.querySelector('i').className = 'fas fa-microphone';
             audioIndicator.classList.add('active');
             
-            console.log(`🎤 Micrófono activado en ${modalId}`);
+            console.log(`🎤 Micrófono activado y enviado a ${getStudentName(studentId)}`);
             
         } catch (error) {
             console.error('Error al activar micrófono:', error);
-            alert('No se pudo acceder al micrófono');
+            alert('No se pudo acceder al micrófono: ' + error.message);
         }
     } else {
         // ✅ Desactivar micrófono
+        if (modalData.audioSender && peers[studentId]) {
+            try {
+                // Remover el sender del peer
+                peers[studentId].removeTrack(modalData.audioSender);
+            } catch (error) {
+                console.error('Error al remover track:', error);
+            }
+        }
+        
         if (modalData.audioTrack) {
             modalData.audioTrack.stop();
-            
-            // Remover del stream de pantalla si existe
-            const screenStreamData = individualScreenStreams[studentId];
-            if (screenStreamData && screenStreamData.stream) {
-                screenStreamData.stream.removeTrack(modalData.audioTrack);
-            }
-            
-            delete modalData.audioTrack;
-            delete modalData.audioStream;
         }
+        
+        if (modalData.audioStream) {
+            modalData.audioStream.getTracks().forEach(track => track.stop());
+        }
+        
+        delete modalData.audioTrack;
+        delete modalData.audioStream;
+        delete modalData.audioSender;
         
         modalData.micEnabled = false;
         btn.classList.remove('active');
