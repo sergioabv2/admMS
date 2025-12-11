@@ -5339,6 +5339,35 @@ async function shareModalWithStudent(studentId, modalId) {
     }
 }
 
+
+
+function updateModalControls(modalId, studentId) {
+    const modal = openModals[modalId]?.element;
+    if (!modal) return;
+    
+    const isConnected = studentId && peers[studentId] && peers[studentId].connected;
+    
+    // Obtener todos los botones de control
+    const micBtn = modal.querySelector('.btn-microphone');
+    const camBtn = modal.querySelector('.btn-camera');
+    const midiBtn = modal.querySelector('.btn-midi-share');
+    const chatBtn = modal.querySelector('.btn-chat-modal');
+    
+    // Los botones siempre están habilitados, solo cambian de estilo
+    if (isConnected) {
+        console.log(`✅ Controles listos para ${getStudentName(studentId)}`);
+    } else {
+        // Remover clases activas si no hay conexión
+        micBtn.classList.remove('active');
+        camBtn.classList.remove('active');
+        midiBtn.classList.remove('active');
+        chatBtn.classList.remove('active');
+        
+        console.log('❌ Sin conexión activa');
+    }
+}
+
+
 function updateSharingStatusBar(modalId, studentId, action) {
     const modal = openModals[modalId]?.element;
     if (!modal) return;
