@@ -3699,37 +3699,35 @@ document.addEventListener('keyup', (e) => {
     init();
 });
 
+// Reemplaza tu función init() con esta versión depurada
 async function init() {
     try {
-        // Stream básico (silencioso)
+        // Stream básico global (Audio puro)
         localStream = await navigator.mediaDevices.getUserMedia({
             audio: true,
             video: false
         });
         
         localStream.getAudioTracks().forEach(track => {
-            track.enabled = false;
+            track.enabled = false; 
         });
 
         // Registrar en Firebase
         usersRef.child(myId).set({ id: myId, role: "master", name: myName });
         usersRef.child(myId).onDisconnect().remove();
 
-        // Listeners
         listenForStudents();
         listenForSignals();
-        
-        // Inicializar piano y MIDI
         await initPianoVisual();
         await initMIDI();
 
+        console.log("✅ Sistema inicializado. Micrófono listo (Muteado).");
         
     } catch (error) {
         console.error("Error al inicializar:", error);
-        alert('Error: No se pudo acceder al micrófono.');
+        alert('Error crítico: Se requiere micrófono para iniciar la clase.');
     }
 }
-
 
 
 
@@ -4156,87 +4154,47 @@ function createModal(modalId, fileName) {
 }
 
 
-// ==================== CONTROLES DE MEDIOS EN MODAL ====================
+// Reemplaza la función toggleModalMicrophone completa con esta:
+
 async function toggleModalMicrophone(modalId) {
     const modalData = openModals[modalId];
     if (!modalData) return;
-    
+
     const modal = modalData.element;
     const btn = modal.querySelector('.btn-microphone');
     const audioIndicator = modal.querySelector('.audio-indicator');
-    
-    // Obtener studentId del modal
+
+    // Buscar qué alumno está asociado a este modal
     const studentId = Object.keys(individualScreenStreams).find(id => 
         individualScreenStreams[id].modalId === modalId
     );
-    
-    if (!studentId || !peers[studentId]) {
-        alert('No hay alumno conectado a este modal');
+
+
+    const audioTrack = localStream.getAudioTracks()[0];
+    if (!audioTrack) {
+        alert("No se encontró el micrófono del profesor.");
         return;
     }
-    
+
     if (!modalData.micEnabled) {
-        try {
-            // ✅ Obtener stream de audio
-            const audioStream = await navigator.mediaDevices.getUserMedia({ 
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true
-                }, 
-                video: false 
-            });
-            
-            const audioTrack = audioStream.getAudioTracks()[0];
-            
-            // ✅ CRÍTICO: Agregar track directamente al peer
-            const sender = peers[studentId].addTrack(audioTrack, audioStream);
-            
-            // Guardar referencias
-            modalData.audioTrack = audioTrack;
-            modalData.audioStream = audioStream;
-            modalData.audioSender = sender; // Importante para removerlo después
-            
-            modalData.micEnabled = true;
-            btn.classList.add('active');
-            btn.querySelector('i').className = 'fas fa-microphone';
-            audioIndicator.classList.add('active');
-            
-            console.log(`🎤 Micrófono activado y enviado a ${getStudentName(studentId)}`);
-            
-        } catch (error) {
-            console.error('Error al activar micrófono:', error);
-            alert('No se pudo acceder al micrófono: ' + error.message);
-        }
+        // ACTIVAR
+        audioTrack.enabled = true; // <--- Aquí está la magia, solo activamos el track existente
+        modalData.micEnabled = true;
+        
+        // Actualizamos UI
+        btn.classList.add('active');
+        if(audioIndicator) audioIndicator.classList.add('active');
+        console.log(`🎤 Micrófono profesor ACTIVADO`);
+
     } else {
-        // ✅ Desactivar micrófono
-        if (modalData.audioSender && peers[studentId]) {
-            try {
-                // Remover el sender del peer
-                peers[studentId].removeTrack(modalData.audioSender);
-            } catch (error) {
-                console.error('Error al remover track:', error);
-            }
-        }
-        
-        if (modalData.audioTrack) {
-            modalData.audioTrack.stop();
-        }
-        
-        if (modalData.audioStream) {
-            modalData.audioStream.getTracks().forEach(track => track.stop());
-        }
-        
-        delete modalData.audioTrack;
-        delete modalData.audioStream;
-        delete modalData.audioSender;
-        
+        // DESACTIVAR
+        audioTrack.enabled = false;
         modalData.micEnabled = false;
-        btn.classList.remove('active');
-        btn.querySelector('i').className = 'fas fa-microphone-slash';
-        audioIndicator.classList.remove('active');
         
-        console.log(`🎤 Micrófono desactivado`);
+        // Actualizamos UI
+        btn.classList.remove('active');
+        if(audioIndicator) audioIndicator.classList.remove('active');
+        console.log(`🎤 Micrófono profesor SILENCIADO`);
     }
 }
 
