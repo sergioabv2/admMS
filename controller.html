@@ -2831,6 +2831,21 @@ body {
     transform: scale(1.1);
 }
 
+.btn-midi-share {
+    background: #6c5ce7;
+}
+
+.btn-midi-share.active {
+    background: var(--primary-color);
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+    animation: pulse-midi 1.5s infinite;
+}
+
+@keyframes pulse-midi {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(108, 92, 231, 0.7); }
+    50% { box-shadow: 0 0 0 10px rgba(108, 92, 231, 0); }
+}
+
 @keyframes pulse-mic {
     0%, 100% { box-shadow: 0 0 0 0 rgba(46, 213, 115, 0.7); }
     50% { box-shadow: 0 0 0 10px rgba(46, 213, 115, 0); }
@@ -4124,9 +4139,9 @@ function createModal(modalId, fileName) {
                 <button class="media-control-btn btn-camera" onclick="toggleModalCamera('${modalId}')" title="Cámara">
                     <i class="fas fa-video"></i>
                 </button>
-                <button class="media-control-btn btn-screen-share" onclick="toggleModalScreenShare('${modalId}')" title="Compartir pantalla">
-                    <i class="fas fa-desktop"></i>
-                </button>
+                <button class="media-control-btn btn-midi-share" onclick="toggleModalMIDI('${modalId}')" title="Transmitir Piano MIDI">
+    <i class="fas fa-music"></i>
+</button>
                 <button class="media-control-btn btn-chat-modal" onclick="openChatFromModal('${modalId}')" title="Chat">
                     <i class="fas fa-comments"></i>
                 </button>
@@ -4149,6 +4164,16 @@ async function toggleModalMicrophone(modalId) {
     const btn = modal.querySelector('.btn-microphone');
     const audioIndicator = modal.querySelector('.audio-indicator');
     
+    // ✅ NUEVO: Obtener studentId del modal
+    const studentId = Object.keys(individualScreenStreams).find(id => 
+        individualScreenStreams[id].modalId === modalId
+    );
+    
+    if (!studentId || !peers[studentId]) {
+        alert('No hay alumno conectado a este modal');
+        return;
+    }
+    
     if (!modalData.micEnabled) {
         try {
             // Obtener stream de audio
@@ -4159,19 +4184,29 @@ async function toggleModalMicrophone(modalId) {
                 });
             }
             
+            // ✅ CRÍTICO: Enviar track al peer del estudiante
+            const audioTrack = modalData.localStream.getAudioTracks()[0];
+            if (audioTrack) {
+                modalData.audioSender = peers[studentId].addTrack(audioTrack, modalData.localStream);
+            }
+            
             modalData.micEnabled = true;
             btn.classList.add('active');
             btn.querySelector('i').className = 'fas fa-microphone';
             audioIndicator.classList.add('active');
             
-            console.log(`🎤 Micrófono activado en ${modalId}`);
+            console.log(`🎤 Micrófono activado y enviado a ${getStudentName(studentId)}`);
             
         } catch (error) {
             console.error('Error al activar micrófono:', error);
             alert('No se pudo acceder al micrófono');
         }
     } else {
-        // Desactivar micrófono
+        // Desactivar y remover track
+        if (modalData.audioSender && peers[studentId]) {
+            peers[studentId].removeTrack(modalData.audioSender.track, modalData.localStream);
+        }
+        
         if (modalData.localStream) {
             modalData.localStream.getAudioTracks().forEach(track => track.stop());
             modalData.localStream = null;
@@ -4182,7 +4217,7 @@ async function toggleModalMicrophone(modalId) {
         btn.querySelector('i').className = 'fas fa-microphone-slash';
         audioIndicator.classList.remove('active');
         
-        console.log(`🎤 Micrófono desactivado en ${modalId}`);
+        console.log(`🎤 Micrófono desactivado`);
     }
 }
 
@@ -4196,6 +4231,16 @@ async function toggleModalCamera(modalId) {
     const video = pipContainer.querySelector('.pip-video-element');
     const placeholder = pipContainer.querySelector('.pip-placeholder');
     
+    // ✅ NUEVO: Obtener studentId
+    const studentId = Object.keys(individualScreenStreams).find(id => 
+        individualScreenStreams[id].modalId === modalId
+    );
+    
+    if (!studentId || !peers[studentId]) {
+        alert('No hay alumno conectado a este modal');
+        return;
+    }
+    
     if (!modalData.cameraEnabled) {
         try {
             // Obtener stream de video
@@ -4207,10 +4252,16 @@ async function toggleModalCamera(modalId) {
                 audio: false 
             });
             
+            // ✅ CRÍTICO: Enviar track al peer
+            const videoTrack = stream.getVideoTracks()[0];
+            if (videoTrack) {
+                modalData.videoSender = peers[studentId].addTrack(videoTrack, stream);
+            }
+            
             modalData.localStream = stream;
             modalData.cameraEnabled = true;
             
-            // Mostrar video
+            // Mostrar video localmente
             video.srcObject = stream;
             video.style.display = 'block';
             placeholder.style.display = 'none';
@@ -4219,14 +4270,18 @@ async function toggleModalCamera(modalId) {
             btn.classList.add('active');
             btn.querySelector('i').className = 'fas fa-video';
             
-            console.log(`📹 Cámara activada en ${modalId}`);
+            console.log(`📹 Cámara activada y enviada a ${getStudentName(studentId)}`);
             
         } catch (error) {
             console.error('Error al activar cámara:', error);
             alert('No se pudo acceder a la cámara');
         }
     } else {
-        // Desactivar cámara
+        // Desactivar
+        if (modalData.videoSender && peers[studentId]) {
+            peers[studentId].removeTrack(modalData.videoSender.track, modalData.localStream);
+        }
+        
         if (modalData.localStream) {
             modalData.localStream.getVideoTracks().forEach(track => track.stop());
             modalData.localStream = null;
@@ -4241,56 +4296,50 @@ async function toggleModalCamera(modalId) {
         btn.classList.remove('active');
         btn.querySelector('i').className = 'fas fa-video-slash';
         
-        console.log(`📹 Cámara desactivada en ${modalId}`);
+        console.log(`📹 Cámara desactivada`);
     }
 }
 
-async function toggleModalScreenShare(modalId) {
+function toggleModalMIDI(modalId) {
+    if (!midiInput) {
+        alert('No hay piano MIDI conectado');
+        return;
+    }
+    
     const modalData = openModals[modalId];
     if (!modalData) return;
     
-    const modal = modalData.element;
-    const btn = modal.querySelector('.btn-screen-share');
+    // Obtener studentId del modal
+    const studentId = Object.keys(individualScreenStreams).find(id => 
+        individualScreenStreams[id].modalId === modalId
+    );
     
-    if (!modalData.screenShareEnabled) {
-        try {
-            // Compartir pantalla
-            const stream = await navigator.mediaDevices.getDisplayMedia({ 
-                video: true, 
-                audio: true 
-            });
-            
-            modalData.screenStream = stream;
-            modalData.screenShareEnabled = true;
-            
-            btn.classList.add('active');
-            
-            // Detectar cuando el usuario detiene la compartición
-            stream.getVideoTracks()[0].onended = () => {
-                toggleModalScreenShare(modalId);
-            };
-            
-            console.log(`🖥️ Compartir pantalla activado en ${modalId}`);
-            
-            // Aquí podrías enviar este stream por WebRTC si estás conectado a un peer
-            
-        } catch (error) {
-            console.error('Error al compartir pantalla:', error);
-            if (error.name !== 'NotAllowedError') {
-                alert('No se pudo compartir la pantalla');
-            }
-        }
-    } else {
-        // Detener compartir pantalla
-        if (modalData.screenStream) {
-            modalData.screenStream.getTracks().forEach(track => track.stop());
-            modalData.screenStream = null;
-        }
-        
-        modalData.screenShareEnabled = false;
+    if (!studentId || !peers[studentId]) {
+        alert('No hay alumno conectado a este modal');
+        return;
+    }
+    
+    const modal = modalData.element;
+    const btn = modal.querySelector('.btn-midi-share');
+    
+    // Si este modal ya está transmitiendo, apagar
+    if (activeMidiStudent === studentId) {
+        activeMidiStudent = null;
+        midiTransmissionEnabled = false;
         btn.classList.remove('active');
+        updateTransmissionStatus();
+        console.log('🎹 Transmisión MIDI detenida');
+    } else {
+        // Activar para este estudiante
+        activeMidiStudent = studentId;
+        midiTransmissionEnabled = true;
         
-        console.log(`🖥️ Compartir pantalla desactivado en ${modalId}`);
+        // Desactivar otros botones MIDI
+        document.querySelectorAll('.btn-midi-share').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        updateTransmissionStatus();
+        console.log(`🎹 Transmisión MIDI activa → ${getStudentName(studentId)}`);
     }
 }
 
@@ -5500,17 +5549,35 @@ function startPeer(targetId, initiator) {
     });
 
     peer.on("data", msg => {
-        try {
-            const data = JSON.parse(msg.toString());
-            if (data.type === 'chat') {
-                if (selectedStudent === targetId) {
-                    logChat(getStudentName(targetId), data.text);
+    try {
+        const data = JSON.parse(msg.toString());
+        
+        if (data.type === 'chat') {
+            // Chat en sidebar (si ese alumno está seleccionado)
+            if (selectedStudent === targetId) {
+                logChat(getStudentName(targetId), data.text);
+            }
+            
+            // ✅ NUEVO: Chat en modal (si existe un modal para este alumno)
+            const modalId = individualScreenStreams[targetId]?.modalId;
+            if (modalId && openModals[modalId]) {
+                const messagesContainer = document.getElementById(`miniChatMessages-${modalId}`);
+                if (messagesContainer) {
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message other';
+                    messageElement.innerHTML = `
+                        <div class="message-sender">${getStudentName(targetId)}</div>
+                        <div>${data.text}</div>
+                    `;
+                    messagesContainer.appendChild(messageElement);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }
             }
-        } catch (error) {
-            console.error("Error parsing peer data:", error);
         }
-    });
+    } catch (error) {
+        console.error("Error parsing peer data:", error);
+    }
+});
 
     peer.on("stream", stream => {
         console.log(`Stream recibido de ${getStudentName(targetId)}`);
@@ -6216,7 +6283,17 @@ function sendMiniChatMessage(modalId) {
     
     input.value = '';
     
-    // Crear mensaje
+    // ✅ NUEVO: Obtener studentId del modal
+    const studentId = Object.keys(individualScreenStreams).find(id => 
+        individualScreenStreams[id].modalId === modalId
+    );
+    
+    if (!studentId || !peers[studentId]) {
+        alert('No hay alumno conectado a este modal');
+        return;
+    }
+    
+    // Crear mensaje localmente
     const messageElement = document.createElement('div');
     messageElement.className = 'message self';
     messageElement.innerHTML = `
@@ -6227,7 +6304,18 @@ function sendMiniChatMessage(modalId) {
     messagesContainer.appendChild(messageElement);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
     
-    // Aquí puedes enviar el mensaje por WebRTC si hay un peer conectado
+    // ✅ CRÍTICO: Enviar por WebRTC
+    if (peers[studentId] && peers[studentId].connected) {
+        try {
+            peers[studentId].send(JSON.stringify({ 
+                type: 'chat', 
+                text: msg 
+            }));
+            console.log(`💬 Mensaje enviado a ${getStudentName(studentId)}: ${msg}`);
+        } catch (error) {
+            console.error('Error enviando mensaje:', error);
+        }
+    }
 }
 
 
