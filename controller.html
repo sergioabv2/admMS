@@ -4561,8 +4561,8 @@ function stopScreenShare(studentId) {
     
     const modalId = streamData.modalId;
     
-    // Detener animationFrame si existe
-    if (streamData.animationFrameId) {
+    // Detener animationFrame solo si NO es compartir pantalla nativo
+    if (!streamData.isNativeScreenShare && streamData.animationFrameId) {
         cancelAnimationFrame(streamData.animationFrameId);
     }
     
@@ -4573,13 +4573,17 @@ function stopScreenShare(studentId) {
             console.error('Error removiendo track:', error);
         }
     }
+    
     streamData.stream.getTracks().forEach(track => track.stop());
+    
     const modalData = openModals[modalId];
-    if (modalData) {
+    if (modalData && !streamData.isNativeScreenShare) {
         delete modalData.streamCanvas;
         delete modalData.updateStreamCanvas;
     }
+    
     delete individualScreenStreams[studentId];
+    
     if (openModals[modalId]) {
         updateSharingStatusBar(modalId, studentId, 'remove');
     }
@@ -5271,33 +5275,31 @@ async function shareModalWithStudent(studentId, modalId) {
         return;
     }
     
-    const modal = modalData.element;
-    
     try {
         // Detener stream anterior si existe
         if (individualScreenStreams[studentId]?.stream) {
             stopScreenShare(studentId);
         }
         
-        let stream;
+        // ✅ NUEVA IMPLEMENTACIÓN: Captura de pantalla nativa
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+            video: {
+                displaySurface: 'window', // Solo ventanas (no toda la pantalla)
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+                frameRate: { ideal: 30 }
+            },
+            audio: false // Cambiar a true si quieres compartir audio del sistema
+        });
         
-        // Capturar según tipo de archivo
-        if (modalData.fileType && modalData.fileType.includes('pdf')) {
-            stream = await capturePDFCanvas(modalId);
-        } else {
-            const iframe = modal.querySelector('.modal-iframe');
-            if (iframe && iframe.style.display !== 'none') {
-                stream = await captureIframeContent(iframe);
-            } else {
-                throw new Error('No se encontró contenido válido para compartir');
-            }
-        }
+        // Detectar cuando el usuario deja de compartir manualmente
+        stream.getVideoTracks()[0].onended = () => {
+            console.log('📺 Usuario detuvo compartir pantalla');
+            stopScreenShare(studentId);
+            createStudentUI(studentId, getStudentName(studentId));
+        };
         
-        if (!stream || stream.getTracks().length === 0) {
-            throw new Error('No se pudo generar el stream de video');
-        }
-        
-        // ✅ NUEVO: Si ya hay audio activo, agregarlo al stream
+        // ✅ Si hay audio activo del modal, agregarlo
         if (modalData.micEnabled && modalData.audioTrack) {
             stream.addTrack(modalData.audioTrack);
             console.log('🎤 Audio del micrófono agregado al stream inicial');
@@ -5308,7 +5310,7 @@ async function shareModalWithStudent(studentId, modalId) {
             stream: stream, 
             active: true,
             modalId: modalId,
-            animationFrameId: null
+            isNativeScreenShare: true // Flag para diferenciar
         };
         
         // Enviar track al peer
@@ -5330,16 +5332,19 @@ async function shareModalWithStudent(studentId, modalId) {
         updateSharingStatusBar(modalId, studentId, 'add');
         updateModalControls(modalId, studentId);
         
-        // Iniciar actualizaciones si es PDF
-        if (modalData.fileType && modalData.fileType.includes('pdf')) {
-            startPDFStreamUpdates(studentId, modalId);
-        }
-        
-        console.log(`✅ Modal compartido con ${getStudentName(studentId)}`);
+        console.log(`✅ Pantalla compartida con ${getStudentName(studentId)}`);
         
     } catch (error) {
-        console.error('Error al compartir modal:', error);
-        alert('Error al compartir contenido: ' + error.message);
+        console.error('Error al compartir pantalla:', error);
+        
+        // Mensajes de error específicos
+        if (error.name === 'NotAllowedError') {
+            alert('❌ Compartir pantalla cancelado o no permitido por el navegador.');
+        } else if (error.name === 'NotFoundError') {
+            alert('❌ No se encontró ninguna pantalla/ventana para compartir.');
+        } else {
+            alert('Error al compartir contenido: ' + error.message);
+        }
     }
 }
 
@@ -5621,18 +5626,17 @@ function startPeer(targetId, initiator) {
         console.log(`✅ Conexión WebRTC con ${getStudentName(targetId)}`);
         createStudentUI(targetId, getStudentName(targetId));
     });
-
-    peer.on("data", msg => {
+peer.on("data", msg => {
     try {
         const data = JSON.parse(msg.toString());
         
         if (data.type === 'chat') {
-            // Chat en sidebar (si ese alumno está seleccionado)
+            // Chat en sidebar
             if (selectedStudent === targetId) {
                 logChat(getStudentName(targetId), data.text);
             }
             
-            // ✅ NUEVO: Chat en modal (si existe un modal para este alumno)
+            // Chat en modal
             const modalId = individualScreenStreams[targetId]?.modalId;
             if (modalId && openModals[modalId]) {
                 const messagesContainer = document.getElementById(`miniChatMessages-${modalId}`);
@@ -5648,6 +5652,18 @@ function startPeer(targetId, initiator) {
                 }
             }
         }
+        
+        // ✅ NUEVO: Recibir MIDI del alumno
+        else if (data.type === 'midi') {
+            console.log(`🎹 MIDI recibido de ${getStudentName(targetId)}: ${data.note}`);
+            
+            if (data.action === 'noteOn') {
+                triggerNoteOn(data.note);
+            } else if (data.action === 'noteOff') {
+                triggerNoteOff(data.note);
+            }
+        }
+        
     } catch (error) {
         console.error("Error parsing peer data:", error);
     }
