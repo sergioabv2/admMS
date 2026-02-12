@@ -5282,8 +5282,14 @@ async function toggleIndividualScreen(studentId) {
 
 
 function selectModalForScreenShare(studentId) {
-    if (!peers[studentId] || !peers[studentId].connected) {
+    // ✅ CORRECCIÓN: Verificar en studentConnections, NO en individualScreenStreams
+    if (!peers[studentId] || !studentConnections[studentId]?.connected) {
         alert('El alumno no está conectado');
+        console.error(`❌ Estado de conexión:`, {
+            peerExists: !!peers[studentId],
+            connected: studentConnections[studentId]?.connected,
+            studentId: studentId
+        });
         return;
     }
     
@@ -5367,22 +5373,43 @@ async function shareModalWithStudent(studentId, modalId) {
         return;
     }
     
+    // ✅ VERIFICACIÓN MEJORADA
+    if (!peers[studentId]) {
+        alert('Peer no existe para este alumno');
+        console.error('❌ Peer no encontrado:', studentId);
+        return;
+    }
+    
+    if (!peers[studentId].connected) {
+        alert('El peer no está en estado conectado');
+        console.error('❌ Peer no conectado:', {
+            studentId,
+            peerState: peers[studentId]._pc?.connectionState,
+            iceState: peers[studentId]._pc?.iceConnectionState
+        });
+        return;
+    }
+    
     try {
         // Detener stream anterior si existe
         if (individualScreenStreams[studentId]?.stream) {
             stopScreenShare(studentId);
         }
         
-        // ✅ NUEVA IMPLEMENTACIÓN: Captura de pantalla nativa
+        console.log(`📺 Solicitando compartir pantalla para ${getStudentName(studentId)}`);
+        
+        // Captura de pantalla nativa
         const stream = await navigator.mediaDevices.getDisplayMedia({
             video: {
-                displaySurface: 'window', // Solo ventanas (no toda la pantalla)
+                displaySurface: 'window',
                 width: { ideal: 1920 },
                 height: { ideal: 1080 },
-                frameRate: { ideal: 30 }
+                frameRate: { ideal: 30, max: 60 }
             },
-            audio: false // Cambiar a true si quieres compartir audio del sistema
+            audio: false
         });
+        
+        console.log('✅ Stream de pantalla obtenido:', stream.id);
         
         // Detectar cuando el usuario deja de compartir manualmente
         stream.getVideoTracks()[0].onended = () => {
@@ -5391,10 +5418,25 @@ async function shareModalWithStudent(studentId, modalId) {
             createStudentUI(studentId, getStudentName(studentId));
         };
         
-        // ✅ Si hay audio activo del modal, agregarlo
+        // Si hay audio activo del modal, agregarlo
         if (modalData.micEnabled && modalData.audioTrack) {
             stream.addTrack(modalData.audioTrack);
-            console.log('🎤 Audio del micrófono agregado al stream inicial');
+            console.log('🎤 Audio del micrófono agregado');
+        }
+        
+        // ✅ CRÍTICO: Usar replaceTrack en lugar de addTrack para video
+        const videoTrack = stream.getVideoTracks()[0];
+        const senders = peers[studentId]._pc.getSenders();
+        const videoSender = senders.find(s => s.track?.kind === 'video');
+        
+        if (videoSender) {
+            // Ya existe un sender de video, reemplazar track
+            await videoSender.replaceTrack(videoTrack);
+            console.log('✅ Track de video reemplazado');
+        } else {
+            // No existe sender de video, agregarlo
+            const sender = peers[studentId].addTrack(videoTrack, stream);
+            console.log('✅ Track de video agregado');
         }
         
         // Guardar referencia
@@ -5402,38 +5444,25 @@ async function shareModalWithStudent(studentId, modalId) {
             stream: stream, 
             active: true,
             modalId: modalId,
-            isNativeScreenShare: true // Flag para diferenciar
+            isNativeScreenShare: true,
+            sender: videoSender || peers[studentId]._pc.getSenders().find(s => s.track === videoTrack)
         };
-        
-        // Enviar track al peer
-        const videoTrack = stream.getVideoTracks()[0];
-        if (videoTrack) {
-            const sender = peers[studentId].addTrack(videoTrack, stream);
-            individualScreenStreams[studentId].sender = sender;
-        }
-        
-        // Si hay audio, enviarlo también
-        const audioTracks = stream.getAudioTracks();
-        if (audioTracks.length > 0) {
-            audioTracks.forEach(audioTrack => {
-                peers[studentId].addTrack(audioTrack, stream);
-            });
-        }
         
         createStudentUI(studentId, getStudentName(studentId));
         updateSharingStatusBar(modalId, studentId, 'add');
         updateModalControls(modalId, studentId);
         
-        console.log(`✅ Pantalla compartida con ${getStudentName(studentId)}`);
+        console.log(`✅ Pantalla compartida exitosamente con ${getStudentName(studentId)}`);
         
     } catch (error) {
-        console.error('Error al compartir pantalla:', error);
+        console.error('❌ Error al compartir pantalla:', error);
         
-        // Mensajes de error específicos
         if (error.name === 'NotAllowedError') {
             alert('❌ Compartir pantalla cancelado o no permitido por el navegador.');
         } else if (error.name === 'NotFoundError') {
             alert('❌ No se encontró ninguna pantalla/ventana para compartir.');
+        } else if (error.name === 'NotReadableError') {
+            alert('❌ Error de hardware. Cierra otras aplicaciones que usen la pantalla.');
         } else {
             alert('Error al compartir contenido: ' + error.message);
         }
