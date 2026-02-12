@@ -3701,6 +3701,9 @@ document.addEventListener('keyup', (e) => {
 
 async function init() {
     try {
+        // ✅ NUEVO: Limpiar conexiones fantasma al iniciar
+        await cleanupGhostConnections();
+        
         // Stream básico (silencioso)
         localStream = await navigator.mediaDevices.getUserMedia({
             audio: true,
@@ -3727,6 +3730,35 @@ async function init() {
     } catch (error) {
         console.error("Error al inicializar:", error);
         alert('Error: No se pudo acceder al micrófono.');
+    }
+}
+
+
+async function cleanupGhostConnections() {
+    try {
+        const snapshot = await usersRef.once('value');
+        const users = snapshot.val() || {};
+        
+        const now = Date.now();
+        const TIMEOUT_MS = 60000; // 1 minuto sin actividad = fantasma
+        
+        for (let userId in users) {
+            const user = users[userId];
+            
+            // Si es alumno (role: "user") y no tiene timestamp o es muy antiguo
+            if (user.role === "user") {
+                const lastActive = user.lastActive || 0;
+                
+                if (now - lastActive > TIMEOUT_MS || !user.lastActive) {
+                    console.log(`🧹 Limpiando conexión fantasma: ${userId}`);
+                    await usersRef.child(userId).remove();
+                }
+            }
+        }
+        
+        console.log('✅ Limpieza de conexiones fantasma completada');
+    } catch (error) {
+        console.error('Error limpiando conexiones:', error);
     }
 }
 
@@ -4910,7 +4942,6 @@ function removeFile(btn) {
     btn.closest('.file-item').remove();
 }
 
-// ==================== GESTIÓN DE ESTUDIANTES ====================
 function listenForStudents() {
     usersRef.on("value", snap => {
         const users = snap.val() || {};
@@ -4919,10 +4950,22 @@ function listenForStudents() {
         studentsContainer.innerHTML = '';
         connectedStudents = {};
         
+        const now = Date.now();
+        const TIMEOUT_MS = 30000; // 30 segundos sin heartbeat = desconectado
+        
         for (let key in users) {
             if (users[key].role === "user") {
-                connectedStudents[key] = users[key];
-                createStudentUI(key, users[key].name || users[key].id);
+                const lastHeartbeat = users[key].lastHeartbeat || 0;
+                
+                // ✅ Solo mostrar alumnos con heartbeat reciente
+                if (now - lastHeartbeat < TIMEOUT_MS) {
+                    connectedStudents[key] = users[key];
+                    createStudentUI(key, users[key].name || users[key].id);
+                } else {
+                    // Limpiar conexión fantasma
+                    console.log(`👻 Removiendo fantasma: ${key}`);
+                    usersRef.child(key).remove();
+                }
             }
         }
         
@@ -4937,6 +4980,31 @@ function listenForStudents() {
         for (let studentId in peers) {
             if (!connectedStudents[studentId]) {
                 cleanupStudentConnection(studentId);
+            }
+        }
+    });
+    
+    // ✅ NUEVO: Verificar heartbeats periódicamente
+    setInterval(() => {
+        checkHeartbeats();
+    }, 10000); // Cada 10 segundos
+}
+
+
+function checkHeartbeats() {
+    usersRef.once('value', snapshot => {
+        const users = snapshot.val() || {};
+        const now = Date.now();
+        const TIMEOUT_MS = 30000;
+        
+        for (let userId in users) {
+            if (users[userId].role === "user") {
+                const lastHeartbeat = users[userId].lastHeartbeat || 0;
+                
+                if (now - lastHeartbeat > TIMEOUT_MS) {
+                    console.log(`💀 Heartbeat timeout: ${userId}`);
+                    usersRef.child(userId).remove();
+                }
             }
         }
     });
