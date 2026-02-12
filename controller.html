@@ -2994,6 +2994,10 @@ body {
                    Mozart Academy
                 </h1>
                 <div class="midi-status-header">
+                <button onclick="manualCleanupGhosts()" 
+                style="padding: 6px 12px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 6px; cursor: pointer; font-size: 12px; margin-right: 10px;">
+            <i class="fas fa-broom"></i> Limpiar Fantasmas
+        </button>
                     <span id="midiHeaderStatus" class="midi-indicator">
                         <i class="fas fa-circle"></i> Sin piano MIDI
                     </span>
@@ -4036,6 +4040,26 @@ function openFileInModal(btn) {
     }, 50);
 }
 
+async function manualCleanupGhosts() {
+    if (!confirm('¿Eliminar todas las conexiones inactivas?')) return;
+    
+    const snapshot = await usersRef.once('value');
+    const users = snapshot.val() || {};
+    let cleaned = 0;
+    
+    for (let userId in users) {
+        if (users[userId].role === "user") {
+            // Verificar si tiene peer activo
+            if (!peers[userId] || !peers[userId].connected) {
+                await usersRef.child(userId).remove();
+                cleaned++;
+                console.log(`🧹 Removido: ${userId}`);
+            }
+        }
+    }
+    
+    alert(`✅ Se limpiaron ${cleaned} conexiones fantasma`);
+}
 
 function createModal(modalId, fileName) {
     const modal = document.createElement('div');
@@ -5751,17 +5775,25 @@ peer.on("data", msg => {
         audioEl.srcObject = stream;
     });
 
-    peer.on("close", () => {
-        studentConnections[targetId] = { connected: false };
-        console.log(`Conexión cerrada con ${getStudentName(targetId)}`);
-        createStudentUI(targetId, getStudentName(targetId));
-    });
+peer.on("close", () => {
+    studentConnections[targetId] = { connected: false };
+    console.log(`Conexión cerrada con ${getStudentName(targetId)}`);
+    
+    // ✅ NUEVO: Remover de Firebase inmediatamente
+    usersRef.child(targetId).remove();
+    
+    createStudentUI(targetId, getStudentName(targetId));
+});
 
-    peer.on("error", (err) => {
-        console.error("Error en peer:", err);
-        studentConnections[targetId] = { connected: false };
-        createStudentUI(targetId, getStudentName(targetId));
-    });
+peer.on("error", (err) => {
+    console.error("Error en peer:", err);
+    studentConnections[targetId] = { connected: false };
+    
+    // ✅ NUEVO: Remover de Firebase en caso de error
+    usersRef.child(targetId).remove();
+    
+    createStudentUI(targetId, getStudentName(targetId));
+});
 }
 
 function listenForSignals() {
