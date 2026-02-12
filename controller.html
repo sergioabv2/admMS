@@ -5714,52 +5714,66 @@ function startPeer(targetId, initiator) {
     });
 
     peer.on("connect", () => {
+        // ✅ CRÍTICO: Cambiar estado inmediatamente
         studentConnections[targetId].connected = true;
         console.log(`✅ Conexión WebRTC con ${getStudentName(targetId)}`);
-        createStudentUI(targetId, getStudentName(targetId));
-    });
-peer.on("data", msg => {
-    try {
-        const data = JSON.parse(msg.toString());
         
-        if (data.type === 'chat') {
-            // Chat en sidebar
-            if (selectedStudent === targetId) {
-                logChat(getStudentName(targetId), data.text);
-            }
+        // ✅ NUEVO: Actualizar UI del estudiante
+        createStudentUI(targetId, getStudentName(targetId));
+        
+        // ✅ NUEVO: Cancelar timeout si existe
+        const btnConnect = document.getElementById(`btn-connect-${targetId}`);
+        if (btnConnect) {
+            btnConnect.disabled = false;
+            btnConnect.innerHTML = `
+                <i class="fas fa-check-circle"></i> 
+                <span>Conectado</span>
+            `;
+        }
+    });
+
+    peer.on("data", msg => {
+        try {
+            const data = JSON.parse(msg.toString());
             
-            // Chat en modal
-            const modalId = individualScreenStreams[targetId]?.modalId;
-            if (modalId && openModals[modalId]) {
-                const messagesContainer = document.getElementById(`miniChatMessages-${modalId}`);
-                if (messagesContainer) {
-                    const messageElement = document.createElement('div');
-                    messageElement.className = 'message other';
-                    messageElement.innerHTML = `
-                        <div class="message-sender">${getStudentName(targetId)}</div>
-                        <div>${data.text}</div>
-                    `;
-                    messagesContainer.appendChild(messageElement);
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            if (data.type === 'chat') {
+                // Chat en sidebar
+                if (selectedStudent === targetId) {
+                    logChat(getStudentName(targetId), data.text);
+                }
+                
+                // Chat en modal
+                const modalId = individualScreenStreams[targetId]?.modalId;
+                if (modalId && openModals[modalId]) {
+                    const messagesContainer = document.getElementById(`miniChatMessages-${modalId}`);
+                    if (messagesContainer) {
+                        const messageElement = document.createElement('div');
+                        messageElement.className = 'message other';
+                        messageElement.innerHTML = `
+                            <div class="message-sender">${getStudentName(targetId)}</div>
+                            <div>${data.text}</div>
+                        `;
+                        messagesContainer.appendChild(messageElement);
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }
                 }
             }
-        }
-        
-        // ✅ NUEVO: Recibir MIDI del alumno
-        else if (data.type === 'midi') {
-            console.log(`🎹 MIDI recibido de ${getStudentName(targetId)}: ${data.note}`);
             
-            if (data.action === 'noteOn') {
-                triggerNoteOn(data.note);
-            } else if (data.action === 'noteOff') {
-                triggerNoteOff(data.note);
+            // Recibir MIDI del alumno
+            else if (data.type === 'midi') {
+                console.log(`🎹 MIDI recibido de ${getStudentName(targetId)}: ${data.note}`);
+                
+                if (data.action === 'noteOn') {
+                    triggerNoteOn(data.note);
+                } else if (data.action === 'noteOff') {
+                    triggerNoteOff(data.note);
+                }
             }
+            
+        } catch (error) {
+            console.error("Error parsing peer data:", error);
         }
-        
-    } catch (error) {
-        console.error("Error parsing peer data:", error);
-    }
-});
+    });
 
     peer.on("stream", stream => {
         console.log(`Stream recibido de ${getStudentName(targetId)}`);
@@ -5773,27 +5787,43 @@ peer.on("data", msg => {
             document.body.appendChild(audioEl);
         }
         audioEl.srcObject = stream;
+        
+        // ✅ NUEVO: Marcar como conectado al recibir stream
+        if (!studentConnections[targetId].connected) {
+            studentConnections[targetId].connected = true;
+            createStudentUI(targetId, getStudentName(targetId));
+        }
     });
 
-peer.on("close", () => {
-    studentConnections[targetId] = { connected: false };
-    console.log(`Conexión cerrada con ${getStudentName(targetId)}`);
-    
-    // ✅ NUEVO: Remover de Firebase inmediatamente
-    usersRef.child(targetId).remove();
-    
-    createStudentUI(targetId, getStudentName(targetId));
-});
+    peer.on("close", () => {
+        studentConnections[targetId] = { connected: false };
+        console.log(`Conexión cerrada con ${getStudentName(targetId)}`);
+        
+        // ✅ Remover de Firebase
+        usersRef.child(targetId).remove();
+        
+        createStudentUI(targetId, getStudentName(targetId));
+    });
 
-peer.on("error", (err) => {
-    console.error("Error en peer:", err);
-    studentConnections[targetId] = { connected: false };
-    
-    // ✅ NUEVO: Remover de Firebase en caso de error
-    usersRef.child(targetId).remove();
-    
-    createStudentUI(targetId, getStudentName(targetId));
-});
+    peer.on("error", (err) => {
+        console.error("Error en peer:", err);
+        studentConnections[targetId] = { connected: false };
+        
+        // ✅ Remover de Firebase en caso de error
+        usersRef.child(targetId).remove();
+        
+        // ✅ NUEVO: Resetear botón de conexión
+        const btnConnect = document.getElementById(`btn-connect-${targetId}`);
+        if (btnConnect) {
+            btnConnect.disabled = false;
+            btnConnect.innerHTML = `
+                <i class="fas fa-plug"></i> 
+                <span>Conectar</span>
+            `;
+        }
+        
+        createStudentUI(targetId, getStudentName(targetId));
+    });
 }
 
 function listenForSignals() {
