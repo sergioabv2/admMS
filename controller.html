@@ -5734,9 +5734,28 @@ function startPeer(targetId, initiator) {
             ]
         }
     });
+
+
     
     peers[targetId] = peer;
     studentConnections[targetId] = { connected: false };
+
+    peer._pc.oniceconnectionstatechange = () => {
+        const state = peer._pc.iceConnectionState;
+        console.log(`🧊 ICE State [${getStudentName(targetId)}]: ${state}`);
+        
+        if (state === 'connected' || state === 'completed') {
+            studentConnections[targetId].connected = true;
+            createStudentUI(targetId, getStudentName(targetId));
+        } else if (state === 'failed' || state === 'disconnected') {
+            console.warn(`⚠️ ICE ${state} para ${getStudentName(targetId)}`);
+            
+            if (state === 'failed') {
+                studentConnections[targetId].connected = false;
+                createStudentUI(targetId, getStudentName(targetId));
+            }
+        }
+    };
 
     peer.on("signal", data => {
         signalsRef.push({ from: myId, to: targetId, data });
