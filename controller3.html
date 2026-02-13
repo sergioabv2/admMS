@@ -1022,24 +1022,7 @@
             }, 10000);
         }
 
-        function checkHeartbeats() {
-            usersRef.once('value', snapshot => {
-                const users = snapshot.val() || {};
-                const now = Date.now();
-                const TIMEOUT_MS = 30000;
-                
-                for (let userId in users) {
-                    if (users[userId].role === "user") {
-                        const lastHeartbeat = users[userId].lastHeartbeat || 0;
-                        
-                        if (now - lastHeartbeat > TIMEOUT_MS) {
-                            console.log(`💀 Heartbeat timeout: ${userId}`);
-                            usersRef.child(userId).remove();
-                        }
-                    }
-                }
-            });
-        }
+     
 
         function createStudentUI(studentId, name) {
             const studentsContainer = document.getElementById("studentsContainer");
@@ -1397,143 +1380,189 @@
         }
 
         // ==================== WEBRTC ====================
-        function startPeer(targetId, initiator) {
-            const peer = new SimplePeer({
-                initiator,
-                stream: localStream,
-                trickle: false,
-                config: {
-                    iceServers: [
-                        { urls: "stun:stun.relay.metered.ca:80" },
-                        { 
-                            urls: "turn:a.relay.metered.ca:80", 
-                            username: "fad444a63bcf5c8176a3e139", 
-                            credential: "MQm2u8W0l1TCVMm0" 
-                        },
-                        { 
-                            urls: "turn:a.relay.metered.ca:443", 
-                            username: "fad444a63bcf5c8176a3e139", 
-                            credential: "MQm2u8W0l1TCVMm0" 
-                        }
-                    ]
-                }
-            });
-            
-            peers[targetId] = peer;
-            studentConnections[targetId] = { connected: false };
+       // ==================== CONFIGURACIÓN ====================
+const HEARTBEAT_TIMEOUT = 15000; // 15 segundos (más generoso)
+const CHECK_INTERVAL = 5000; // Revisar cada 5 segundos
 
-            peer._pc.oniceconnectionstatechange = () => {
-                const state = peer._pc.iceConnectionState;
-                console.log(`🧊 ICE State [${getStudentName(targetId)}]: ${state}`);
+// ==================== CHECK HEARTBEATS MEJORADO ====================
+function checkHeartbeats() {
+    usersRef.once('value', snapshot => {
+        const users = snapshot.val() || {};
+        const now = Date.now();
+        
+        for (let userId in users) {
+            if (users[userId].role === "user") {
+                const lastHeartbeat = users[userId].lastHeartbeat || 0;
+                const timeSinceHeartbeat = now - lastHeartbeat;
                 
-                if (state === 'connected' || state === 'completed') {
-                    studentConnections[targetId].connected = true;
-                    createStudentUI(targetId, getStudentName(targetId));
-                } else if (state === 'failed' || state === 'disconnected') {
-                    console.warn(`⚠️ ICE ${state} para ${getStudentName(targetId)}`);
-                    
-                    if (state === 'failed') {
-                        studentConnections[targetId].connected = false;
-                        createStudentUI(targetId, getStudentName(targetId));
-                    }
-                }
-            };
-
-            peer.on("signal", data => {
-                signalsRef.push({ from: myId, to: targetId, data });
-            });
-
-            peer.on("connect", () => {
-                studentConnections[targetId].connected = true;
-                
-                if (studentConnections[targetId].timeout) {
-                    clearTimeout(studentConnections[targetId].timeout);
-                    delete studentConnections[targetId].timeout;
+                // ✅ NUEVO: Log de diagnóstico
+                if (timeSinceHeartbeat > 10000) {
+                    console.warn(`⚠️ ${userId} - Último heartbeat hace ${Math.floor(timeSinceHeartbeat/1000)}s`);
                 }
                 
-                console.log(`✅ Conexión WebRTC con ${getStudentName(targetId)}`);
-                createStudentUI(targetId, getStudentName(targetId));
-                
-                const btnConnect = document.getElementById(`btn-connect-${targetId}`);
-                if (btnConnect) {
-                    btnConnect.disabled = false;
-                    btnConnect.innerHTML = `
-                        <i class="fas fa-check-circle"></i> 
-                        <span>Conectado</span>
-                    `;
+                if (timeSinceHeartbeat > HEARTBEAT_TIMEOUT) {
+                    console.log(`💀 Heartbeat timeout: ${userId}`);
+                    usersRef.child(userId).remove();
                 }
-            });
-
-            peer.on("data", msg => {
-                try {
-                    const data = JSON.parse(msg.toString());
-                    
-                    if (data.type === 'chat') {
-                        if (selectedStudent === targetId) {
-                            logChat(getStudentName(targetId), data.text);
-                        }
-                    }
-                    else if (data.type === 'midi') {
-                        console.log(`🎹 MIDI recibido de ${getStudentName(targetId)}: ${data.note}`);
-                        
-                        if (data.action === 'noteOn') {
-                            triggerNoteOn(data.note);
-                        } else if (data.action === 'noteOff') {
-                            triggerNoteOff(data.note);
-                        }
-                    }
-                    
-                } catch (error) {
-                    console.error("Error parsing peer data:", error);
-                }
-            });
-
-            peer.on("stream", stream => {
-                console.log(`Stream recibido de ${getStudentName(targetId)}`);
-                
-                let audioEl = document.getElementById(`audio-${targetId}`);
-                if (!audioEl) {
-                    audioEl = document.createElement('audio');
-                    audioEl.id = `audio-${targetId}`;
-                    audioEl.autoplay = true;
-                    audioEl.style.display = 'none';
-                    document.body.appendChild(audioEl);
-                }
-                audioEl.srcObject = stream;
-                
-                if (!studentConnections[targetId].connected) {
-                    studentConnections[targetId].connected = true;
-                    createStudentUI(targetId, getStudentName(targetId));
-                }
-            });
-
-            peer.on("close", () => {
-                studentConnections[targetId] = { connected: false };
-                console.log(`Conexión cerrada con ${getStudentName(targetId)}`);
-                
-                usersRef.child(targetId).remove();
-                
-                createStudentUI(targetId, getStudentName(targetId));
-            });
-
-            peer.on("error", (err) => {
-                console.error("Error en peer:", err);
-                studentConnections[targetId] = { connected: false };
-                
-                usersRef.child(targetId).remove();
-                
-                const btnConnect = document.getElementById(`btn-connect-${targetId}`);
-                if (btnConnect) {
-                    btnConnect.disabled = false;
-                    btnConnect.innerHTML = `
-                        <i class="fas fa-plug"></i> 
-                        <span>Conectar</span>
-                    `;
-                }
-                
-                createStudentUI(targetId, getStudentName(targetId));
-            });
+            }
         }
+    });
+}
+
+// Ejecutar cada 5 segundos
+setInterval(() => {
+    checkHeartbeats();
+}, CHECK_INTERVAL);
+
+// ==================== START PEER MEJORADO (PROFESOR) ====================
+function startPeer(targetId, initiator) {
+    const peer = new SimplePeer({
+        initiator,
+        stream: localStream,
+        trickle: true, // ✅ Habilitar trickle ICE
+        config: {
+            iceServers: [
+                { urls: "stun:stun.relay.metered.ca:80" },
+                { 
+                    urls: "turn:a.relay.metered.ca:80", 
+                    username: "fad444a63bcf5c8176a3e139", 
+                    credential: "MQm2u8W0l1TCVMm0" 
+                },
+                { 
+                    urls: "turn:a.relay.metered.ca:443", 
+                    username: "fad444a63bcf5c8176a3e139", 
+                    credential: "MQm2u8W0l1TCVMm0" 
+                },
+                // ✅ NUEVO: Agregar servidores STUN/TURN públicos adicionales
+                { urls: "stun:stun.l.google.com:19302" },
+                { urls: "stun:stun1.l.google.com:19302" }
+            ],
+            iceTransportPolicy: 'all',
+            bundlePolicy: 'max-bundle',
+            rtcpMuxPolicy: 'require'
+        }
+    });
+    
+    peers[targetId] = peer;
+    studentConnections[targetId] = { connected: false };
+
+    // ✅ NUEVO: Monitoreo detallado ICE
+    peer._pc.oniceconnectionstatechange = () => {
+        const state = peer._pc.iceConnectionState;
+        console.log(`🧊 ICE State [${getStudentName(targetId)}]: ${state}`);
+        
+        switch(state) {
+            case 'connected':
+            case 'completed':
+                studentConnections[targetId].connected = true;
+                createStudentUI(targetId, getStudentName(targetId));
+                break;
+                
+            case 'disconnected':
+                console.warn(`⚠️ ICE disconnected para ${getStudentName(targetId)} - esperando reconexión...`);
+                // No destruir inmediatamente
+                break;
+                
+            case 'failed':
+                console.error(`❌ ICE failed para ${getStudentName(targetId)}`);
+                studentConnections[targetId].connected = false;
+                createStudentUI(targetId, getStudentName(targetId));
+                break;
+        }
+    };
+
+    // ✅ NUEVO: Monitoreo connection state
+    peer._pc.onconnectionstatechange = () => {
+        const state = peer._pc.connectionState;
+        console.log(`🔗 Connection State [${getStudentName(targetId)}]: ${state}`);
+        
+        if (state === 'connected') {
+            if (studentConnections[targetId].timeout) {
+                clearTimeout(studentConnections[targetId].timeout);
+                delete studentConnections[targetId].timeout;
+            }
+        }
+    };
+
+    peer.on("signal", data => {
+        signalsRef.push({ from: myId, to: targetId, data });
+    });
+
+    peer.on("connect", () => {
+        studentConnections[targetId].connected = true;
+        
+        if (studentConnections[targetId].timeout) {
+            clearTimeout(studentConnections[targetId].timeout);
+            delete studentConnections[targetId].timeout;
+        }
+        
+        console.log(`✅ Conexión WebRTC con ${getStudentName(targetId)}`);
+        createStudentUI(targetId, getStudentName(targetId));
+        
+        const btnConnect = document.getElementById(`btn-connect-${targetId}`);
+        if (btnConnect) {
+            btnConnect.disabled = false;
+            btnConnect.innerHTML = `
+                <i class="fas fa-check-circle"></i> 
+                <span>Conectado</span>
+            `;
+        }
+    });
+
+    peer.on("data", msg => {
+        try {
+            const data = JSON.parse(msg.toString());
+            
+            if (data.type === 'chat') {
+                if (selectedStudent === targetId) {
+                    logChat(getStudentName(targetId), data.text);
+                }
+            }
+            else if (data.type === 'midi') {
+                console.log(`🎹 MIDI recibido de ${getStudentName(targetId)}: ${data.note}`);
+                
+                if (data.action === 'noteOn') {
+                    triggerNoteOn(data.note);
+                } else if (data.action === 'noteOff') {
+                    triggerNoteOff(data.note);
+                }
+            }
+            
+        } catch (error) {
+            console.error("Error parsing peer data:", error);
+        }
+    });
+
+    peer.on("stream", stream => {
+        console.log(`Stream recibido de ${getStudentName(targetId)}`);
+        
+        let audioEl = document.getElementById(`audio-${targetId}`);
+        if (!audioEl) {
+            audioEl = document.createElement('audio');
+            audioEl.id = `audio-${targetId}`;
+            audioEl.autoplay = true;
+            audioEl.style.display = 'none';
+            document.body.appendChild(audioEl);
+        }
+        audioEl.srcObject = stream;
+        
+        if (!studentConnections[targetId].connected) {
+            studentConnections[targetId].connected = true;
+            createStudentUI(targetId, getStudentName(targetId));
+        }
+    });
+
+    peer.on("close", () => {
+        studentConnections[targetId] = { connected: false };
+        console.log(`Conexión cerrada con ${getStudentName(targetId)}`);
+        createStudentUI(targetId, getStudentName(targetId));
+    });
+
+    peer.on("error", (err) => {
+        console.error(`Error en peer con ${getStudentName(targetId)}:`, err);
+        // No destruir inmediatamente, puede ser error temporal
+    });
+}
 
         function listenForSignals() {
             signalsRef.on("child_added", snap => {
