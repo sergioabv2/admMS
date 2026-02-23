@@ -1432,7 +1432,7 @@ const fb_config = {
             const peer = new SimplePeer({
                 initiator,
                 stream: localStream,
-                trickle: false,
+                trickle: true,
                 config: {
                     iceServers: [
                         { urls: "stun:stun.relay.metered.ca:80" },
