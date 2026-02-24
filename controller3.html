@@ -167,62 +167,119 @@
         font-weight: 600;
     }
 
-    .students-grid {
-        display: flex;
-        flex-direction: row;
-        overflow-x: auto;
-        overflow-y: hidden;
-        gap: 15px;
-        padding: 10px 20px 20px 20px;
-        scroll-behavior: smooth;
-        scrollbar-width: thin;
-    }
-
-    .students-grid::-webkit-scrollbar {
-        height: 8px;
-    }
-
-    .students-grid::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .students-grid::-webkit-scrollbar-thumb {
-        background: #ddd;
-        border-radius: 4px;
-    }
-
-    .student-item {
-        min-width: 220px;
-        width: 220px;
-        background: white;
-        border-radius: 16px;
-        min-height: 280px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    .students-list-wrap {
         display: flex;
         flex-direction: column;
+        gap: 8px;
+        padding: 10px 20px 20px;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .students-list-wrap::-webkit-scrollbar { width: 6px; }
+    .students-list-wrap::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+    .student-row {
+        display: flex;
         align-items: center;
-        padding: 15px;
-        transition: all 0.3s ease;
-        position: relative;
+        gap: 12px;
+        padding: 12px 14px;
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        transition: all 0.2s ease;
+    }
+
+    .student-row:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 2px 10px rgba(255, 71, 87, 0.08);
+    }
+
+    .student-row.connected {
+        border-left: 3px solid var(--secondary-color);
+    }
+
+    .student-row.in-session {
+        border-left: 3px solid var(--primary-color);
+        background: linear-gradient(to right, rgba(255, 71, 87, 0.06) 0%, #fff 20%);
+    }
+
+    .student-row .row-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--bg-light);
+        flex-shrink: 0;
+    }
+
+    .student-row .row-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .student-row .row-name {
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--text-dark);
+        white-space: nowrap;
         overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .student-item:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        border-color: var(--primary-color);
+    .student-row .row-meta {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 2px;
     }
 
-    .student-item.connected {
-        border-color: var(--secondary-color);
-        background: linear-gradient(to bottom, #fff 0%, rgba(46, 213, 115, 0.05) 100%);
+    .student-row .row-progress {
+        width: 80px;
+        height: 6px;
+        background: var(--bg-light);
+        border-radius: 3px;
+        overflow: hidden;
+        flex-shrink: 0;
     }
 
-    .student-item.selected {
-        border-color: var(--primary-color);
-        background: linear-gradient(to bottom, #fff 0%, rgba(255, 71, 87, 0.05) 100%);
-        box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.1);
+    .student-row .row-progress-fill {
+        height: 100%;
+        border-radius: 3px;
+        background: var(--secondary-color);
+        transition: width 0.3s ease;
+    }
+
+    .student-row .row-progress-fill.mid { background: #ff9800; }
+    .student-row .row-progress-fill.low { background: var(--primary-color); }
+
+    .student-row .btn-session-1on1 {
+        padding: 6px 14px;
+        border-radius: 20px;
+        border: none;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .student-row .btn-session-1on1.start {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .student-row .btn-session-1on1.start:hover {
+        filter: brightness(1.1);
+    }
+
+    .student-row .btn-session-1on1.end {
+        background: #e0e0e0;
+        color: var(--text-dark);
+    }
+
+    .student-row .btn-session-1on1.end:hover {
+        background: #d0d0d0;
     }
 
     .card-avatar-container {
@@ -824,8 +881,8 @@
                         </div>
                     </div>
                     
-                    <div id="studentsContainer" class="students-grid">
-                        <!-- Los estudiantes se cargarán dinámicamente aquí -->
+                    <div id="studentsContainer" class="students-list-wrap">
+                        <!-- Lista de alumnos (se rellena dinámicamente) -->
                     </div>
                 </section>
 
@@ -890,13 +947,19 @@ const fb_config = {
         const usersRef = db.ref(`${room}/users`);
         const signalsRef = db.ref(`${room}/signals`);
         const chatsRef = db.ref(`${room}/chats`);
+        const stateRef = db.ref(`${room}/state`);
+        const queueRef = db.ref(`${room}/queue`);
 
         // ==================== VARIABLES GLOBALES ====================
         let myId = "profesor-" + Math.floor(Math.random() * 10000);
         let myName = "Profesor";
         let localStream = null;
+        /** Stream que escuchan todos (o solo el alumno en sesión 1:1) */
+        let broadcastStream = null;
         let peers = {};
         let selectedStudent = null;
+        /** Alumno con sesión 1:1 activa (solo él recibe audio/MIDI); null = todos reciben */
+        let session1on1StudentId = null;
         let connectedStudents = {};
         let studentConnections = {};
 
@@ -955,19 +1018,27 @@ const fb_config = {
 
         async function init() {
             try {
-                // Stream básico (silencioso)
+                // Stream básico (silencioso) para conexión
                 localStream = await navigator.mediaDevices.getUserMedia({
                     audio: true,
                     video: false
                 });
-                
-                localStream.getAudioTracks().forEach(track => {
-                    track.enabled = false;
+                localStream.getAudioTracks().forEach(track => { track.enabled = false; });
+
+                // Stream de difusión: todos (o solo el de sesión 1:1) lo reciben
+                broadcastStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+
+                // Estado de sesión 1:1 en Firebase (los alumnos leen esto para mostrar "profesor ocupado")
+                stateRef.child('selectedStudentId').on('value', snap => {
+                    session1on1StudentId = snap.val() || null;
+                    updateBroadcastTracksForSessionMode();
+                    renderStudentsList();
                 });
 
                 // Registrar en Firebase
                 usersRef.child(myId).set({ id: myId, role: "master", name: myName });
                 usersRef.child(myId).onDisconnect().remove();
+                stateRef.child('selectedStudentId').onDisconnect().set(null);
 
                 // Listeners
                 listenForStudents();
@@ -988,20 +1059,16 @@ const fb_config = {
             usersRef.on("value", snap => {
                 const users = snap.val() || {};
                 const studentsContainer = document.getElementById("studentsContainer");
-
-                studentsContainer.innerHTML = '';
+                const prevConnected = { ...connectedStudents };
                 connectedStudents = {};
-                
                 const now = Date.now();
                 const TIMEOUT_MS = 30000;
-                
+
                 for (let key in users) {
                     if (users[key].role === "user") {
                         const lastHeartbeat = users[key].lastHeartbeat || 0;
-                        
                         if (now - lastHeartbeat < TIMEOUT_MS) {
                             connectedStudents[key] = users[key];
-                            createStudentUI(key, users[key].name || users[key].id);
                         } else {
                             const hasActivePeer = peers[key];
                             const reallyStale = (now - lastHeartbeat) > HEARTBEAT_GRACE_MS;
@@ -1012,13 +1079,16 @@ const fb_config = {
                         }
                     }
                 }
-                
+
                 if (selectedStudent && !connectedStudents[selectedStudent]) {
                     selectedStudent = null;
                     updateStudentInfo(null);
                     disableChat();
                 }
-                
+                if (session1on1StudentId && !connectedStudents[session1on1StudentId]) {
+                    endSession1on1();
+                }
+
                 for (let studentId in peers) {
                     if (connectedStudents[studentId]) {
                         if (pendingCleanupTimeouts[studentId]) {
@@ -1041,6 +1111,11 @@ const fb_config = {
                             }, CLEANUP_DELAY_MS);
                         }
                     }
+                }
+
+                studentsContainer.innerHTML = '';
+                for (let id in connectedStudents) {
+                    createStudentUI(id, getStudentName(id));
                 }
             });
             
@@ -1071,82 +1146,45 @@ const fb_config = {
         function createStudentUI(studentId, name) {
             const studentsContainer = document.getElementById("studentsContainer");
             const existingElement = document.getElementById(`student-${studentId}`);
-            
-            if (existingElement) {
-                existingElement.remove();
-            }
+            if (existingElement) existingElement.remove();
 
             const isConnected = studentConnections[studentId]?.connected || false;
-            const isSelected = selectedStudent === studentId;
-            const isMidiActive = activeMidiStudent === studentId;
-            const isAudioActive = individualAudioStreams[studentId]?.active || false;
-            const isScreenActive = individualScreenStreams[studentId]?.active || false;
-            const audioMuted = document.getElementById(`audio-${studentId}`)?.muted || false;
+            const inSession = session1on1StudentId === studentId;
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=80`;
+            const progress = 50;
 
-            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=128`;
+            const row = document.createElement("div");
+            row.className = `student-row ${isConnected ? 'connected' : ''} ${inSession ? 'in-session' : ''}`;
+            row.id = `student-${studentId}`;
 
-            const studentItem = document.createElement("div");
-            studentItem.className = `student-item ${isConnected ? 'connected' : ''} ${isSelected ? 'selected' : ''}`;
-            studentItem.id = `student-${studentId}`;
-
-            studentItem.innerHTML = `
-                <div class="card-avatar-container">
-                    <img src="${avatarUrl}" class="card-avatar" alt="${name}">
-                    <div class="card-status-dot ${isConnected ? 'connected' : ''}"></div>
+            row.innerHTML = `
+                <img src="${avatarUrl}" class="row-avatar" alt="">
+                <div class="row-info">
+                    <div class="row-name">${name}</div>
+                    <div class="row-meta">${isConnected ? 'Conectado' : 'Esperando...'}</div>
                 </div>
-
-                <div class="card-info">
-                    <div class="card-name">${name}</div>
-                    <div class="card-meta">Estudiante</div>
-                </div>
-
-                <div class="student-actions">
-                    ${!isConnected ? `
-                        <button id="btn-connect-${studentId}" class="btn-connect-primary" onclick="handleConnectClick('${studentId}')">
-                            <i class="fas fa-plug"></i> 
-                            <span>Conectar</span>
-                        </button>
-                    ` : `
-                        <button class="student-action-btn action-microphone ${isAudioActive ? 'active' : ''}" 
-                                onclick="toggleIndividualAudio('${studentId}')" 
-                                title="Audio">
-                            <i class="fas fa-microphone${isAudioActive ? '' : '-slash'}"></i>
-                        </button>
-                        <button class="student-action-btn action-speaker ${audioMuted ? 'muted' : ''}" 
-                                onclick="toggleIncomingAudio('${studentId}')" 
-                                title="Escuchar">
-                            <i class="fas fa-volume-${audioMuted ? 'mute' : 'up'}"></i>
-                        </button>
-                        <button class="student-action-btn action-screen ${isScreenActive ? 'active' : ''}" 
-                                onclick="toggleIndividualScreen('${studentId}')" 
-                                title="Pantalla">
-                            <i class="fas fa-desktop"></i>
-                        </button>
-                        <button class="student-action-btn action-midi ${isMidiActive ? 'active' : ''}" 
-                                onclick="toggleMidiTransmission('${studentId}')" 
-                                title="Piano MIDI">
-                            <i class="fas fa-music"></i>
-                        </button>
-                        <button class="student-action-btn action-chat ${isSelected ? 'active' : ''}" 
-                                onclick="selectStudentForChat('${studentId}')" 
-                                title="Chat">
-                            <i class="fas fa-comment"></i>
-                        </button>
-                        <button class="student-action-btn action-close" 
-                                onclick="disconnectStudent('${studentId}')" 
-                                title="Desconectar">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    `}
-                </div>
+                <div class="row-progress"><div class="row-progress-fill mid" style="width:${progress}%"></div></div>
+                ${!isConnected ? `
+                    <button id="btn-connect-${studentId}" class="btn-connect-primary" style="padding:6px 12px;font-size:12px;border-radius:20px;" onclick="handleConnectClick('${studentId}')">
+                        <i class="fas fa-plug"></i> Conectar
+                    </button>
+                ` : (inSession ? `
+                    <button class="btn-session-1on1 end" onclick="endSession1on1()">Terminar sesión</button>
+                ` : `
+                    <button class="btn-session-1on1 start" onclick="startSession1on1('${studentId}')">Sesión 1:1</button>
+                `)}
             `;
 
-            studentItem.style.opacity = '0';
-            studentsContainer.appendChild(studentItem);
-            
-            setTimeout(() => {
-                studentItem.style.opacity = '1';
-            }, 10);
+            studentsContainer.appendChild(row);
+        }
+
+        function renderStudentsList() {
+            const studentsContainer = document.getElementById("studentsContainer");
+            if (!studentsContainer) return;
+            studentsContainer.innerHTML = '';
+            for (const studentId in connectedStudents) {
+                createStudentUI(studentId, getStudentName(studentId));
+            }
         }
 
         function handleConnectClick(studentId) {
@@ -1238,6 +1276,9 @@ const fb_config = {
                 selectedStudent = null;
                 updateStudentInfo(null);
                 disableChat();
+            }
+            if (session1on1StudentId === studentId) {
+                stateRef.child('selectedStudentId').set(null);
             }
         }
 
@@ -1427,6 +1468,54 @@ const fb_config = {
             return student ? (student.name || studentId) : studentId;
         }
 
+        // ==================== BROADCAST / SESIÓN 1:1 ====================
+        function shouldPeerReceiveBroadcast(peerId) {
+            return broadcastStream && (session1on1StudentId === null || session1on1StudentId === peerId);
+        }
+
+        function addBroadcastStreamToPeerIfAllowed(peerId) {
+            if (!broadcastStream || !peers[peerId] || !peers[peerId]._pc) return;
+            if (!shouldPeerReceiveBroadcast(peerId)) return;
+            const audioTrack = broadcastStream.getAudioTracks()[0];
+            if (!audioTrack) return;
+            try {
+                peers[peerId].addTrack(audioTrack, broadcastStream);
+            } catch (e) { console.warn('addTrack broadcast', e); }
+        }
+
+        function removeBroadcastStreamFromPeer(peerId) {
+            if (!broadcastStream || !peers[peerId] || !peers[peerId]._pc) return;
+            const senders = peers[peerId]._pc.getSenders();
+            senders.forEach(sender => {
+                if (sender.track && sender.track.kind === 'audio' && broadcastStream.getAudioTracks().includes(sender.track)) {
+                    peers[peerId].removeTrack(sender);
+                }
+            });
+        }
+
+        function updateBroadcastTracksForSessionMode() {
+            for (const peerId in peers) {
+                if (!peers[peerId]._pc || peers[peerId]._pc.connectionState !== 'connected') continue;
+                removeBroadcastStreamFromPeer(peerId);
+                if (shouldPeerReceiveBroadcast(peerId)) addBroadcastStreamToPeerIfAllowed(peerId);
+            }
+        }
+
+        function startSession1on1(studentId) {
+            stateRef.child('selectedStudentId').set(studentId);
+            selectedStudent = studentId;
+            updateStudentInfo(studentId);
+            enableChat();
+            loadChatHistory(studentId);
+        }
+
+        function endSession1on1() {
+            stateRef.child('selectedStudentId').set(null);
+            selectedStudent = null;
+            updateStudentInfo(null);
+            disableChat();
+        }
+
         // ==================== WEBRTC ====================
         function startPeer(targetId, initiator) {
             const peer = new SimplePeer({
@@ -1483,6 +1572,7 @@ const fb_config = {
                 }
                 
                 console.log(`✅ Conexión WebRTC con ${getStudentName(targetId)}`);
+                addBroadcastStreamToPeerIfAllowed(targetId);
                 createStudentUI(targetId, getStudentName(targetId));
                 
                 const btnConnect = document.getElementById(`btn-connect-${targetId}`);
@@ -1710,8 +1800,14 @@ const fb_config = {
                 triggerNoteOff(noteName);
             }
 
-            if (midiTransmissionEnabled && activeMidiStudent) {
-                sendMIDIToStudent(activeMidiStudent, command === 144 && velocity > 0 ? 'noteOn' : 'noteOff', noteName, velocity);
+            // En modo 1:1 solo al seleccionado; si no hay sesión 1:1, a todos
+            if (session1on1StudentId) {
+                sendMIDIToStudent(session1on1StudentId, command === 144 && velocity > 0 ? 'noteOn' : 'noteOff', noteName, velocity);
+            } else {
+                const type = command === 144 && velocity > 0 ? 'noteOn' : 'noteOff';
+                for (const sid in peers) {
+                    if (studentConnections[sid]?.connected) sendMIDIToStudent(sid, type, noteName, velocity);
+                }
             }
         }
 
