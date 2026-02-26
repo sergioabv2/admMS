@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mozart Academy — Panel del Profesor</title>
+  <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.1/simplepeer.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #E8391D;
+      --red-soft: rgba(232,57,29,0.12);
+      --green: #16A34A;
+      --green-soft: rgba(22,163,74,0.13);
+      --amber: #D97706;
+      --amber-soft: rgba(217,119,6,0.13);
+      --blue: #2563EB;
+      --blue-soft: rgba(37,99,235,0.12);
+      --bg: #F5F1EB;
+      --card: #FDFCFA;
+      --border: rgba(0,0,0,0.09);
+      --border-md: rgba(0,0,0,0.14);
+      --text: #1C1917;
+      --muted: #78716C;
+      --header-h: 58px;
+      --piano-h: 120px;
+      --sidebar-w: 320px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    #header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: var(--header-h);
+      background: #0F0D0B;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; gap: 16px;
+    }
+    .h-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Playfair Display', serif; font-size: 18px; color: #F0EBE3;
+    }
+    .h-brand-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 8px rgba(232,57,29,0.7);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .h-controls { display: flex; align-items: center; gap: 10px; }
+
+    .h-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08); color: #D6CFC7;
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .h-btn:hover { background: rgba(255,255,255,0.16); color: #fff; }
+    .h-btn.on { background: var(--red); border-color: var(--red); color: #fff; box-shadow: 0 0 14px rgba(232,57,29,0.45); }
+    .h-btn.screen-on { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 0 14px rgba(37,99,235,0.4); }
+    .h-btn.annotate-on { background: var(--amber); border-color: var(--amber); color: #fff; }
+
+    .midi-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 6px 12px; border-radius: 20px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5);
+      white-space: nowrap;
+    }
+    .midi-pill.connected { background: rgba(22,163,74,0.2); border-color: rgba(22,163,74,0.4); color: #4ADE80; }
+    .midi-pill i { font-size: 8px; }
+    .midi-pill.connected i { animation: pulse-dot 1.5s infinite; }
+
+    .session-timer {
+      font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.6); letter-spacing: 1px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .timer-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); animation: pulse-dot 1.5s infinite; }
+
+    /* ── MAIN LAYOUT ── */
+    #layout {
+      display: grid;
+      grid-template-columns: 1fr var(--sidebar-w);
+      height: 100vh;
+      padding-top: var(--header-h);
+    }
+
+    /* ── CENTER STAGE ── */
+    #stage {
+      display: flex; flex-direction: column;
+      background: #0F0D0B;
+      overflow: hidden; position: relative;
+    }
+
+    /* Screen share / annotation canvas area */
+    #screen-area {
+      flex: 1; position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    #screen-video {
+      width: 100%; height: 100%; object-fit: contain; display: none;
+    }
+
+    #annotation-canvas {
+      position: absolute; inset: 0; cursor: crosshair;
+      display: none; z-index: 10;
+    }
+
+    .screen-placeholder {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 16px; color: rgba(255,255,255,0.2); text-align: center;
+    }
+    .screen-placeholder i { font-size: 48px; }
+    .screen-placeholder p { font-size: 14px; font-weight: 500; max-width: 260px; line-height: 1.6; }
+    .screen-placeholder small { font-size: 12px; opacity: .6; }
+
+    /* Annotation toolbar */
+    #annotation-toolbar {
+      position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+      z-index: 30; display: none;
+      background: rgba(15,13,11,0.85); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 30px;
+      padding: 7px 14px; gap: 10px; align-items: center;
+    }
+    #annotation-toolbar.visible { display: flex; }
+
+    .ann-btn {
+      width: 30px; height: 30px; border-radius: 50%; border: none;
+      background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
+      cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .ann-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+    .ann-btn.active { background: var(--red); color: #fff; box-shadow: 0 0 10px rgba(232,57,29,0.4); }
+
+    .ann-color { width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); cursor: pointer; transition: transform 0.15s; }
+    .ann-color:hover { transform: scale(1.2); }
+    .ann-color.selected { border-color: #fff; transform: scale(1.2); }
+
+    .ann-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.15); }
+
+    .ann-size {
+      background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7);
+      border-radius: 10px; padding: 3px 8px; font-size: 11px; cursor: pointer; font-family: 'DM Mono', monospace;
+    }
+    .ann-size.sel { border-color: var(--red); color: var(--red); }
+
+    /* Live controls dock */
+    #controls-dock {
+      position: absolute; bottom: calc(var(--piano-h) + 12px); left: 50%; transform: translateX(-50%);
+      z-index: 25;
+      display: flex; gap: 10px; align-items: center;
+      background: rgba(15,13,11,0.75); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 40px;
+      padding: 10px 20px;
+    }
+
+    .ctrl-btn {
+      width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85);
+      cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; position: relative;
+    }
+    .ctrl-btn:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.3); }
+    .ctrl-btn.on { background: var(--red); border-color: var(--red); color: #fff; box-shadow: 0 0 16px rgba(232,57,29,0.5); }
+    .ctrl-btn.screen-on { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 0 14px rgba(37,99,235,0.4); }
+    .ctrl-btn.annotate-on { background: var(--amber); border-color: var(--amber); color: #fff; }
+
+    .ctrl-label {
+      font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.4);
+      text-transform: uppercase; letter-spacing: .5px; margin-top: 2px;
+    }
+    .ctrl-with-label { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+
+    .ctrl-divider { width: 1px; height: 32px; background: rgba(255,255,255,0.1); margin: 0 4px; }
+
+    /* 1on1 indicator */
+    #session-1on1-indicator {
+      position: absolute; top: 14px; right: 14px; z-index: 25;
+      display: none;
+      background: rgba(232,57,29,0.15); backdrop-filter: blur(8px);
+      border: 1px solid rgba(232,57,29,0.35); border-radius: 12px;
+      padding: 10px 14px; color: #fff;
+    }
+    #session-1on1-indicator.visible { display: flex; align-items: center; gap: 10px; }
+    .ind-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); animation: pulse-dot 1s infinite; }
+    .ind-text { font-size: 12px; font-weight: 600; }
+    .ind-end { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); border-radius: 8px; padding: 4px 10px; font-size: 11px; cursor: pointer; transition: all 0.2s; }
+    .ind-end:hover { background: var(--red); border-color: var(--red); color: #fff; }
+
+    /* ── PIANO ── */
+    #piano-area {
+      height: var(--piano-h); flex-shrink: 0;
+      background: #1A1714; border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    #piano-casing {
+      height: 22px; background: #2A2522; flex-shrink: 0;
+      position: relative; display: flex; align-items: center; justify-content: center;
+      border-bottom: 1px solid rgba(0,0,0,0.4);
+    }
+    .casing-label {
+      position: absolute; transform: translateX(-50%);
+      color: #fff; font-size: 10px; font-weight: 700;
+      background: rgba(232,57,29,0.8); padding: 2px 7px; border-radius: 4px;
+      pointer-events: none; white-space: nowrap; z-index: 10;
+    }
+    #piano-scroll {
+      flex: 1; overflow-x: auto; overflow-y: hidden;
+      display: flex; align-items: flex-start; padding: 0 8px;
+    }
+    #piano-scroll::-webkit-scrollbar { height: 6px; background: #0F0D0B; }
+    #piano-scroll::-webkit-scrollbar-thumb { background: #3A3530; border-radius: 3px; }
+    #piano-keys {
+      display: flex; height: 100%; position: relative;
+      align-items: flex-start;
+    }
+    .key { cursor: pointer; flex-shrink: 0; transition: background 0.04s; }
+    .key.white {
+      width: 22px; height: 82px;
+      background: linear-gradient(to bottom, #fefefe, #f0ede8);
+      border: 1px solid #bbb; border-top: none;
+      border-radius: 0 0 4px 4px; z-index: 1;
+    }
+    .key.white:hover { background: linear-gradient(to bottom, #f5f0ea, #e0dbd4); }
+    .key.white.active { background: var(--red) !important; box-shadow: 0 0 18px rgba(232,57,29,0.6); }
+    .key.black {
+      width: 13px; height: 50px;
+      background: linear-gradient(to bottom, #222, #000);
+      border-radius: 0 0 3px 3px; z-index: 2;
+      margin-left: -6.5px; margin-right: -6.5px;
+      border-bottom: 2px solid #333;
+    }
+    .key.black:hover { background: linear-gradient(to bottom, #333, #111); }
+    .key.black.active { background: var(--red) !important; box-shadow: 0 0 12px rgba(232,57,29,0.7); border-color: rgba(255,255,255,0.3) !important; }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      background: #FAFAF8; border-left: 1px solid var(--border-md);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    .sb-tabs {
+      display: flex; border-bottom: 1px solid var(--border);
+      background: #F5F1EB; flex-shrink: 0;
+    }
+    .sb-tab {
+      flex: 1; padding: 13px 6px; border: none; background: transparent;
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+      color: var(--muted); cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 6px; border-bottom: 2px solid transparent;
+      transition: all 0.2s; position: relative;
+    }
+    .sb-tab:hover { color: var(--text); background: rgba(0,0,0,0.03); }
+    .sb-tab.active { color: var(--red); border-bottom-color: var(--red); background: #fff; }
+
+    .sb-badge {
+      position: absolute; top: 8px; right: 12px;
+      width: 17px; height: 17px; border-radius: 50%;
+      background: var(--red); color: #fff; font-size: 9px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .sb-panel { flex: 1; overflow: hidden; display: none; flex-direction: column; }
+    .sb-panel.active { display: flex; }
+
+    /* ── STUDENTS PANEL ── */
+    #panel-students { overflow: hidden; display: flex; flex-direction: column; }
+
+    .students-summary {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      background: #fff; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .students-summary-left { display: flex; align-items: center; gap: 8px; }
+    .online-count {
+      font-size: 13px; font-weight: 700; color: var(--text);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .online-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px rgba(22,163,74,0.5); }
+
+    #students-list {
+      flex: 1; overflow-y: auto; padding: 10px;
+      display: flex; flex-direction: column; gap: 7px;
+    }
+    #students-list::-webkit-scrollbar { width: 4px; }
+    #students-list::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 3px; }
+
+    .student-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 12px; padding: 11px 13px;
+      display: flex; align-items: center; gap: 10px;
+      transition: all 0.2s;
+    }
+    .student-card:hover { border-color: rgba(232,57,29,0.25); box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    .student-card.in-session { border-left: 3px solid var(--red); background: linear-gradient(to right, rgba(232,57,29,0.04), #fff 30%); }
+    .student-card.hand-raised { border-left: 3px solid var(--amber); background: linear-gradient(to right, rgba(217,119,6,0.06), #fff 30%); }
+
+    .s-avatar {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      background: var(--bg); display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px; color: var(--muted);
+      border: 2px solid var(--border);
+    }
+    .s-avatar.online { border-color: var(--green); }
+
+    .s-info { flex: 1; min-width: 0; }
+    .s-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .s-status { font-size: 11px; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 5px; }
+
+    .s-actions { display: flex; gap: 5px; align-items: center; }
+    .s-btn {
+      width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--border);
+      background: var(--bg); color: var(--muted); font-size: 11px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s;
+    }
+    .s-btn:hover { background: #fff; border-color: var(--border-md); color: var(--text); transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.08); }
+    .s-btn.s-btn-1on1 { background: var(--red); border-color: var(--red); color: #fff; box-shadow: 0 0 10px rgba(232,57,29,0.3); }
+    .s-btn.s-btn-1on1:hover { filter: brightness(1.1); }
+    .s-btn.s-btn-end { background: #e5e7eb; border-color: #d1d5db; color: #374151; }
+    .s-btn.s-btn-end:hover { background: #d1d5db; }
+    .s-btn.s-btn-mute-me { background: rgba(217,119,6,0.1); border-color: rgba(217,119,6,0.3); color: var(--amber); }
+
+    /* Queue section */
+    #queue-section {
+      border-top: 1px solid var(--border);
+      padding: 10px 16px 8px; flex-shrink: 0;
+      background: #fff;
+      display: none;
+    }
+    #queue-section.has-queue { display: block; }
+    .queue-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--amber); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .queue-list { display: flex; flex-direction: column; gap: 5px; }
+    .queue-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 7px 10px; border-radius: 9px;
+      background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.2);
+    }
+    .q-num { width: 18px; height: 18px; border-radius: 50%; background: var(--amber); color: #fff; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .q-name { flex: 1; font-size: 12px; font-weight: 600; }
+    .q-call-btn {
+      padding: 4px 10px; border-radius: 8px; border: none;
+      background: var(--red); color: #fff; font-size: 11px; font-weight: 700;
+      cursor: pointer; transition: all 0.18s;
+    }
+    .q-call-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+    /* ── CHAT PANEL ── */
+    #panel-chat { overflow: hidden; }
+
+    #chat-messages {
+      flex: 1; overflow-y: auto; padding: 12px;
+      display: flex; flex-direction: column; gap: 9px;
+      background: var(--bg);
+    }
+    #chat-messages::-webkit-scrollbar { width: 4px; }
+    #chat-messages::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 3px; }
+
+    .msg { display: flex; gap: 8px; }
+    .msg.me { flex-direction: row-reverse; }
+    .msg-avatar { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--muted); }
+    .msg-bubble {
+      max-width: 80%; background: #fff; border: 1px solid var(--border);
+      border-radius: 12px; border-top-left-radius: 3px;
+      padding: 8px 11px; font-size: 13px; line-height: 1.5; color: var(--text);
+    }
+    .msg.me .msg-bubble { background: var(--red); border-color: var(--red); color: #fff; border-radius: 12px; border-top-right-radius: 3px; }
+    .msg-sender { font-size: 10px; font-weight: 700; margin-bottom: 3px; opacity: .7; text-transform: uppercase; letter-spacing: .4px; }
+
+    .chat-input-area {
+      padding: 10px 12px; background: #fff; border-top: 1px solid var(--border);
+      display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
+    }
+    #chatInput {
+      flex: 1; padding: 9px 13px; border: 1.5px solid var(--border);
+      border-radius: 18px; outline: none; font-family: 'DM Sans', sans-serif;
+      font-size: 13px; background: var(--bg); color: var(--text);
+      transition: border-color 0.2s;
+    }
+    #chatInput:focus { border-color: var(--red); background: #fff; }
+    .chat-send {
+      width: 36px; height: 36px; border-radius: 50%; border: none;
+      background: var(--red); color: #fff; font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .chat-send:hover { filter: brightness(1.1); transform: scale(1.05); }
+
+    /* ── TOAST ── */
+    #toast-container {
+      position: fixed; bottom: calc(var(--piano-h) + 20px); left: 50%;
+      transform: translateX(-50%); z-index: 300;
+      display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none;
+    }
+    .toast {
+      background: rgba(15,13,11,0.88); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 30px;
+      padding: 9px 18px; color: #fff; font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; gap: 8px;
+      animation: toast-in 0.3s ease, toast-out 0.3s ease 2.7s forwards;
+    }
+    @keyframes toast-in { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+    @keyframes toast-out { from { opacity:1; } to { opacity:0; } }
+    .toast i { font-size: 14px; }
+    .toast.green { border-color: rgba(22,163,74,0.4); }
+    .toast.green i { color: #4ADE80; }
+    .toast.amber { border-color: rgba(217,119,6,0.4); }
+    .toast.amber i { color: #FCD34D; }
+    .toast.red i { color: var(--red); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 10px;
+      color: var(--muted); text-align: center; padding: 20px;
+    }
+    .empty-state i { font-size: 32px; opacity: .4; }
+    .empty-state p { font-size: 13px; line-height: 1.5; opacity: .7; }
+
+    /* Scrollbar global */
+    * { scrollbar-width: thin; scrollbar-color: var(--border-md) transparent; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      :root { --sidebar-w: 280px; }
+    }
+
+    /* Connection status badge */
+    .conn-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    }
+    .conn-badge.waiting { background: rgba(120,113,108,0.15); color: var(--muted); }
+    .conn-badge.ok { background: var(--green-soft); color: var(--green); }
+    .conn-badge.session { background: var(--red-soft); color: var(--red); }
+    .conn-badge.hand { background: var(--amber-soft); color: var(--amber); }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────── -->
+<header id="header">
+  <div class="h-brand">
+    <div class="h-brand-dot"></div>
+    Mozart Academy
+  </div>
+
+  <div class="h-controls">
+    <div class="session-timer">
+      <div class="timer-dot"></div>
+      <span id="timer-display">00:00</span>
+    </div>
+
+    <div class="h-btn" id="midi-pill-header" style="cursor:default; pointer-events:none; font-size:11px;">
+      <i class="fas fa-circle" style="font-size:8px;"></i>
+      <span id="midi-label">Sin piano MIDI</span>
+    </div>
+
+    <button class="h-btn" id="btn-screen-header" onclick="toggleBroadcastScreen()">
+      <i class="fas fa-desktop"></i> Pantalla
+    </button>
+    <button class="h-btn" id="btn-annotate-header" onclick="toggleAnnotation()" disabled>
+      <i class="fas fa-pen"></i> Anotar
+    </button>
+    <button class="h-btn" id="btn-mic-header" onclick="toggleMic()">
+      <i class="fas fa-microphone-slash"></i> Micrófono
+    </button>
+  </div>
+</header>
+
+<!-- ── MAIN ───────────────────────────── -->
+<div id="layout">
+
+  <!-- CENTER STAGE -->
+  <main id="stage">
+
+    <!-- Screen area -->
+    <div id="screen-area">
+      <video id="screen-video" autoplay muted></video>
+      <canvas id="annotation-canvas"></canvas>
+      <div class="screen-placeholder" id="placeholder">
+        <i class="fas fa-chalkboard"></i>
+        <p>Comparte tu pantalla para iniciar la clase</p>
+        <small>Usa el botón <strong>Pantalla</strong> arriba para compartir tu ventana o pestaña del navegador</small>
+      </div>
+
+      <!-- Annotation toolbar -->
+      <div id="annotation-toolbar">
+        <button class="ann-btn active" id="ann-pen" onclick="setTool('pen')" title="Lápiz"><i class="fas fa-pen"></i></button>
+        <button class="ann-btn" id="ann-line" onclick="setTool('line')" title="Línea"><i class="fas fa-minus"></i></button>
+        <button class="ann-btn" id="ann-rect" onclick="setTool('rect')" title="Rectángulo"><i class="fas fa-square"></i></button>
+        <button class="ann-btn" id="ann-arrow" onclick="setTool('arrow')" title="Flecha"><i class="fas fa-long-arrow-alt-right"></i></button>
+        <button class="ann-btn" id="ann-eraser" onclick="setTool('eraser')" title="Borrador"><i class="fas fa-eraser"></i></button>
+        <div class="ann-divider"></div>
+        <div class="ann-color selected" style="background:#E8391D" onclick="setColor('#E8391D', this)" data-color="#E8391D"></div>
+        <div class="ann-color" style="background:#2563EB" onclick="setColor('#2563EB', this)" data-color="#2563EB"></div>
+        <div class="ann-color" style="background:#16A34A" onclick="setColor('#16A34A', this)" data-color="#16A34A"></div>
+        <div class="ann-color" style="background:#D97706" onclick="setColor('#D97706', this)" data-color="#D97706"></div>
+        <div class="ann-color" style="background:#ffffff" onclick="setColor('#ffffff', this)" data-color="#ffffff"></div>
+        <div class="ann-divider"></div>
+        <button class="ann-size sel" onclick="setSize(3, this)">S</button>
+        <button class="ann-size" onclick="setSize(6, this)">M</button>
+        <button class="ann-size" onclick="setSize(12, this)">L</button>
+        <div class="ann-divider"></div>
+        <button class="ann-btn" onclick="clearAnnotations()" title="Limpiar"><i class="fas fa-trash"></i></button>
+        <button class="ann-btn" onclick="undoAnnotation()" title="Deshacer"><i class="fas fa-undo"></i></button>
+      </div>
+
+      <!-- Session 1on1 indicator -->
+      <div id="session-1on1-indicator">
+        <div class="ind-dot"></div>
+        <div class="ind-text">Sesión 1:1 con <strong id="ind-name">—</strong></div>
+        <button class="ind-end" onclick="endSession1on1()"><i class="fas fa-times"></i> Terminar</button>
+      </div>
+    </div>
+
+    <!-- Live controls dock -->
+    <div id="controls-dock">
+      <div class="ctrl-with-label">
+        <button class="ctrl-btn" id="ctrl-mic" onclick="toggleMic()" title="Micrófono">
+          <i class="fas fa-microphone-slash"></i>
+        </button>
+        <span class="ctrl-label">Mic</span>
+      </div>
+      <div class="ctrl-with-label">
+        <button class="ctrl-btn screen-on" id="ctrl-screen" onclick="toggleBroadcastScreen()" title="Pantalla">
+          <i class="fas fa-desktop"></i>
+        </button>
+        <span class="ctrl-label">Pantalla</span>
+      </div>
+      <div class="ctrl-with-label">
+        <button class="ctrl-btn" id="ctrl-annotate" onclick="toggleAnnotation()" title="Anotar" disabled>
+          <i class="fas fa-pen"></i>
+        </button>
+        <span class="ctrl-label">Anotar</span>
+      </div>
+      <div class="ctrl-divider"></div>
+      <div class="ctrl-with-label">
+        <button class="ctrl-btn" id="ctrl-chat-toggle" onclick="openTab('chat')" title="Chat">
+          <i class="fas fa-comments"></i>
+        </button>
+        <span class="ctrl-label">Chat</span>
+      </div>
+    </div>
+
+    <!-- Piano -->
+    <div id="piano-area">
+      <div id="piano-casing"></div>
+      <div id="piano-scroll">
+        <div id="piano-keys"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sb-tabs">
+      <button class="sb-tab active" id="tab-students" onclick="openTab('students')">
+        <i class="fas fa-users"></i> Alumnos
+        <span class="sb-badge" id="badge-students" style="display:none"></span>
+      </button>
+      <button class="sb-tab" id="tab-chat" onclick="openTab('chat')">
+        <i class="fas fa-comments"></i> Chat
+        <span class="sb-badge" id="badge-chat" style="display:none"></span>
+      </button>
+    </div>
+
+    <!-- STUDENTS PANEL -->
+    <div class="sb-panel active" id="panel-students">
+      <div class="students-summary">
+        <div class="students-summary-left">
+          <div class="online-dot"></div>
+          <div class="online-count"><span id="count-online">0</span> conectados</div>
+        </div>
+        <div style="font-size:11px; color:var(--muted);">Clase en vivo</div>
+      </div>
+
+      <!-- Queue -->
+      <div id="queue-section">
+        <div class="queue-title">
+          <i class="fas fa-hand-paper"></i> Cola de turnos
+        </div>
+        <div class="queue-list" id="queue-list"></div>
+      </div>
+
+      <div id="students-list">
+        <div class="empty-state">
+          <i class="fas fa-user-clock"></i>
+          <p>Esperando alumnos...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT PANEL -->
+    <div class="sb-panel" id="panel-chat">
+      <div id="chat-messages">
+        <div class="empty-state" id="chat-empty">
+          <i class="fas fa-comment-dots"></i>
+          <p>El chat grupal aparecerá aquí</p>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <input id="chatInput" type="text" placeholder="Mensaje a todos…" maxlength="300">
+        <button class="chat-send" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Audio elements go here dynamically -->
+
+<script>
+// ═══════════════════════════════════════════
+// FIREBASE CONFIG
+// ═══════════════════════════════════════════
+const FB_CONFIG = {
+  apiKey: "AIzaSyCb_t1xm9ueLy0lURXBovtZVdowSgTTT7c",
+  authDomain: "mozartplus-85ab1.firebaseapp.com",
+  databaseURL: "https://mozartplus-85ab1-default-rtdb.firebaseio.com",
+  projectId: "mozartplus-85ab1",
+  storageBucket: "mozartplus-85ab1.firebasestorage.app",
+  messagingSenderId: "742478520566"
+};
+firebase.initializeApp(FB_CONFIG);
+
+const db = firebase.database();
+const ROOM = "piano-class";
+const usersRef   = db.ref(`${ROOM}/users`);
+const signalsRef = db.ref(`${ROOM}/signals`);
+const chatRef    = db.ref(`${ROOM}/groupChat`);
+const stateRef   = db.ref(`${ROOM}/state`);
+const queueRef   = db.ref(`${ROOM}/queue`);
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+const myId   = "profesor-" + Math.floor(Math.random() * 99999);
+const myName = "Profesor";
+
+let localStream       = null; // mic stream
+let broadcastScreen   = null; // screen share stream
+let peers             = {};   // { studentId: SimplePeer }
+let studentConns      = {};   // { studentId: { connected, name } }
+let connectedStudents = {};   // from Firebase snapshot
+let session1on1Id     = null; // active 1on1 student
+let queueOrder        = {};   // { studentId: timestamp }
+let micOn             = false;
+let screenOn          = false;
+let annotationOn      = false;
+let unreadChat        = 0;
+let activeTab         = 'students';
+
+// Annotation
+let annCtx, annTool = 'pen', annColor = '#E8391D', annSize = 3;
+let annDrawing = false, annStartX, annStartY;
+let annSnapshot = null;
+let annHistory  = [];
+
+// Piano
+let sampler = null;
+let activeNotes = {};
+
+// Timer
+let sessionStart = Date.now();
+
+// Heartbeat / cleanup
+const TIMEOUT_MS    = 30000;
+const GRACE_MS      = 45000;
+const CLEANUP_DELAY = 8000;
+let pendingCleanup  = {};
+let joinAudio       = null;
+
+// ICE servers
+const ICE_SERVERS = [
+  { urls: "stun:stun.relay.metered.ca:80" },
+  { urls: "turn:a.relay.metered.ca:80",  username: "fad444a63bcf5c8176a3e139", credential: "MQm2u8W0l1TCVMm0" },
+  { urls: "turn:a.relay.metered.ca:443", username: "fad444a63bcf5c8176a3e139", credential: "MQm2u8W0l1TCVMm0" }
+];
+
+// keyboard map
+const KEY_MAP = {
+  'a':'C4','w':'Db4','s':'D4','e':'Eb4','d':'E4','f':'F4','t':'Gb4',
+  'g':'G4','y':'Ab4','h':'A4','u':'Bb4','j':'B4','k':'C5','o':'Db5',
+  'l':'D5','p':'Eb5',';':'E5'
+};
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  // Prepare a silent join-notification sound
+  joinAudio = createJoinSound();
+
+  // Mic stream (starts muted)
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    localStream.getAudioTracks().forEach(t => t.enabled = false);
+  } catch(e) {
+    showToast('No se pudo acceder al micrófono', 'fas fa-microphone-slash', 'red');
+  }
+
+  // Register on Firebase
+  usersRef.child(myId).set({ id: myId, role: 'master', name: myName });
+  usersRef.child(myId).onDisconnect().remove();
+  stateRef.child('selectedStudentId').onDisconnect().set(null);
+
+  // Listeners
+  listenStudents();
+  listenSignals();
+  listenQueue();
+  listenState();
+  loadChatHistory();
+
+  // Piano
+  await initPiano();
+  await initMIDI();
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.repeat) return;
+    const n = KEY_MAP[e.key.toLowerCase()];
+    if (n) triggerNoteOn(n);
+  });
+  document.addEventListener('keyup', e => {
+    const n = KEY_MAP[e.key.toLowerCase()];
+    if (n) triggerNoteOff(n);
+  });
+
+  // Chat enter key
+  document.getElementById('chatInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  // Session timer
+  setInterval(updateTimer, 1000);
+  updateTimer();
+
+  // Heartbeat checker
+  setInterval(checkHeartbeats, 10000);
+});
+
+function createJoinSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    return {
+      play() {
+        const osc  = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.35);
+      }
+    };
+  } catch(e) { return { play() {} }; }
+}
+
+// ═══════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════
+function updateTimer() {
+  const s = Math.floor((Date.now() - sessionStart) / 1000);
+  const mm = String(Math.floor(s / 60)).padStart(2,'0');
+  const ss = String(s % 60).padStart(2,'0');
+  document.getElementById('timer-display').textContent = `${mm}:${ss}`;
+}
+
+// ═══════════════════════════════════════════
+// TAB MANAGEMENT
+// ═══════════════════════════════════════════
+function openTab(name) {
+  activeTab = name;
+  document.querySelectorAll('.sb-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.sb-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  document.getElementById(`panel-${name}`).classList.add('active');
+  if (name === 'chat') {
+    unreadChat = 0;
+    const b = document.getElementById('badge-chat');
+    b.style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════════
+// FIREBASE: STUDENTS
+// ═══════════════════════════════════════════
+function listenStudents() {
+  usersRef.on('value', snap => {
+    const users = snap.val() || {};
+    const prev = { ...connectedStudents };
+    connectedStudents = {};
+    const now = Date.now();
+
+    for (const id in users) {
+      if (users[id].role === 'user') {
+        const hb = users[id].lastHeartbeat || 0;
+        if (now - hb < TIMEOUT_MS) {
+          const isNew = !prev[id];
+          connectedStudents[id] = users[id];
+          if (isNew) {
+            joinAudio.play();
+            showToast(`${users[id].name || id} se unió a la clase`, 'fas fa-user-check', 'green');
+          }
+        }
+      }
+    }
+
+    // Cleanup ghosts
+    for (const sid in peers) {
+      if (!connectedStudents[sid]) {
+        if (!pendingCleanup[sid]) {
+          pendingCleanup[sid] = setTimeout(() => {
+            delete pendingCleanup[sid];
+            cleanupPeer(sid);
+          }, CLEANUP_DELAY);
+        }
+      } else if (pendingCleanup[sid]) {
+        clearTimeout(pendingCleanup[sid]);
+        delete pendingCleanup[sid];
+      }
+    }
+
+    if (session1on1Id && !connectedStudents[session1on1Id]) endSession1on1();
+
+    renderStudentsList();
+  });
+}
+
+function checkHeartbeats() {
+  usersRef.once('value', snap => {
+    const now = Date.now();
+    (snap.val() || {}) && Object.entries(snap.val() || {}).forEach(([id, u]) => {
+      if (u.role === 'user' && (now - (u.lastHeartbeat||0)) > TIMEOUT_MS) {
+        usersRef.child(id).remove();
+      }
+    });
+  });
+}
+
+// ═══════════════════════════════════════════
+// FIREBASE: QUEUE
+// ═══════════════════════════════════════════
+function listenQueue() {
+  queueRef.on('value', snap => {
+    const val = snap.val() || {};
+    const prevCount = Object.keys(queueOrder).length;
+    queueOrder = val;
+    const newCount = Object.keys(val).length;
+
+    // Sound + toast when someone raises hand
+    if (newCount > prevCount) {
+      playHandRaisedSound();
+      const newId = Object.keys(val).find(id => !Object.prototype.hasOwnProperty.call(queueOrder, id) === false);
+      showToast('Un alumno levantó la mano ✋', 'fas fa-hand-paper', 'amber');
+    }
+
+    renderQueue();
+    renderStudentsList();
+  });
+}
+
+function playHandRaisedSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [660, 880].forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.12);
+      gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + i * 0.12 + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.25);
+      osc.start(ctx.currentTime + i * 0.12);
+      osc.stop(ctx.currentTime + i * 0.12 + 0.25);
+    });
+  } catch(e) {}
+}
+
+function renderQueue() {
+  const section = document.getElementById('queue-section');
+  const list    = document.getElementById('queue-list');
+  const sorted  = Object.entries(queueOrder).sort((a,b) => a[1]-b[1]);
+
+  if (!sorted.length) { section.classList.remove('has-queue'); return; }
+  section.classList.add('has-queue');
+
+  list.innerHTML = sorted.map(([id, _], i) => {
+    const name = connectedStudents[id]?.name || id;
+    return `<div class="queue-item">
+      <div class="q-num">${i+1}</div>
+      <div class="q-name">${name}</div>
+      <button class="q-call-btn" onclick="callStudent('${id}')"><i class="fas fa-phone"></i> Llamar</button>
+    </div>`;
+  }).join('');
+}
+
+function callStudent(studentId) {
+  startSession1on1(studentId);
+  queueRef.child(studentId).remove();
+  renderStudentsList();
+}
+
+// ═══════════════════════════════════════════
+// FIREBASE: STATE
+// ═══════════════════════════════════════════
+function listenState() {
+  stateRef.child('selectedStudentId').on('value', snap => {
+    session1on1Id = snap.val() || null;
+    updateSession1on1UI();
+    renderStudentsList();
+  });
+}
+
+// ═══════════════════════════════════════════
+// RENDER STUDENTS
+// ═══════════════════════════════════════════
+function renderStudentsList() {
+  const list = document.getElementById('students-list');
+  const count = Object.keys(connectedStudents).length;
+  document.getElementById('count-online').textContent = count;
+
+  const badge = document.getElementById('badge-students');
+  if (count > 0) { badge.textContent = count; badge.style.display = 'flex'; }
+  else badge.style.display = 'none';
+
+  if (!count) {
+    list.innerHTML = `<div class="empty-state"><i class="fas fa-user-clock"></i><p>Esperando alumnos...</p></div>`;
+    return;
+  }
+
+  list.innerHTML = Object.entries(connectedStudents).map(([id, u]) => {
+    const name     = u.name || id;
+    const initials = name.slice(0,2).toUpperCase();
+    const conn     = peers[id] && studentConns[id]?.connected;
+    const inSess   = session1on1Id === id;
+    const handUp   = queueOrder.hasOwnProperty(id);
+
+    let statusClass = 'waiting', statusText = 'En sala';
+    if (inSess)  { statusClass = 'session'; statusText = '🎹 Sesión 1:1 activa'; }
+    else if (handUp) { statusClass = 'hand'; statusText = '✋ Pide turno'; }
+    else if (conn)   { statusClass = 'ok'; statusText = 'Conectado'; }
+
+    const cardClass = inSess ? 'in-session' : handUp ? 'hand-raised' : '';
+
+    const connectBtn = !conn
+      ? `<button class="s-btn" onclick="connectStudent('${id}')" title="Conectar WebRTC"><i class="fas fa-plug"></i></button>`
+      : '';
+
+    const sessionBtn = conn
+      ? (inSess
+          ? `<button class="s-btn s-btn-end" onclick="endSession1on1()" title="Terminar 1:1"><i class="fas fa-times"></i></button>`
+          : `<button class="s-btn s-btn-1on1" onclick="startSession1on1('${id}')" title="Sesión 1:1"><i class="fas fa-headphones"></i></button>`)
+      : '';
+
+    const muteBtn = conn
+      ? `<button class="s-btn s-btn-mute-me" onclick="toggleIncoming('${id}')" title="Silenciar entrada"><i class="fas fa-volume-up" id="vol-ico-${id}"></i></button>`
+      : '';
+
+    const disconnBtn = conn
+      ? `<button class="s-btn" onclick="disconnectStudent('${id}')" title="Desconectar" style="color:#ef4444;border-color:rgba(239,68,68,0.3)"><i class="fas fa-times"></i></button>`
+      : '';
+
+    return `<div class="student-card ${cardClass}" id="scard-${id}">
+      <div class="s-avatar ${conn?'online':''}">${initials}</div>
+      <div class="s-info">
+        <div class="s-name">${name}</div>
+        <div class="s-status">
+          <span class="conn-badge ${statusClass}">${statusText}</span>
+        </div>
+      </div>
+      <div class="s-actions">
+        ${muteBtn}${connectBtn}${sessionBtn}${disconnBtn}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// WEBRTC
+// ═══════════════════════════════════════════
+function connectStudent(studentId) {
+  if (peers[studentId]) return;
+  startPeer(studentId, true);
+  showToast(`Conectando con ${connectedStudents[studentId]?.name || studentId}…`, 'fas fa-plug', '');
+}
+
+function disconnectStudent(studentId) {
+  signalsRef.push({ from: myId, to: studentId, type: 'close' });
+  cleanupPeer(studentId);
+  renderStudentsList();
+}
+
+function cleanupPeer(studentId) {
+  if (pendingCleanup[studentId]) { clearTimeout(pendingCleanup[studentId]); delete pendingCleanup[studentId]; }
+  if (peers[studentId]) { peers[studentId].destroy(); delete peers[studentId]; }
+  delete studentConns[studentId];
+  const el = document.getElementById(`audio-${studentId}`);
+  if (el) el.remove();
+  if (session1on1Id === studentId) endSession1on1();
+}
+
+function startPeer(targetId, initiator) {
+  const peer = new SimplePeer({
+    initiator,
+    stream: localStream,
+    trickle: true,
+    config: { iceServers: ICE_SERVERS }
+  });
+
+  peers[targetId] = peer;
+  studentConns[targetId] = { connected: false, name: connectedStudents[targetId]?.name || targetId };
+
+  peer._pc.oniceconnectionstatechange = () => {
+    const st = peer._pc.iceConnectionState;
+    if (st === 'connected' || st === 'completed') {
+      studentConns[targetId].connected = true;
+      // Add screen if broadcasting
+      if (broadcastScreen) addScreenTrackToPeer(targetId);
+      renderStudentsList();
+      showToast(`${studentConns[targetId].name} conectado`, 'fas fa-check-circle', 'green');
+    } else if (st === 'failed') {
+      studentConns[targetId].connected = false;
+      renderStudentsList();
+    }
+  };
+
+  peer.on('signal', data => signalsRef.push({ from: myId, to: targetId, data }));
+
+  peer.on('connect', () => {
+    studentConns[targetId].connected = true;
+    if (broadcastScreen) addScreenTrackToPeer(targetId);
+    renderStudentsList();
+  });
+
+  peer.on('stream', stream => {
+    let el = document.getElementById(`audio-${targetId}`);
+    if (!el) {
+      el = document.createElement('audio');
+      el.id = `audio-${targetId}`; el.autoplay = true; el.style.display = 'none';
+      document.body.appendChild(el);
+    }
+    el.srcObject = stream;
+    if (!studentConns[targetId].connected) {
+      studentConns[targetId].connected = true;
+      renderStudentsList();
+    }
+  });
+
+  peer.on('data', raw => {
+    try {
+      const msg = JSON.parse(raw.toString());
+      if (msg.type === 'chat') {
+        appendChat(studentConns[targetId]?.name || targetId, msg.text, false);
+      } else if (msg.type === 'midi') {
+        if (msg.action === 'noteOn') triggerNoteOn(msg.note);
+        else triggerNoteOff(msg.note);
+      }
+    } catch(e) {}
+  });
+
+  peer.on('close', () => {
+    studentConns[targetId] = { connected: false };
+    renderStudentsList();
+  });
+
+  peer.on('error', () => {
+    studentConns[targetId] = { connected: false };
+    renderStudentsList();
+  });
+}
+
+function listenSignals() {
+  signalsRef.on('child_added', snap => {
+    const { from, to, data, type } = snap.val();
+    if (to !== myId) return;
+    if (type === 'close') { cleanupPeer(from); return; }
+    if (!data) return;
+    if (!peers[from]) startPeer(from, false);
+    try { peers[from].signal(data); } catch(e) {}
+    signalsRef.child(snap.key).remove();
+  });
+}
+
+function toggleIncoming(studentId) {
+  const el = document.getElementById(`audio-${studentId}`);
+  if (!el) return;
+  el.muted = !el.muted;
+  const ico = document.getElementById(`vol-ico-${studentId}`);
+  if (ico) ico.className = el.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+}
+
+// ═══════════════════════════════════════════
+// 1on1 SESSION
+// ═══════════════════════════════════════════
+function startSession1on1(studentId) {
+  stateRef.child('selectedStudentId').set(studentId);
+  session1on1Id = studentId;
+  updateSession1on1UI();
+  updateMicRouting();
+  renderStudentsList();
+}
+
+function endSession1on1() {
+  stateRef.child('selectedStudentId').set(null);
+  session1on1Id = null;
+  updateSession1on1UI();
+  updateMicRouting();
+  renderStudentsList();
+}
+
+function updateSession1on1UI() {
+  const ind  = document.getElementById('session-1on1-indicator');
+  const name = document.getElementById('ind-name');
+  if (session1on1Id) {
+    ind.classList.add('visible');
+    name.textContent = connectedStudents[session1on1Id]?.name || session1on1Id;
+  } else {
+    ind.classList.remove('visible');
+  }
+}
+
+// Route mic: in 1on1 only that peer hears; otherwise all hear
+function updateMicRouting() {
+  if (!localStream) return;
+  const track = localStream.getAudioTracks()[0];
+  if (!track) return;
+  track.enabled = micOn;
+  // Nothing extra needed — SimplePeer already sends the track to each peer.
+  // The student side handles "professor busy" overlay via Firebase state.
+}
+
+// ═══════════════════════════════════════════
+// MIC
+// ═══════════════════════════════════════════
+function toggleMic() {
+  micOn = !micOn;
+  if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = micOn);
+
+  const icons = ['ctrl-mic', 'btn-mic-header'];
+  icons.forEach(id => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.classList.toggle('on', micOn);
+    btn.querySelector('i').className = micOn ? 'fas fa-microphone' : 'fas fa-microphone-slash';
+  });
+  // update header button text
+  const hBtn = document.getElementById('btn-mic-header');
+  if (hBtn) {
+    hBtn.childNodes[hBtn.childNodes.length-1].textContent = micOn ? ' Mic activo' : ' Micrófono';
+  }
+}
+
+// ═══════════════════════════════════════════
+// SCREEN SHARE
+// ═══════════════════════════════════════════
+async function toggleBroadcastScreen() {
+  if (broadcastScreen) {
+    stopScreenShare();
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { displaySurface: 'window', frameRate: { ideal: 30 } },
+      audio: false
+    });
+    stream.getVideoTracks()[0].onended = stopScreenShare;
+    broadcastScreen = stream;
+    screenOn = true;
+
+    // Show video
+    const vid = document.getElementById('screen-video');
+    vid.srcObject = stream; vid.style.display = 'block';
+    document.getElementById('placeholder').style.display = 'none';
+
+    // Resize canvas to match
+    resizeAnnotationCanvas();
+
+    // Enable annotation
+    document.getElementById('ctrl-annotate').disabled = false;
+    document.getElementById('btn-annotate-header').disabled = false;
+
+    // Add track to all connected peers
+    for (const sid in peers) {
+      if (studentConns[sid]?.connected) addScreenTrackToPeer(sid);
+    }
+
+    // UI
+    setScreenBtnState(true);
+    showToast('Pantalla compartida con todos los alumnos', 'fas fa-desktop', 'green');
+  } catch(e) {
+    if (e.name !== 'NotAllowedError') showToast('No se pudo compartir pantalla: ' + e.message, 'fas fa-exclamation', 'red');
+  }
+}
+
+function addScreenTrackToPeer(sid) {
+  if (!broadcastScreen || !peers[sid]) return;
+  const track = broadcastScreen.getVideoTracks()[0];
+  if (!track) return;
+  try { peers[sid].addTrack(track, broadcastScreen); } catch(e) {}
+}
+
+function stopScreenShare() {
+  if (!broadcastScreen) return;
+
+  if (annotationOn) toggleAnnotation();
+
+  broadcastScreen.getTracks().forEach(t => t.stop());
+  broadcastScreen = null; screenOn = false;
+
+  // Remove track from all peers
+  for (const sid in peers) {
+    if (!peers[sid]._pc) continue;
+    peers[sid]._pc.getSenders().forEach(s => {
+      if (s.track?.kind === 'video') {
+        try { peers[sid]._pc.removeTrack(s); } catch(e) {}
+      }
+    });
+  }
+
+  const vid = document.getElementById('screen-video');
+  vid.srcObject = null; vid.style.display = 'none';
+  document.getElementById('placeholder').style.display = 'flex';
+
+  document.getElementById('ctrl-annotate').disabled = true;
+  document.getElementById('btn-annotate-header').disabled = true;
+
+  setScreenBtnState(false);
+  showToast('Compartición de pantalla detenida', 'fas fa-desktop', '');
+}
+
+function setScreenBtnState(on) {
+  ['ctrl-screen','btn-screen-header'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.classList.toggle('screen-on', on);
+  });
+}
+
+function resizeAnnotationCanvas() {
+  const canvas = document.getElementById('annotation-canvas');
+  const area   = document.getElementById('screen-area');
+  canvas.width  = area.clientWidth;
+  canvas.height = area.clientHeight;
+  annCtx = canvas.getContext('2d');
+}
+
+// ═══════════════════════════════════════════
+// ANNOTATION
+// ═══════════════════════════════════════════
+function toggleAnnotation() {
+  if (!screenOn) return;
+  annotationOn = !annotationOn;
+
+  const canvas = document.getElementById('annotation-canvas');
+  const toolbar = document.getElementById('annotation-toolbar');
+
+  if (annotationOn) {
+    resizeAnnotationCanvas();
+    canvas.style.display = 'block';
+    toolbar.classList.add('visible');
+    canvas.addEventListener('mousedown', annMouseDown);
+    canvas.addEventListener('mousemove', annMouseMove);
+    canvas.addEventListener('mouseup', annMouseUp);
+    canvas.addEventListener('mouseleave', annMouseUp);
+  } else {
+    canvas.style.display = 'none';
+    toolbar.classList.remove('visible');
+    canvas.removeEventListener('mousedown', annMouseDown);
+    canvas.removeEventListener('mousemove', annMouseMove);
+    canvas.removeEventListener('mouseup', annMouseUp);
+    canvas.removeEventListener('mouseleave', annMouseUp);
+  }
+
+  ['ctrl-annotate','btn-annotate-header'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.toggle('annotate-on', annotationOn);
+  });
+}
+
+function annMouseDown(e) {
+  annDrawing = true;
+  const r = annCtx.canvas.getBoundingClientRect();
+  annStartX = e.clientX - r.left;
+  annStartY = e.clientY - r.top;
+  annSnapshot = annCtx.getImageData(0, 0, annCtx.canvas.width, annCtx.canvas.height);
+  annCtx.beginPath();
+  annCtx.strokeStyle = annColor;
+  annCtx.lineWidth   = annSize;
+  annCtx.lineCap     = 'round';
+  annCtx.lineJoin    = 'round';
+}
+
+function annMouseMove(e) {
+  if (!annDrawing) return;
+  const r = annCtx.canvas.getBoundingClientRect();
+  const x = e.clientX - r.left;
+  const y = e.clientY - r.top;
+
+  if (annTool === 'pen') {
+    annCtx.lineTo(x, y);
+    annCtx.stroke();
+  } else if (annTool === 'eraser') {
+    annCtx.clearRect(x - annSize*3, y - annSize*3, annSize*6, annSize*6);
+  } else {
+    annCtx.putImageData(annSnapshot, 0, 0);
+    annCtx.beginPath();
+    annCtx.strokeStyle = annColor;
+    annCtx.lineWidth   = annSize;
+    annCtx.lineCap     = 'round';
+    if (annTool === 'line') {
+      annCtx.moveTo(annStartX, annStartY);
+      annCtx.lineTo(x, y);
+      annCtx.stroke();
+    } else if (annTool === 'rect') {
+      annCtx.strokeRect(annStartX, annStartY, x - annStartX, y - annStartY);
+    } else if (annTool === 'arrow') {
+      drawArrow(annCtx, annStartX, annStartY, x, y);
+    }
+  }
+}
+
+function annMouseUp() {
+  if (!annDrawing) return;
+  annDrawing = false;
+  annHistory.push(annCtx.getImageData(0, 0, annCtx.canvas.width, annCtx.canvas.height));
+  if (annHistory.length > 20) annHistory.shift();
+  // Enviar la imagen completa de las anotaciones a los alumnos
+  broadcastAnnotationImage();
+}
+
+function drawArrow(ctx, fx, fy, tx, ty) {
+  const headLen = 15;
+  const angle   = Math.atan2(ty - fy, tx - fx);
+  ctx.moveTo(fx, fy);
+  ctx.lineTo(tx, ty);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(tx, ty);
+  ctx.lineTo(tx - headLen * Math.cos(angle - Math.PI/6), ty - headLen * Math.sin(angle - Math.PI/6));
+  ctx.moveTo(tx, ty);
+  ctx.lineTo(tx - headLen * Math.cos(angle + Math.PI/6), ty - headLen * Math.sin(angle + Math.PI/6));
+  ctx.stroke();
+}
+
+function setTool(t) {
+  annTool = t;
+  document.querySelectorAll('.ann-btn').forEach(b => b.classList.remove('active'));
+  const map = { pen:'ann-pen', line:'ann-line', rect:'ann-rect', arrow:'ann-arrow', eraser:'ann-eraser' };
+  if (map[t]) document.getElementById(map[t]).classList.add('active');
+  document.getElementById('annotation-canvas').style.cursor = t === 'eraser' ? 'cell' : 'crosshair';
+}
+
+function setColor(c, el) {
+  annColor = c;
+  document.querySelectorAll('.ann-color').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function setSize(s, el) {
+  annSize = s;
+  document.querySelectorAll('.ann-size').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function clearAnnotations() {
+  if (annCtx) annCtx.clearRect(0, 0, annCtx.canvas.width, annCtx.canvas.height);
+  annHistory = [];
+  // Avisar a los alumnos que se limpiaron las anotaciones
+  broadcastAnnotationImage('clear');
+}
+
+function undoAnnotation() {
+  if (!annHistory.length) return;
+  annHistory.pop();
+  if (annHistory.length) {
+    annCtx.putImageData(annHistory[annHistory.length - 1], 0, 0);
+  } else {
+    annCtx.clearRect(0, 0, annCtx.canvas.width, annCtx.canvas.height);
+  }
+  // Enviar estado actualizado de las anotaciones
+  broadcastAnnotationImage();
+}
+
+// ═══════════════════════════════════════════
+// CHAT
+// ═══════════════════════════════════════════
+function loadChatHistory() {
+  chatRef.on('child_added', snap => {
+    const msg = snap.val();
+    const isMe = msg.sender === myId;
+    const name = isMe ? 'Tú' : (connectedStudents[msg.sender]?.name || 'Alumno');
+    appendChat(name, msg.text, isMe);
+  });
+}
+
+function sendMessage() {
+  const inp = document.getElementById('chatInput');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  chatRef.push({ text, sender: myId, ts: firebase.database.ServerValue.TIMESTAMP });
+  // Also send via WebRTC data channel for lower latency
+  Object.entries(peers).forEach(([sid, p]) => {
+    if (p.connected) try { p.send(JSON.stringify({ type: 'chat', text })); } catch(e) {}
+  });
+}
+
+function appendChat(sender, text, isMe) {
+  const container = document.getElementById('chat-messages');
+  const empty = document.getElementById('chat-empty');
+  if (empty) empty.remove();
+
+  const initials = sender.slice(0,2).toUpperCase();
+  const el = document.createElement('div');
+  el.className = `msg ${isMe ? 'me' : ''}`;
+  el.innerHTML = `
+    <div class="msg-avatar">${initials}</div>
+    <div class="msg-bubble">
+      <div class="msg-sender">${sender}</div>
+      ${text}
+    </div>`;
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+
+  if (activeTab !== 'chat' && !isMe) {
+    unreadChat++;
+    const b = document.getElementById('badge-chat');
+    b.textContent = unreadChat; b.style.display = 'flex';
+  }
+}
+
+// ═══════════════════════════════════════════
+// MIDI
+// ═══════════════════════════════════════════
+async function initMIDI() {
+  if (!navigator.requestMIDIAccess) return;
+  try {
+    const access = await navigator.requestMIDIAccess();
+    const bindInput = port => {
+      port.onmidimessage = handleMIDI;
+      updateMIDIUI(true, port.name);
+    };
+    for (const input of access.inputs.values()) bindInput(input);
+    access.onstatechange = e => {
+      if (e.port.type === 'input' && e.port.state === 'connected') bindInput(e.port);
+      else if (e.port.type === 'input') updateMIDIUI(false);
+    };
+  } catch(e) {}
+}
+
+function updateMIDIUI(connected, name='') {
+  const pill = document.getElementById('midi-pill-header');
+  const lbl  = document.getElementById('midi-label');
+  if (connected) {
+    pill.classList.add('connected');
+    lbl.textContent = `Piano: ${name}`;
+  } else {
+    pill.classList.remove('connected');
+    lbl.textContent = 'Sin piano MIDI';
+  }
+}
+
+function handleMIDI(msg) {
+  const [cmd, note, vel] = msg.data;
+  const name = midiToNoteName(note);
+  const isOn = cmd === 144 && vel > 0;
+  isOn ? triggerNoteOn(name) : triggerNoteOff(name);
+
+  const type = isOn ? 'noteOn' : 'noteOff';
+  const data = JSON.stringify({ type: 'midi', action: type, note: name, velocity: vel });
+  const targets = session1on1Id
+    ? (peers[session1on1Id] ? [session1on1Id] : [])
+    : Object.keys(peers).filter(id => studentConns[id]?.connected);
+  targets.forEach(id => { try { peers[id].send(data); } catch(e) {} });
+}
+
+// Enviar el estado actual del canvas de anotaciones como imagen a todos los alumnos conectados
+function broadcastAnnotationImage(action = 'image') {
+  if (!Object.keys(peers).length) return;
+
+  const payload = { type: 'annotation', action };
+
+  if (action === 'image') {
+    const canvas = document.getElementById('annotation-canvas');
+    if (!canvas) return;
+    try {
+      // Calidad moderada para no saturar el canal de datos
+      payload.dataURL = canvas.toDataURL('image/png', 0.7);
+    } catch(e) {
+      return;
+    }
+  }
+
+  const msg = JSON.stringify(payload);
+  Object.entries(peers).forEach(([sid, p]) => {
+    if (p && p.connected) {
+      try { p.send(msg); } catch(e) {}
+    }
+  });
+}
+
+function midiToNoteName(n) {
+  const names = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+  return `${names[n%12]}${Math.floor(n/12)-1}`;
+}
+
+// ═══════════════════════════════════════════
+// PIANO VISUAL
+// ═══════════════════════════════════════════
+async function initPiano() {
+  await Tone.start();
+  sampler = new Tone.Sampler({
+    urls: {
+      A0:"A0.mp3",C1:"C1.mp3","D#1":"Ds1.mp3","F#1":"Fs1.mp3",A1:"A1.mp3",
+      C2:"C2.mp3","D#2":"Ds2.mp3","F#2":"Fs2.mp3",A2:"A2.mp3",C3:"C3.mp3",
+      "D#3":"Ds3.mp3","F#3":"Fs3.mp3",A3:"A3.mp3",C4:"C4.mp3","D#4":"Ds4.mp3",
+      "F#4":"Fs4.mp3",A4:"A4.mp3",C5:"C5.mp3","D#5":"Ds5.mp3","F#5":"Fs5.mp3",
+      A5:"A5.mp3",C6:"C6.mp3","D#6":"Ds6.mp3","F#6":"Fs6.mp3",A6:"A6.mp3",
+      C7:"C7.mp3","D#7":"Ds7.mp3","F#7":"Fs7.mp3",A7:"A7.mp3",C8:"C8.mp3"
+    },
+    release: 1,
+    baseUrl: "https://tonejs.github.io/audio/salamander/"
+  }).toDestination();
+  renderPiano();
+}
+
+function renderPiano() {
+  const container = document.getElementById('piano-keys');
+  const pattern   = ['C','D','E','F','G','A','B'];
+  const blacks    = { C:'Db', D:'Eb', F:'Gb', G:'Ab', A:'Bb' };
+  container.innerHTML = '';
+  let isDown = false;
+
+  const makeKey = (noteName, type) => {
+    const el = document.createElement('div');
+    el.className = `key ${type}`;
+    el.id = `key-${noteName}`;
+    el.addEventListener('mousedown',  () => { isDown = true; triggerNoteOn(noteName); });
+    el.addEventListener('mouseenter', () => { if (isDown) triggerNoteOn(noteName); });
+    el.addEventListener('mouseup',    () => { isDown = false; triggerNoteOff(noteName); });
+    el.addEventListener('mouseleave', () => triggerNoteOff(noteName));
+    el.addEventListener('touchstart', e => { e.preventDefault(); triggerNoteOn(noteName); }, { passive:false });
+    el.addEventListener('touchend',   e => { e.preventDefault(); triggerNoteOff(noteName); }, { passive:false });
+    return el;
+  };
+
+  for (let oct = 1; oct <= 7; oct++) {
+    for (let i = 0; i < 7; i++) {
+      const n = pattern[i];
+      container.appendChild(makeKey(`${n}${oct}`, 'white'));
+      if (blacks[n]) container.appendChild(makeKey(`${blacks[n]}${oct}`, 'black'));
+    }
+  }
+
+  document.addEventListener('mouseup', () => { isDown = false; });
+}
+
+function triggerNoteOn(note) {
+  if (activeNotes[note]) return;
+  if (sampler && Tone.context.state === 'running') sampler.triggerAttack(note, Tone.now());
+  const k = document.getElementById(`key-${note}`);
+  if (k) { k.classList.add('active'); createCasingLabel(note, k); }
+  activeNotes[note] = true;
+}
+
+function triggerNoteOff(note) {
+  if (!activeNotes[note]) return;
+  if (sampler) sampler.triggerRelease(note);
+  const k = document.getElementById(`key-${note}`);
+  if (k) k.classList.remove('active');
+  removeCasingLabel(note);
+  delete activeNotes[note];
+}
+
+function createCasingLabel(note, keyEl) {
+  const casing = document.getElementById('piano-casing');
+  if (!casing) return;
+  const kr = keyEl.getBoundingClientRect();
+  const cr = casing.getBoundingClientRect();
+  const x  = kr.left + kr.width/2 - cr.left;
+  if (x < 0 || x > cr.width) return;
+  const lbl = document.createElement('div');
+  lbl.className = 'casing-label'; lbl.id = `lbl-${note}`;
+  lbl.textContent = note.replace(/\d/g,'');
+  lbl.style.left = `${x}px`;
+  casing.appendChild(lbl);
+}
+
+function removeCasingLabel(note) {
+  const l = document.getElementById(`lbl-${note}`);
+  if (l) l.remove();
+}
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+function showToast(msg, icon = 'fas fa-info-circle', type = '') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<i class="${icon}"></i> ${msg}`;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3100);
+}
+</script>
+</body>
+</html>
