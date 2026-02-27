@@ -1000,9 +1000,7 @@ function renderStudentsList() {
   }).join('');
 }
 
-// ═══════════════════════════════════════════
-// WEBRTC
-// ═══════════════════════════════════════════
+
 function connectStudent(studentId) {
   if (peers[studentId]) return;
   startPeer(studentId, true);
@@ -1025,9 +1023,26 @@ function cleanupPeer(studentId) {
 }
 
 function startPeer(targetId, initiator) {
-  const peer = new SimplePeer({
+let streamToSend = localStream;
+  
+  if (broadcastScreen) {
+    // Combinar audio del mic + video de pantalla en un solo stream
+    const combinedStream = new MediaStream();
+    
+    // Agregar tracks de audio del micrófono
+    if (localStream) {
+      localStream.getAudioTracks().forEach(t => combinedStream.addTrack(t));
+    }
+    
+    // Agregar track de video de la pantalla
+    broadcastScreen.getVideoTracks().forEach(t => combinedStream.addTrack(t));
+    
+    streamToSend = combinedStream;
+  }
+
+   const peer = new SimplePeer({
     initiator,
-    stream: localStream,
+    stream: streamToSend,  // <-- stream ya incluye pantalla si está activa
     trickle: true,
     config: { iceServers: ICE_SERVERS }
   });
@@ -1049,7 +1064,14 @@ function startPeer(targetId, initiator) {
     }
   };
 
-  peer.on('signal', data => signalsRef.push({ from: myId, to: targetId, data }));
+  peer.on('signal', data => {
+  signalsRef.push({ 
+    from: myId, 
+    to: targetId, 
+    data,
+    ts: firebase.database.ServerValue.TIMESTAMP  // <-- agregar timestamp
+  });
+});
 
   peer.on('connect', () => {
     studentConns[targetId].connected = true;
@@ -1094,14 +1116,43 @@ function startPeer(targetId, initiator) {
   });
 }
 
+
 function listenSignals() {
+  // Guardar timestamp de inicio para ignorar señales viejas
+  const listenStartTime = Date.now();
+  
   signalsRef.on('child_added', snap => {
-    const { from, to, data, type } = snap.val();
+    const val = snap.val();
+    if (!val) return;
+    
+    const { from, to, data, type, ts } = val;
+    
+    // Ignorar señales dirigidas a otro receptor
     if (to !== myId) return;
-    if (type === 'close') { cleanupPeer(from); return; }
+    
+    // CORRECCIÓN: Ignorar señales anteriores al inicio de esta sesión
+    // Esto evita que señales "fantasma" de sesiones anteriores rompan conexiones activas
+    if (ts && ts < listenStartTime - 5000) {
+      signalsRef.child(snap.key).remove();
+      return;
+    }
+    
+    if (type === 'close') { 
+      cleanupPeer(from); 
+      signalsRef.child(snap.key).remove();
+      return; 
+    }
+    
     if (!data) return;
+    
     if (!peers[from]) startPeer(from, false);
-    try { peers[from].signal(data); } catch(e) {}
+    
+    try { 
+      peers[from].signal(data); 
+    } catch(e) {
+      console.warn('Error procesando señal de', from, e);
+    }
+    
     signalsRef.child(snap.key).remove();
   });
 }
@@ -1221,7 +1272,27 @@ function addScreenTrackToPeer(sid) {
   if (!broadcastScreen || !peers[sid]) return;
   const track = broadcastScreen.getVideoTracks()[0];
   if (!track) return;
-  try { peers[sid].addTrack(track, broadcastScreen); } catch(e) {}
+  
+  const pc = peers[sid]._pc;
+  if (!pc) return;
+  
+  // Buscar si ya hay un sender de video para reemplazar
+  const videoSender = pc.getSenders().find(s => s.track?.kind === 'video');
+  
+  if (videoSender) {
+    // Reemplazar track existente (más limpio, no requiere renegociación compleja)
+    videoSender.replaceTrack(track).catch(e => {
+      console.warn('replaceTrack falló, intentando addTrack:', e);
+      try { peers[sid].addTrack(track, broadcastScreen); } catch(e2) {}
+    });
+  } else {
+    // No había sender de video, agregar nuevo
+    try { 
+      peers[sid].addTrack(track, broadcastScreen); 
+    } catch(e) {
+      console.warn('addTrack falló para', sid, e);
+    }
+  }
 }
 
 function stopScreenShare() {
