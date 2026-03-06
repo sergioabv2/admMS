@@ -650,7 +650,7 @@ const db = firebase.database();
 const ROOM = "piano-class";
 const usersRef   = db.ref(`${ROOM}/users`);
 const signalsRef = db.ref(`${ROOM}/signals`);
-const chatRef    = db.ref(`${ROOM}/groupChat`);
+const chatRef    = db.ref(`${ROOM}/chats/groupChat`);
 const stateRef   = db.ref(`${ROOM}/state`);
 const queueRef   = db.ref(`${ROOM}/queue`);
 
@@ -1025,7 +1025,11 @@ function renderStudentsList() {
 
 
 function connectStudent(studentId) {
-  if (peers[studentId]) return;
+  // Si ya existe un peer pero está roto, limpiar antes de reconectar
+  if (peers[studentId]) {
+    if (studentConns[studentId]?.connected) return;
+    cleanupPeer(studentId);
+  }
   startPeer(studentId, true);
   showToast(`Conectando con ${connectedStudents[studentId]?.name || studentId}…`, 'fas fa-plug', '');
 }
@@ -1039,7 +1043,16 @@ function disconnectStudent(studentId) {
 function cleanupPeer(studentId) {
   if (pendingCleanup[studentId]) { clearTimeout(pendingCleanup[studentId]); delete pendingCleanup[studentId]; }
   if (keepAliveTimers[studentId]) { clearInterval(keepAliveTimers[studentId]); delete keepAliveTimers[studentId]; }
-  if (peers[studentId]) { peers[studentId].destroy(); delete peers[studentId]; }
+  if (peers[studentId]) {
+    // Detener tracks clonados para liberar recursos
+    try {
+      peers[studentId]._pc?.getSenders().forEach(s => {
+        if (s.track) s.track.stop();
+      });
+    } catch(e) {}
+    peers[studentId].destroy();
+    delete peers[studentId];
+  }
   delete studentConns[studentId];
   const el = document.getElementById(`audio-${studentId}`);
   if (el) el.remove();
@@ -1047,20 +1060,29 @@ function cleanupPeer(studentId) {
 }
 
 function startPeer(targetId, initiator) {
-  let streamToSend = localStream;
-  
+  // CLAVE: Clonar tracks para cada peer. Compartir el mismo MediaStreamTrack
+  // entre múltiples RTCPeerConnection causa que el primer peer se desconecte
+  // en muchos navegadores.
+  const peerStream = new MediaStream();
+  const screenIncluded = !!broadcastScreen;
+
+  if (localStream) {
+    localStream.getAudioTracks().forEach(t => {
+      const cloned = t.clone();
+      cloned.enabled = t.enabled;
+      peerStream.addTrack(cloned);
+    });
+  }
+
   if (broadcastScreen) {
-    const combinedStream = new MediaStream();
-    if (localStream) {
-      localStream.getAudioTracks().forEach(t => combinedStream.addTrack(t));
-    }
-    broadcastScreen.getVideoTracks().forEach(t => combinedStream.addTrack(t));
-    streamToSend = combinedStream;
+    broadcastScreen.getVideoTracks().forEach(t => {
+      peerStream.addTrack(t.clone());
+    });
   }
 
   const peer = new SimplePeer({
     initiator,
-    stream: streamToSend,
+    stream: peerStream,
     trickle: true,
     config: {
       iceServers: ICE_SERVERS,
@@ -1076,11 +1098,12 @@ function startPeer(targetId, initiator) {
   peer._pc.oniceconnectionstatechange = () => {
     const st = peer._pc.iceConnectionState;
     if (st === 'connected' || st === 'completed') {
-      studentConns[targetId].connected = true;
-      if (broadcastScreen) addScreenTrackToPeer(targetId);
-      startKeepAlive(targetId);
-      renderStudentsList();
-      showToast(`${studentConns[targetId].name} conectado`, 'fas fa-check-circle', 'green');
+      if (!studentConns[targetId].connected) {
+        studentConns[targetId].connected = true;
+        startKeepAlive(targetId);
+        renderStudentsList();
+        showToast(`${studentConns[targetId].name} conectado`, 'fas fa-check-circle', 'green');
+      }
     } else if (st === 'disconnected') {
       showToast(`${studentConns[targetId].name} conexión inestable...`, 'fas fa-exclamation-triangle', 'amber');
     } else if (st === 'failed') {
@@ -1100,8 +1123,15 @@ function startPeer(targetId, initiator) {
 
   peer.on('connect', () => {
     studentConns[targetId].connected = true;
-    if (broadcastScreen) addScreenTrackToPeer(targetId);
     startKeepAlive(targetId);
+    // Aplicar encoding de pantalla si ya estaba incluida
+    if (screenIncluded) {
+      const pc = peer._pc;
+      if (pc) {
+        const vs = pc.getSenders().find(s => s.track?.kind === 'video');
+        if (vs) applyScreenEncoding(vs);
+      }
+    }
     renderStudentsList();
   });
 
@@ -1126,8 +1156,6 @@ function startPeer(targetId, initiator) {
       if (msg.type === 'chat') {
         const senderName = studentConns[targetId]?.name || targetId;
         appendChat(senderName, msg.text, false);
-        // Relay to all OTHER peers via data channel (low latency)
-        // Student already pushes to Firebase chatRef, so no need to duplicate
         const relayPayload = JSON.stringify({ type: 'chat', text: msg.text, sender: senderName });
         Object.entries(peers).forEach(([sid, p]) => {
           if (sid !== targetId && p.connected) {
@@ -1141,7 +1169,6 @@ function startPeer(targetId, initiator) {
         studentConns[targetId].muted = msg.muted;
         renderStudentsList();
       } else if (msg.type === 'keepalive') {
-        // Student is alive, reset any pending cleanup
         if (pendingCleanup[targetId]) {
           clearTimeout(pendingCleanup[targetId]);
           delete pendingCleanup[targetId];
@@ -1251,14 +1278,16 @@ function updateSession1on1UI() {
   }
 }
 
-// Route mic: in 1on1 only that peer hears; otherwise all hear
 function updateMicRouting() {
   if (!localStream) return;
-  const track = localStream.getAudioTracks()[0];
-  if (!track) return;
-  track.enabled = micOn;
-  // Nothing extra needed — SimplePeer already sends the track to each peer.
-  // The student side handles "professor busy" overlay via Firebase state.
+  localStream.getAudioTracks().forEach(t => t.enabled = micOn);
+  // Con tracks clonados, debemos actualizar cada peer sender también
+  for (const sid in peers) {
+    if (!peers[sid]?._pc) continue;
+    peers[sid]._pc.getSenders().forEach(s => {
+      if (s.track?.kind === 'audio') s.track.enabled = micOn;
+    });
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -1268,6 +1297,14 @@ function toggleMic() {
   micOn = !micOn;
   if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = micOn);
 
+  // Actualizar los tracks clonados en todos los peers
+  for (const sid in peers) {
+    if (!peers[sid]?._pc) continue;
+    peers[sid]._pc.getSenders().forEach(s => {
+      if (s.track?.kind === 'audio') s.track.enabled = micOn;
+    });
+  }
+
   const icons = ['ctrl-mic', 'btn-mic-header'];
   icons.forEach(id => {
     const btn = document.getElementById(id);
@@ -1275,7 +1312,6 @@ function toggleMic() {
     btn.classList.toggle('on', micOn);
     btn.querySelector('i').className = micOn ? 'fas fa-microphone' : 'fas fa-microphone-slash';
   });
-  // update header button text
   const hBtn = document.getElementById('btn-mic-header');
   if (hBtn) {
     hBtn.childNodes[hBtn.childNodes.length-1].textContent = micOn ? ' Mic activo' : ' Micrófono';
@@ -1316,10 +1352,11 @@ async function toggleBroadcastScreen() {
     document.getElementById('ctrl-annotate').disabled = false;
     document.getElementById('btn-annotate-header').disabled = false;
 
-    // Add track to all connected peers
-    for (const sid in peers) {
-      if (studentConns[sid]?.connected) addScreenTrackToPeer(sid);
-    }
+    // Add track to all connected peers (staggered to avoid signal flood)
+    const connectedIds = Object.keys(peers).filter(sid => studentConns[sid]?.connected);
+    connectedIds.forEach((sid, i) => {
+      setTimeout(() => addScreenTrackToPeer(sid), i * 300);
+    });
 
     // UI
     setScreenBtnState(true);
@@ -1331,25 +1368,26 @@ async function toggleBroadcastScreen() {
 
 function addScreenTrackToPeer(sid) {
   if (!broadcastScreen || !peers[sid]) return;
-  const track = broadcastScreen.getVideoTracks()[0];
-  if (!track) return;
+  const origTrack = broadcastScreen.getVideoTracks()[0];
+  if (!origTrack) return;
   
   const pc = peers[sid]._pc;
   if (!pc) return;
   
+  // Clonar el track para este peer en particular
+  const clonedTrack = origTrack.clone();
+  
   const videoSender = pc.getSenders().find(s => s.track?.kind === 'video');
   
   if (videoSender) {
-    videoSender.replaceTrack(track).then(() => {
+    videoSender.replaceTrack(clonedTrack).then(() => {
       applyScreenEncoding(videoSender);
     }).catch(e => {
-      console.warn('replaceTrack falló, intentando addTrack:', e);
-      try { peers[sid].addTrack(track, broadcastScreen); } catch(e2) {}
+      console.warn('replaceTrack falló para', sid, e);
     });
   } else {
     try { 
-      peers[sid].addTrack(track, broadcastScreen); 
-      // After adding, configure encoding on the new sender
+      peers[sid].addTrack(clonedTrack, broadcastScreen); 
       setTimeout(() => {
         const newSender = pc.getSenders().find(s => s.track?.kind === 'video');
         if (newSender) applyScreenEncoding(newSender);
@@ -1382,12 +1420,13 @@ function stopScreenShare() {
   broadcastScreen.getTracks().forEach(t => t.stop());
   broadcastScreen = null; screenOn = false;
 
-  // Remove track from all peers
+  // Detener los tracks clonados de video en cada peer (no bypasear SimplePeer)
   for (const sid in peers) {
     if (!peers[sid]._pc) continue;
     peers[sid]._pc.getSenders().forEach(s => {
       if (s.track?.kind === 'video') {
-        try { peers[sid]._pc.removeTrack(s); } catch(e) {}
+        s.track.stop();
+        s.replaceTrack(null).catch(() => {});
       }
     });
   }
