@@ -687,11 +687,12 @@ let activeNotes = {};
 let sessionStart = Date.now();
 
 // Heartbeat / cleanup
-const TIMEOUT_MS    = 30000;
-const GRACE_MS      = 45000;
-const CLEANUP_DELAY = 8000;
+const TIMEOUT_MS    = 15000;
+const GRACE_MS      = 20000;
+const CLEANUP_DELAY = 3000;
 let pendingCleanup  = {};
 let joinAudio       = null;
+let keepAliveTimers = {};
 
 // ICE servers
 const ICE_SERVERS = [
@@ -830,6 +831,13 @@ function listenStudents() {
       }
     }
 
+    // Detect students that left
+    for (const id in prev) {
+      if (!connectedStudents[id]) {
+        showToast(`${prev[id].name || id} salió de la clase`, 'fas fa-user-minus', 'red');
+      }
+    }
+
     // Cleanup ghosts
     for (const sid in peers) {
       if (!connectedStudents[sid]) {
@@ -848,6 +856,19 @@ function listenStudents() {
     if (session1on1Id && !connectedStudents[session1on1Id]) endSession1on1();
 
     renderStudentsList();
+  });
+
+  // Immediate detection when a student node is removed from Firebase
+  usersRef.on('child_removed', snap => {
+    const removed = snap.val();
+    if (removed && removed.role === 'user') {
+      const sid = removed.id || snap.key;
+      delete connectedStudents[sid];
+      if (peers[sid]) {
+        cleanupPeer(sid);
+      }
+      renderStudentsList();
+    }
   });
 }
 
@@ -977,8 +998,10 @@ function renderStudentsList() {
           : `<button class="s-btn s-btn-1on1" onclick="startSession1on1('${id}')" title="Sesión 1:1"><i class="fas fa-headphones"></i></button>`)
       : '';
 
+    const studentMuted = studentConns[id]?.muted;
     const muteBtn = conn
-      ? `<button class="s-btn s-btn-mute-me" onclick="toggleIncoming('${id}')" title="Silenciar entrada"><i class="fas fa-volume-up" id="vol-ico-${id}"></i></button>`
+      ? `<button class="s-btn s-btn-mute-me" onclick="toggleIncoming('${id}')" title="Silenciar entrada"><i class="fas fa-volume-up" id="vol-ico-${id}"></i></button>
+         ${studentMuted ? '<span style="font-size:10px;color:var(--amber);margin-left:-4px;" title="Alumno muteado"><i class="fas fa-microphone-slash"></i></span>' : ''}`
       : '';
 
     const disconnBtn = conn
@@ -1015,6 +1038,7 @@ function disconnectStudent(studentId) {
 
 function cleanupPeer(studentId) {
   if (pendingCleanup[studentId]) { clearTimeout(pendingCleanup[studentId]); delete pendingCleanup[studentId]; }
+  if (keepAliveTimers[studentId]) { clearInterval(keepAliveTimers[studentId]); delete keepAliveTimers[studentId]; }
   if (peers[studentId]) { peers[studentId].destroy(); delete peers[studentId]; }
   delete studentConns[studentId];
   const el = document.getElementById(`audio-${studentId}`);
@@ -1023,41 +1047,42 @@ function cleanupPeer(studentId) {
 }
 
 function startPeer(targetId, initiator) {
-let streamToSend = localStream;
+  let streamToSend = localStream;
   
   if (broadcastScreen) {
-    // Combinar audio del mic + video de pantalla en un solo stream
     const combinedStream = new MediaStream();
-    
-    // Agregar tracks de audio del micrófono
     if (localStream) {
       localStream.getAudioTracks().forEach(t => combinedStream.addTrack(t));
     }
-    
-    // Agregar track de video de la pantalla
     broadcastScreen.getVideoTracks().forEach(t => combinedStream.addTrack(t));
-    
     streamToSend = combinedStream;
   }
 
-   const peer = new SimplePeer({
+  const peer = new SimplePeer({
     initiator,
-    stream: streamToSend,  // <-- stream ya incluye pantalla si está activa
+    stream: streamToSend,
     trickle: true,
-    config: { iceServers: ICE_SERVERS }
+    config: {
+      iceServers: ICE_SERVERS,
+      iceTransportPolicy: 'all',
+      bundlePolicy: 'max-bundle',
+      rtcpMuxPolicy: 'require'
+    }
   });
 
   peers[targetId] = peer;
-  studentConns[targetId] = { connected: false, name: connectedStudents[targetId]?.name || targetId };
+  studentConns[targetId] = { connected: false, name: connectedStudents[targetId]?.name || targetId, muted: false };
 
   peer._pc.oniceconnectionstatechange = () => {
     const st = peer._pc.iceConnectionState;
     if (st === 'connected' || st === 'completed') {
       studentConns[targetId].connected = true;
-      // Add screen if broadcasting
       if (broadcastScreen) addScreenTrackToPeer(targetId);
+      startKeepAlive(targetId);
       renderStudentsList();
       showToast(`${studentConns[targetId].name} conectado`, 'fas fa-check-circle', 'green');
+    } else if (st === 'disconnected') {
+      showToast(`${studentConns[targetId].name} conexión inestable...`, 'fas fa-exclamation-triangle', 'amber');
     } else if (st === 'failed') {
       studentConns[targetId].connected = false;
       renderStudentsList();
@@ -1065,17 +1090,18 @@ let streamToSend = localStream;
   };
 
   peer.on('signal', data => {
-  signalsRef.push({ 
-    from: myId, 
-    to: targetId, 
-    data,
-    ts: firebase.database.ServerValue.TIMESTAMP  // <-- agregar timestamp
+    signalsRef.push({ 
+      from: myId, 
+      to: targetId, 
+      data,
+      ts: firebase.database.ServerValue.TIMESTAMP
+    });
   });
-});
 
   peer.on('connect', () => {
     studentConns[targetId].connected = true;
     if (broadcastScreen) addScreenTrackToPeer(targetId);
+    startKeepAlive(targetId);
     renderStudentsList();
   });
 
@@ -1087,6 +1113,7 @@ let streamToSend = localStream;
       document.body.appendChild(el);
     }
     el.srcObject = stream;
+    el.play().catch(() => {});
     if (!studentConns[targetId].connected) {
       studentConns[targetId].connected = true;
       renderStudentsList();
@@ -1097,23 +1124,52 @@ let streamToSend = localStream;
     try {
       const msg = JSON.parse(raw.toString());
       if (msg.type === 'chat') {
-        appendChat(studentConns[targetId]?.name || targetId, msg.text, false);
+        const senderName = studentConns[targetId]?.name || targetId;
+        appendChat(senderName, msg.text, false);
+        // Relay to all OTHER peers via data channel (low latency)
+        // Student already pushes to Firebase chatRef, so no need to duplicate
+        const relayPayload = JSON.stringify({ type: 'chat', text: msg.text, sender: senderName });
+        Object.entries(peers).forEach(([sid, p]) => {
+          if (sid !== targetId && p.connected) {
+            try { p.send(relayPayload); } catch(e) {}
+          }
+        });
       } else if (msg.type === 'midi') {
         if (msg.action === 'noteOn') triggerNoteOn(msg.note);
         else triggerNoteOff(msg.note);
+      } else if (msg.type === 'muteState') {
+        studentConns[targetId].muted = msg.muted;
+        renderStudentsList();
+      } else if (msg.type === 'keepalive') {
+        // Student is alive, reset any pending cleanup
+        if (pendingCleanup[targetId]) {
+          clearTimeout(pendingCleanup[targetId]);
+          delete pendingCleanup[targetId];
+        }
       }
     } catch(e) {}
   });
 
   peer.on('close', () => {
     studentConns[targetId] = { connected: false };
+    if (keepAliveTimers[targetId]) { clearInterval(keepAliveTimers[targetId]); delete keepAliveTimers[targetId]; }
     renderStudentsList();
   });
 
   peer.on('error', () => {
     studentConns[targetId] = { connected: false };
+    if (keepAliveTimers[targetId]) { clearInterval(keepAliveTimers[targetId]); delete keepAliveTimers[targetId]; }
     renderStudentsList();
   });
+}
+
+function startKeepAlive(targetId) {
+  if (keepAliveTimers[targetId]) clearInterval(keepAliveTimers[targetId]);
+  keepAliveTimers[targetId] = setInterval(() => {
+    if (peers[targetId] && peers[targetId].connected) {
+      try { peers[targetId].send(JSON.stringify({ type: 'keepalive', ts: Date.now() })); } catch(e) {}
+    }
+  }, 5000);
 }
 
 
@@ -1236,7 +1292,12 @@ async function toggleBroadcastScreen() {
   }
   try {
     const stream = await navigator.mediaDevices.getDisplayMedia({
-      video: { displaySurface: 'window', frameRate: { ideal: 30 } },
+      video: {
+        displaySurface: 'window',
+        frameRate: { ideal: 15, max: 24 },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
       audio: false
     });
     stream.getVideoTracks()[0].onended = stopScreenShare;
@@ -1276,23 +1337,41 @@ function addScreenTrackToPeer(sid) {
   const pc = peers[sid]._pc;
   if (!pc) return;
   
-  // Buscar si ya hay un sender de video para reemplazar
   const videoSender = pc.getSenders().find(s => s.track?.kind === 'video');
   
   if (videoSender) {
-    // Reemplazar track existente (más limpio, no requiere renegociación compleja)
-    videoSender.replaceTrack(track).catch(e => {
+    videoSender.replaceTrack(track).then(() => {
+      applyScreenEncoding(videoSender);
+    }).catch(e => {
       console.warn('replaceTrack falló, intentando addTrack:', e);
       try { peers[sid].addTrack(track, broadcastScreen); } catch(e2) {}
     });
   } else {
-    // No había sender de video, agregar nuevo
     try { 
       peers[sid].addTrack(track, broadcastScreen); 
+      // After adding, configure encoding on the new sender
+      setTimeout(() => {
+        const newSender = pc.getSenders().find(s => s.track?.kind === 'video');
+        if (newSender) applyScreenEncoding(newSender);
+      }, 500);
     } catch(e) {
       console.warn('addTrack falló para', sid, e);
     }
   }
+}
+
+function applyScreenEncoding(sender) {
+  if (!sender || !sender.getParameters) return;
+  try {
+    const params = sender.getParameters();
+    if (!params.encodings || !params.encodings.length) {
+      params.encodings = [{}];
+    }
+    params.encodings[0].maxBitrate = 1500000;
+    params.encodings[0].maxFramerate = 15;
+    params.degradationPreference = 'maintain-resolution';
+    sender.setParameters(params).catch(() => {});
+  } catch(e) {}
 }
 
 function stopScreenShare() {
@@ -1483,8 +1562,9 @@ function undoAnnotation() {
 function loadChatHistory() {
   chatRef.on('child_added', snap => {
     const msg = snap.val();
+    if (!msg || !msg.text) return;
     const isMe = msg.sender === myId;
-    const name = isMe ? 'Tú' : (connectedStudents[msg.sender]?.name || 'Alumno');
+    const name = isMe ? 'Tú' : (msg.senderName || connectedStudents[msg.sender]?.name || 'Alumno');
     appendChat(name, msg.text, isMe);
   });
 }
@@ -1494,14 +1574,21 @@ function sendMessage() {
   const text = inp.value.trim();
   if (!text) return;
   inp.value = '';
-  chatRef.push({ text, sender: myId, ts: firebase.database.ServerValue.TIMESTAMP });
-  // Also send via WebRTC data channel for lower latency
+  chatRef.push({ text, sender: myId, senderName: 'Profesor', ts: firebase.database.ServerValue.TIMESTAMP });
+  const payload = JSON.stringify({ type: 'chat', text, sender: 'Profesor' });
   Object.entries(peers).forEach(([sid, p]) => {
-    if (p.connected) try { p.send(JSON.stringify({ type: 'chat', text })); } catch(e) {}
+    if (p.connected) try { p.send(payload); } catch(e) {}
   });
 }
 
+let recentChatMessages = [];
 function appendChat(sender, text, isMe) {
+  // Deduplication: avoid showing the same message twice (via data channel + Firebase)
+  const msgKey = `${sender}:${text}`;
+  if (recentChatMessages.includes(msgKey)) return;
+  recentChatMessages.push(msgKey);
+  if (recentChatMessages.length > 50) recentChatMessages.shift();
+
   const container = document.getElementById('chat-messages');
   const empty = document.getElementById('chat-empty');
   if (empty) empty.remove();
@@ -1570,7 +1657,6 @@ function handleMIDI(msg) {
   targets.forEach(id => { try { peers[id].send(data); } catch(e) {} });
 }
 
-// Enviar el estado actual del canvas de anotaciones como imagen a todos los alumnos conectados
 function broadcastAnnotationImage(action = 'image') {
   if (!Object.keys(peers).length) return;
 
@@ -1580,8 +1666,7 @@ function broadcastAnnotationImage(action = 'image') {
     const canvas = document.getElementById('annotation-canvas');
     if (!canvas) return;
     try {
-      // Calidad moderada para no saturar el canal de datos
-      payload.dataURL = canvas.toDataURL('image/png', 0.7);
+      payload.dataURL = canvas.toDataURL('image/jpeg', 0.4);
     } catch(e) {
       return;
     }
