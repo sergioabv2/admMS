@@ -452,6 +452,8 @@
     .conn-badge.ok { background: var(--green-soft); color: var(--green); }
     .conn-badge.session { background: var(--red-soft); color: var(--red); }
     .conn-badge.hand { background: var(--amber-soft); color: var(--amber); }
+    .h-btn.grupal-on { background: var(--green); border-color: var(--green); color: #fff; box-shadow: 0 0 14px rgba(22,163,74,0.4); }
+    .ctrl-btn.grupal-on { background: var(--green); border-color: var(--green); color: #fff; box-shadow: 0 0 14px rgba(22,163,74,0.4); }
   </style>
 </head>
 <body>
@@ -482,6 +484,9 @@
     </button>
     <button class="h-btn" id="btn-mic-header" onclick="toggleMic()">
       <i class="fas fa-microphone-slash"></i> Micrófono
+    </button>
+    <button class="h-btn" id="btn-mode-header" onclick="toggleInteractionMode()">
+      <i class="fas fa-headphones"></i> Práctica
     </button>
   </div>
 </header>
@@ -558,6 +563,13 @@
           <i class="fas fa-comments"></i>
         </button>
         <span class="ctrl-label">Chat</span>
+      </div>
+      <div class="ctrl-divider"></div>
+      <div class="ctrl-with-label">
+        <button class="ctrl-btn" id="ctrl-mode" onclick="toggleInteractionMode()" title="Modo de interacción">
+          <i class="fas fa-headphones"></i>
+        </button>
+        <span class="ctrl-label" id="ctrl-mode-label">Práctica</span>
       </div>
     </div>
 
@@ -672,6 +684,14 @@ let screenOn          = false;
 let annotationOn      = false;
 let unreadChat        = 0;
 let activeTab         = 'students';
+let interactionMode   = 'practica'; // 'practica' | 'grupal'
+
+// Audio mixer (grupal mode)
+let audioMixCtx       = null;
+let cachedAudioSources = {};
+let teacherMixSource  = null;
+let activeMixDests    = {};
+let inGrupalAudioMode = false;
 
 // Annotation
 let annCtx, annTool = 'pen', annColor = '#E8391D', annSize = 3;
@@ -727,6 +747,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   usersRef.child(myId).set({ id: myId, role: 'master', name: myName });
   usersRef.child(myId).onDisconnect().remove();
   stateRef.child('selectedStudentId').onDisconnect().set(null);
+  stateRef.child('interactionMode').set('practica');
+  stateRef.child('interactionMode').onDisconnect().set('practica');
 
   // Listeners
   listenStudents();
@@ -953,7 +975,15 @@ function listenState() {
   stateRef.child('selectedStudentId').on('value', snap => {
     session1on1Id = snap.val() || null;
     updateSession1on1UI();
+    applyAudioRouting();
     renderStudentsList();
+  });
+  stateRef.child('interactionMode').on('value', snap => {
+    const mode = snap.val();
+    if (mode && (mode === 'grupal' || mode === 'practica')) {
+      interactionMode = mode;
+      updateModeUI();
+    }
   });
 }
 
@@ -1056,6 +1086,13 @@ function cleanupPeer(studentId) {
   delete studentConns[studentId];
   const el = document.getElementById(`audio-${studentId}`);
   if (el) el.remove();
+  if (cachedAudioSources[studentId]) {
+    try { cachedAudioSources[studentId].disconnect(); } catch(e) {}
+    delete cachedAudioSources[studentId];
+  }
+  if (inGrupalAudioMode) {
+    setTimeout(() => applyAudioRouting(), 300);
+  }
   if (session1on1Id === studentId) endSession1on1();
 }
 
@@ -1148,6 +1185,9 @@ function startPeer(targetId, initiator) {
       studentConns[targetId].connected = true;
       renderStudentsList();
     }
+    if (interactionMode === 'grupal' && !session1on1Id) {
+      setTimeout(() => applyAudioRouting(), 600);
+    }
   });
 
   peer.on('data', raw => {
@@ -1165,6 +1205,14 @@ function startPeer(targetId, initiator) {
       } else if (msg.type === 'midi') {
         if (msg.action === 'noteOn') triggerNoteOn(msg.note);
         else triggerNoteOff(msg.note);
+        if (interactionMode === 'grupal' && !session1on1Id) {
+          const relay = JSON.stringify(msg);
+          Object.entries(peers).forEach(([sid, p]) => {
+            if (sid !== targetId && p.connected) {
+              try { p.send(relay); } catch(e) {}
+            }
+          });
+        }
       } else if (msg.type === 'muteState') {
         studentConns[targetId].muted = msg.muted;
         renderStudentsList();
@@ -1255,7 +1303,7 @@ function startSession1on1(studentId) {
   stateRef.child('selectedStudentId').set(studentId);
   session1on1Id = studentId;
   updateSession1on1UI();
-  updateMicRouting();
+  applyAudioRouting();
   renderStudentsList();
 }
 
@@ -1263,7 +1311,7 @@ function endSession1on1() {
   stateRef.child('selectedStudentId').set(null);
   session1on1Id = null;
   updateSession1on1UI();
-  updateMicRouting();
+  applyAudioRouting();
   renderStudentsList();
 }
 
@@ -1278,16 +1326,148 @@ function updateSession1on1UI() {
   }
 }
 
-function updateMicRouting() {
+// ═══════════════════════════════════════════
+// INTERACTION MODE & AUDIO ROUTING
+// ═══════════════════════════════════════════
+function toggleInteractionMode() {
+  interactionMode = interactionMode === 'practica' ? 'grupal' : 'practica';
+  stateRef.child('interactionMode').set(interactionMode);
+  updateModeUI();
+  applyAudioRouting();
+  showToast(
+    interactionMode === 'grupal'
+      ? 'Modo Grupal: todos escuchan a todos'
+      : 'Modo Práctica: alumnos practican individualmente',
+    interactionMode === 'grupal' ? 'fas fa-users' : 'fas fa-headphones',
+    interactionMode === 'grupal' ? 'green' : ''
+  );
+}
+
+function updateModeUI() {
+  const isGrupal = interactionMode === 'grupal';
+  const headerBtn = document.getElementById('btn-mode-header');
+  if (headerBtn) {
+    headerBtn.classList.toggle('grupal-on', isGrupal);
+    headerBtn.querySelector('i').className = isGrupal ? 'fas fa-users' : 'fas fa-headphones';
+    const textNode = headerBtn.childNodes[headerBtn.childNodes.length - 1];
+    if (textNode) textNode.textContent = isGrupal ? ' Grupal' : ' Práctica';
+  }
+  const ctrlBtn = document.getElementById('ctrl-mode');
+  if (ctrlBtn) {
+    ctrlBtn.classList.toggle('grupal-on', isGrupal);
+    ctrlBtn.querySelector('i').className = isGrupal ? 'fas fa-users' : 'fas fa-headphones';
+  }
+  const ctrlLabel = document.getElementById('ctrl-mode-label');
+  if (ctrlLabel) ctrlLabel.textContent = isGrupal ? 'Grupal' : 'Práctica';
+}
+
+function applyAudioRouting() {
+  if (interactionMode === 'grupal' && !session1on1Id) {
+    buildGrupalMixes();
+  } else {
+    if (inGrupalAudioMode) teardownGrupalMixes();
+    applySimpleRouting();
+  }
+}
+
+function applySimpleRouting() {
   if (!localStream) return;
-  localStream.getAudioTracks().forEach(t => t.enabled = micOn);
-  // Con tracks clonados, debemos actualizar cada peer sender también
+  const micTrack = localStream.getAudioTracks()[0];
+
   for (const sid in peers) {
     if (!peers[sid]?._pc) continue;
-    peers[sid]._pc.getSenders().forEach(s => {
-      if (s.track?.kind === 'audio') s.track.enabled = micOn;
-    });
+    const shouldSend = micOn && (!session1on1Id || sid === session1on1Id);
+    const audioSender = peers[sid]._pc.getSenders().find(s => s.track?.kind === 'audio');
+    if (!audioSender) continue;
+
+    if (inGrupalAudioMode && micTrack) {
+      const clone = micTrack.clone();
+      clone.enabled = shouldSend;
+      audioSender.replaceTrack(clone).catch(() => {});
+    } else if (audioSender.track) {
+      audioSender.track.enabled = shouldSend;
+    }
   }
+  inGrupalAudioMode = false;
+}
+
+function buildGrupalMixes() {
+  if (!audioMixCtx || audioMixCtx.state === 'closed') {
+    audioMixCtx = new (window.AudioContext || window.webkitAudioContext)();
+    teacherMixSource = null;
+    cachedAudioSources = {};
+  }
+
+  // Disconnect previous connections (not the nodes themselves)
+  if (teacherMixSource) try { teacherMixSource.disconnect(); } catch(e) {}
+  for (const sid in cachedAudioSources) {
+    try { cachedAudioSources[sid].disconnect(); } catch(e) {}
+  }
+  activeMixDests = {};
+
+  // Ensure teacher mic source node
+  if (localStream && !teacherMixSource) {
+    try { teacherMixSource = audioMixCtx.createMediaStreamSource(localStream); } catch(e) {}
+  }
+
+  const connectedSids = Object.keys(peers).filter(sid => studentConns[sid]?.connected);
+
+  // Ensure student audio source nodes
+  for (const sid of connectedSids) {
+    if (!cachedAudioSources[sid]) {
+      const el = document.getElementById(`audio-${sid}`);
+      if (el?.srcObject) {
+        try { cachedAudioSources[sid] = audioMixCtx.createMediaStreamSource(el.srcObject); } catch(e) {}
+      }
+    }
+  }
+
+  // Remove sources for disconnected students
+  for (const sid in cachedAudioSources) {
+    if (!connectedSids.includes(sid)) {
+      try { cachedAudioSources[sid].disconnect(); } catch(e) {}
+      delete cachedAudioSources[sid];
+    }
+  }
+
+  // Build per-student mix: teacher + all other students (excluding self)
+  for (const targetSid of connectedSids) {
+    const dest = audioMixCtx.createMediaStreamDestination();
+    activeMixDests[targetSid] = dest;
+
+    if (teacherMixSource && micOn) {
+      teacherMixSource.connect(dest);
+    }
+
+    for (const otherSid of connectedSids) {
+      if (otherSid === targetSid) continue;
+      if (cachedAudioSources[otherSid]) {
+        cachedAudioSources[otherSid].connect(dest);
+      }
+    }
+
+    const mixTrack = dest.stream.getAudioTracks()[0];
+    if (mixTrack && peers[targetSid]?._pc) {
+      const sender = peers[targetSid]._pc.getSenders().find(s => s.track?.kind === 'audio');
+      if (sender) sender.replaceTrack(mixTrack).catch(() => {});
+    }
+  }
+
+  inGrupalAudioMode = true;
+}
+
+function teardownGrupalMixes() {
+  if (teacherMixSource) {
+    try { teacherMixSource.disconnect(); } catch(e) {}
+  }
+  for (const sid in cachedAudioSources) {
+    try { cachedAudioSources[sid].disconnect(); } catch(e) {}
+  }
+  activeMixDests = {};
+}
+
+function updateMicRouting() {
+  applyAudioRouting();
 }
 
 // ═══════════════════════════════════════════
@@ -1297,12 +1477,16 @@ function toggleMic() {
   micOn = !micOn;
   if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = micOn);
 
-  // Actualizar los tracks clonados en todos los peers
-  for (const sid in peers) {
-    if (!peers[sid]?._pc) continue;
-    peers[sid]._pc.getSenders().forEach(s => {
-      if (s.track?.kind === 'audio') s.track.enabled = micOn;
-    });
+  // In grupal mode the localStream track change propagates through AudioContext automatically.
+  // In simple mode we must update each peer sender track.
+  if (!(interactionMode === 'grupal' && !session1on1Id && inGrupalAudioMode)) {
+    for (const sid in peers) {
+      if (!peers[sid]?._pc) continue;
+      const shouldSend = micOn && (!session1on1Id || sid === session1on1Id);
+      peers[sid]._pc.getSenders().forEach(s => {
+        if (s.track?.kind === 'audio') s.track.enabled = shouldSend;
+      });
+    }
   }
 
   const icons = ['ctrl-mic', 'btn-mic-header'];
